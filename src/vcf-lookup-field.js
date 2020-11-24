@@ -66,10 +66,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         <vaadin-button theme="icon" on-click="__open">
           <iron-icon icon="vaadin:search"></iron-icon>
         </vaadin-button>
-        <vaadin-dialog aria-label="lookup-grid" id="dialog" theme="lookup-dialog">
+        <vaadin-dialog aria-label="lookup-grid" id="dialog" theme="lookup-dialog" modeless$="[[modeless]]">
           <slot name="grid">
-            <vaadin-grid id="grid" items="{{items}}" item-id-path="{{itemValuePath}}">
-              <vaadin-grid-filter path="{{itemLabelPath}}" value="[[_filterData]]"></vaadin-grid-filter>
+            <vaadin-grid id="grid" items="[[filterItems(items, _filterdata)]]">
               <vaadin-grid-column path="name" path="{{itemLabelPath}}"></vaadin-grid-column>
             </vaadin-grid>
           </slot>
@@ -195,7 +194,15 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.$server.filterGrid(this.$.filter.value);
     } else {
       // todo jcg
-      this._filterData = this.$.filter.value;
+      this._filterdata = this.$.filter.value;
+    }
+  }
+
+  filterItems(items, filterData) {
+    if (items) {
+      return items.filter(item => this._getItemLabel(item.toLowerCase()).includes(filterData.toLowerCase()));
+    } else {
+      return [];
     }
   }
 
@@ -226,21 +233,21 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     this.$.dialog.opened = false;
   }
 
-  _getItemValue(item) {
-    let value = item && this.itemValuePath ? this.get(this.itemValuePath, item) : undefined;
-    if (value === undefined) {
-      value = item ? item.toString() : '';
+  _getItemLabel(item) {
+    let label = item && this.itemLabelPath ? this.get(this.itemLabelPath, item) : undefined;
+    if (label === undefined) {
+      label = item ? item.toString() : '';
     }
-    return value;
+    return label;
   }
 
   _itemsChanged() {
     if (this._field) {
       this._field.items = this.items;
     }
-    if (this._grid) {
+    /* if (this._grid) {
       this._grid.items = this.items;
-    }
+    }*/
   }
 
   static get is() {
@@ -266,6 +273,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         observer: '_itemsChanged'
       },
 
+      _filterdata: {
+        type: String
+      },
       /**
        * Path for label of the item. If `items` is an array of objects, the
        * `itemLabelPath` is used to fetch the displayed string label for each
@@ -297,7 +307,12 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       itemValuePath: {
         type: String,
         value: 'value'
-      }
+      },
+
+      /**
+       * @type {Boolean}
+       */
+      modeless: Boolean
     };
   }
 }
