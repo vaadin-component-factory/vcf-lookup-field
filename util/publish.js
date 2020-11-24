@@ -1,1 +1,1 @@
-require('@vaadin-component-factory/vcf-element-util').publish('vcf-element', __dirname);
+require('@vaadin-component-factory/vcf-element-util').publish('vcf-lookup-field', __dirname);
