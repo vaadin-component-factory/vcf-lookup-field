@@ -7,6 +7,7 @@ import '@vaadin/vaadin-combo-box';
 import '@vaadin/vaadin-text-field';
 import '@vaadin/vaadin-dialog';
 import '@vaadin/vaadin-grid';
+import '@vaadin/vaadin-grid/vaadin-grid-filter';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-icons';
 
@@ -53,14 +54,24 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       </style>
       <div class="root">
         <slot name="field">
-          <vaadin-combo-box id="field" clear-button-visible allow-custom-value></vaadin-combo-box>
+          <vaadin-combo-box
+            id="field"
+            clear-button-visible
+            allow-custom-value
+            items="{{items}}"
+            item-label-path="{{itemLabelPath}}"
+            item-value-path="{{itemValuePath}}"
+          ></vaadin-combo-box>
         </slot>
         <vaadin-button theme="icon" on-click="__open">
           <iron-icon icon="vaadin:search"></iron-icon>
         </vaadin-button>
         <vaadin-dialog aria-label="lookup-grid" id="dialog" theme="lookup-dialog">
           <slot name="grid">
-            <vaadin-grid id="grid"></vaadin-grid>
+            <vaadin-grid id="grid" items="{{items}}" item-id-path="{{itemValuePath}}">
+              <vaadin-grid-filter path="{{itemLabelPath}}" value="[[_filterData]]"></vaadin-grid-filter>
+              <vaadin-grid-column path="name" path="{{itemLabelPath}}"></vaadin-grid-column>
+            </vaadin-grid>
           </slot>
           <div id="dialogcontent" class="lookup-field-dialog-content">
             <section style="display: flex; flex-direction: column;">
@@ -111,9 +122,26 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     super.ready();
     this._grid = this.$.grid;
     this._field = this.$.field;
-
     const that = this;
 
+    if (this.$.grid) {
+      this.$.grid.addEventListener('active-item-changed', e => {
+        const item = e.detail.value;
+        if (item) {
+          that.$.selectbtn.removeAttribute('disabled');
+        } else {
+          that.$.selectbtn.setAttribute('disabled', 'disabled');
+        }
+        that._grid.selectedItems = item ? [item] : [];
+        that._gridSelectedItem = item;
+      });
+    }
+
+    if (this.$.field) {
+      this.$.field.addEventListener('filter-changed', function(e) {
+        that._filterValue = e.detail.value;
+      });
+    }
     /**
      * fill the dialog content with the grid in the slot
      */
@@ -142,7 +170,6 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     nodes.forEach(node => {
       if (node.getAttribute) {
         if (node.getAttribute('slot') == 'grid') {
-          // Force to remove listener on previous grid first
           this._grid = node;
           this._grid.addEventListener('active-item-changed', e => {
             const item = e.detail.value;
@@ -168,25 +195,21 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.$server.filterGrid(this.$.filter.value);
     } else {
       // todo jcg
+      this._filterData = this.$.filter.value;
     }
   }
 
   /** @private */
   __open() {
     this.$.dialog.opened = true;
-    this.$.filter.value = this._field.$.input.value;
+    this.$.filter.value = this._field.inputElement.value;
     if (this.$server) {
       this.$server.copyFieldValueToGrid();
     } else {
-      // todo
+      const item = this._field.selectedItem;
+      this._grid.selectedItems = item ? [item] : [];
+      this._gridSelectedItem = item;
     }
-    /* if (this._field.value) {
-            // select the item
-            this._grid.select(this._field.value);
-        } else {
-            // unselect the element
-            this._grid.selectedItems = [];
-        }*/
   }
   /** @private */
   __close() {
@@ -197,15 +220,27 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.$server) {
       this.$server.copyFieldValueFromGrid();
     } else {
-      this._field.value = this._gridSelectedItem;
+      this._field.selectedItem = this._gridSelectedItem;
     }
 
     this.$.dialog.opened = false;
   }
 
+  _getItemValue(item) {
+    let value = item && this.itemValuePath ? this.get(this.itemValuePath, item) : undefined;
+    if (value === undefined) {
+      value = item ? item.toString() : '';
+    }
+    return value;
+  }
+
   _itemsChanged() {
-    this._field.items = this.items;
-    this._grid.items = this.items;
+    if (this._field) {
+      this._field.items = this.items;
+    }
+    if (this._grid) {
+      this._grid.items = this.items;
+    }
   }
 
   static get is() {
@@ -229,6 +264,39 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       items: {
         type: Array,
         observer: '_itemsChanged'
+      },
+
+      /**
+       * Path for label of the item. If `items` is an array of objects, the
+       * `itemLabelPath` is used to fetch the displayed string label for each
+       * item.
+       *
+       * The item label is also used for matching items when processing user
+       * input, i.e., for filtering and selecting items.
+       *
+       * When using item templates, the property is still needed because it is used
+       * for filtering, and for displaying the selected item value in the input box.
+       * @attr {string} item-label-path
+       * @type {string}
+       */
+      itemLabelPath: {
+        type: String,
+        value: 'label'
+      },
+
+      /**
+       * Path for the value of the item. If `items` is an array of objects, the
+       * `itemValuePath:` is used to fetch the string value for the selected
+       * item.
+       *
+       * The item value is used in the `value` property of the combo box,
+       * to provide the form value.
+       * @attr {string} item-value-path
+       * @type {string}
+       */
+      itemValuePath: {
+        type: String,
+        value: 'value'
       }
     };
   }

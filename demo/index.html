@@ -180,11 +180,19 @@
         <h2 slot="header">Example 1</h2>
         <demo-snippet>
           <template>
-            <vcf-lookup-field></vcf-lookup-field>
+            <vcf-lookup-field>
+            </vcf-lookup-field>
             <script>
               window.addEventListener('WebComponentsReady', () => {
                 const lookupField = document.querySelectorAll('vcf-lookup-field');
-                lookupField[0].items = ['Option one', 'Option two'];
+                lookupField[0].items = [
+                                        {id: '1', name: 'Product'},
+                                        {id: '2', name: 'Service'},
+                                        {id: '3', name: 'HR'},
+                                        {id: '4', name: 'Accounting'}
+                                      ];
+                lookupField[0].itemValuePath = 'id';
+                lookupField[0].itemLabelPath = 'name';
               });
             </script>
           </template>
@@ -194,23 +202,22 @@
         <h2 slot="header">Example 2</h2>
         <demo-snippet>
           <template>
-            <vcf-lookup-field></vcf-lookup-field>
+            <vcf-lookup-field>
+              <vaadin-combo-box slot="field" clear-button-visible allow-custom-value item-label-path="id"  item-value-path="name"></vaadin-combo-box>
+                <vaadin-grid slot="grid">
+                  <vaadin-grid-column path="id" header="ID"></vaadin-grid-column>
+                  <vaadin-grid-column path="name" header="Name"></vaadin-grid-column>
+                </vaadin-grid>
+            </vcf-lookup-field>
             <script>
               window.addEventListener('WebComponentsReady', () => {
-                // Example 2
-              });
-            </script>
-          </template>
-        </demo-snippet>
-      </vcf-anchor-nav-section>
-      <vcf-anchor-nav-section name="Example 3">
-        <h2 slot="header">Example 3</h2>
-        <demo-snippet>
-          <template>
-            <vcf-lookup-field></vcf-lookup-field>
-            <script>
-              window.addEventListener('WebComponentsReady', () => {
-                // Example 3
+                const lookupField = document.querySelectorAll('vcf-lookup-field');
+                lookupField[0].items = [
+                                        {id: '1', name: 'Product'},
+                                        {id: '2', name: 'Service'},
+                                        {id: '3', name: 'HR'},
+                                        {id: '4', name: 'Accounting'}
+                                      ];
               });
             </script>
           </template>
