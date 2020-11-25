@@ -1,8 +1,8 @@
 {
   "name": "@vaadin-component-factory/vcf-lookup-field",
   "version": "1.0.0",
-  "description": "[element-description]",
-  "main": "src/vcf-lookup-field.js",
+  "description": "Vaadin Lookup field component",
+  "main": "theme/lumo/vcf-lookup-field.js",
   "author": "Vaadin Ltd",
   "license": "https://raw.githubusercontent.com/vaadin-component-factory/vcf-lookup-field/master/LICENSE",
   "repository": {
@@ -101,7 +101,8 @@
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
   },
   "files": [
-    "src"
+    "src",
+    "theme"
   ],
   "homepage": "https://github.com/vaadin-component-factory/vcf-lookup-field#readme",
   "directories": {

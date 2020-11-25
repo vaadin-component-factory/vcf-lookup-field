@@ -86,7 +86,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           resizable$="[[resizable]]"
         >
           <header id="dialogheader" slot="header" class="draggable">
-            [[i18n.titleprefix]] {{title}} [[i18n.titlepostfix]]
+            [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
           </header>
           <footer id="dialogfooter" slot="footer">
             <vaadin-button
@@ -158,7 +158,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (root.firstElementChild) {
         return;
       }
-      if (that.title) {
+      if (that.header) {
         root.appendChild(that.$.dialogheader);
       }
       root.appendChild(that.$.dialogmain);
@@ -276,7 +276,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   static get properties() {
     return {
-      title: {
+      header: {
         type: String
       },
       /**
@@ -370,8 +370,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             cancel: 'Cancel',
             search: 'Search',
             searcharialabel: 'Click to open the search dialog',
-            titleprefix: 'Open',
-            titlepostfix: 'dialog'
+            headerprefix: 'Open',
+            headerpostfix: 'dialog'
           };
         }
       }
