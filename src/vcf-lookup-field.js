@@ -370,8 +370,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             cancel: 'Cancel',
             search: 'Search',
             searcharialabel: 'Click to open the search dialog',
-            headerprefix: 'Open',
-            headerpostfix: 'dialog'
+            headerprefix: '',
+            headerpostfix: ''
           };
         }
       }

@@ -9,12 +9,7 @@ registerStyles(
     :host([theme~="lookup-dialog"]) [part="content"] {
         min-width: 400px;
     }
-
-    :host([theme~="lookup-dialog"])  [part="footer"] {
-      background-color: var(--_lumo-button-background-color, var(--lumo-contrast-5pct));
-    }
-  `,
-  { include: ['lumo-overlay'] }
+  `
 );
 
 
