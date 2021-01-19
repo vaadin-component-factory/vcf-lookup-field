@@ -85,10 +85,10 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           draggable$="[[draggable]]"
           resizable$="[[resizable]]"
         >
-          <header id="dialogheader" slot="header" class="draggable">
+          <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header">
             [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
           </header>
-          <footer id="dialogfooter" slot="footer">
+          <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer">
             <vaadin-button
               id="selectbtn"
               theme="primary"
@@ -103,7 +103,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
               [[i18n.cancel]]
             </vaadin-button>
           </footer>
-          <div id="dialogmain">
+          <div id="dialogmain" class="enhanced-dialog-content">
             <vaadin-text-field
               class="lookup-field-filter"
               style="width:100%;"
