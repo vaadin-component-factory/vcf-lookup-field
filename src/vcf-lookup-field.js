@@ -86,7 +86,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           resizable$="[[resizable]]"
         >
           <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header">
-            [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
+            <slot name="dialog-header">
+              [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
+            </slot>
           </header>
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer">
             <vaadin-button
@@ -158,12 +160,25 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (root.firstElementChild) {
         return;
       }
-      if (that.header) {
+      if (that._dialogHeader) {
+        root.appendChild(that.$.dialogheader);
+        while (that.$.dialogheader.firstChild) {
+          that.$.dialogheader.removeChild(that.$.dialogheader.lastChild);
+        }
+        that.$.dialogheader.appendChild(that._dialogHeader);
+      } else if (that.header) {
         root.appendChild(that.$.dialogheader);
       }
       root.appendChild(that.$.dialogmain);
       that.$.dialogmain.appendChild(that._grid);
+
       root.appendChild(that.$.dialogfooter);
+      if (that._dialogFooter) {
+        while (that.$.dialogfooter.firstChild) {
+          that.$.dialogfooter.removeChild(that.$.dialogfooter.lastChild);
+        }
+        that.$.dialogfooter.appendChild(that._dialogFooter);
+      }
     };
   }
   __opendialog() {
@@ -196,6 +211,10 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           this._field.addEventListener('filter-changed', function(e) {
             that._filterValue = e.detail.value;
           });
+        } else if (node.getAttribute('slot') == 'dialog-header') {
+          this._dialogHeader = node;
+        } else if (node.getAttribute('slot') == 'dialog-footer') {
+          this._dialogFooter = node;
         }
       }
     });
@@ -271,7 +290,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.7';
+    return '1.0.8';
   }
 
   static get properties() {
