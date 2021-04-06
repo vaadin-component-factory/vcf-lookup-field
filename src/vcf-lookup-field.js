@@ -331,7 +331,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.0.8';
+    return '1.1.0';
   }
 
   static get properties() {
