@@ -10,6 +10,7 @@ import '@vaadin/vaadin-grid';
 import '@vaadin/vaadin-grid/vaadin-grid-filter';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-icons';
+import '@vaadin/vaadin-notification/vaadin-notification';
 /**
  * `<vcf-lookup-field>` [element-description]
  *
@@ -69,6 +70,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         </slot>
 
         <vaadin-button
+          id="searchButton"
           class="search-button"
           theme="icon"
           on-click="__open"
@@ -94,8 +96,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             <vaadin-button
               id="selectbtn"
               theme="primary"
-              disabled
-              aria-disabled="true"
+              disabled$="[[selectdisabled]]"
+              aria-disabled$="[[selectdisabled]]"
               role="button"
               on-click="__select"
             >
@@ -107,6 +109,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           </footer>
           <div id="dialogmain" class="enhanced-dialog-content">
             <vaadin-text-field
+              id="lookupFieldFilter"
               class="lookup-field-filter"
               style="width:100%;"
               tabindex="0"
@@ -124,6 +127,13 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             <vaadin-grid-column path="name" path="{{itemLabelPath}}"></vaadin-grid-column>
           </vaadin-grid>
         </slot>
+        <vaadin-notification id="notification" position="top-center">
+          <template>
+            <div>
+              [[i18n.emptyselection]]
+            </div>
+          </template></vaadin-notification
+        >
       </div>
     `;
   }
@@ -187,9 +197,11 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   __onSelectItem(event) {
     const item = event.detail.value;
     if (item) {
-      this.$.selectbtn.removeAttribute('disabled');
+      // this.$.selectbtn.removeAttribute('disabled');
+      this.programselectdisabled = false;
     } else {
-      this.$.selectbtn.setAttribute('disabled', 'disabled');
+      this.programselectdisabled = true;
+      // this.$.selectbtn.setAttribute('disabled', 'disabled');
     }
     this._grid.selectedItems = item ? [item] : [];
     this._gridSelectedItem = item;
@@ -220,6 +232,10 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     });
   }
 
+  computeselectdisabled(defaultselectdisabled, programselectdisabled) {
+    return defaultselectdisabled && programselectdisabled;
+  }
+
   __filterGrid(event) {
     if (this.$server) {
       this.$server.filterGrid(event.detail.value);
@@ -241,6 +257,11 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   /** @private */
   __open() {
     this.$.dialog.opened = true;
+    setTimeout(() => {
+      this.$.lookupFieldFilter.setAttribute('focus-ring', true);
+      this.$.lookupFieldFilter.focus();
+    }, 10);
+
     this._filterdata = this._field.inputElement.value;
     if (this.$server) {
       this.$server.copyFieldValueToGrid();
@@ -250,25 +271,45 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       this._grid.selectedItems = item ? [item] : [];
       this._gridSelectedItem = item;
       if (item) {
-        this.$.selectbtn.removeAttribute('disabled');
+        // this.$.selectbtn.removeAttribute('disabled');
+        this.programselectdisabled = false;
       } else {
-        this.$.selectbtn.setAttribute('disabled', 'disabled');
+        this.programselectdisabled = true;
+        // this.$.selectbtn.setAttribute('disabled', 'disabled');
       }
     }
   }
   /** @private */
   __close() {
     this.$.dialog.opened = false;
+
+    setTimeout(() => {
+      this.$.searchButton.focus();
+      this.$.searchButton.setAttribute('focus-ring', true);
+    }, 10);
   }
   /** @private */
   __select() {
-    if (this.$server) {
-      this.$server.copyFieldValueFromGrid();
+    if (this.programselectdisabled) {
+      if (this.$server) {
+        this.$server.openErrorNotification();
+      } else {
+        this.$.notification.open();
+      }
     } else {
-      this._field.selectedItem = this._gridSelectedItem;
-    }
+      if (this.$server) {
+        this.$server.copyFieldValueFromGrid();
+      } else {
+        this._field.selectedItem = this._gridSelectedItem;
+      }
 
-    this.$.dialog.opened = false;
+      this.$.dialog.opened = false;
+
+      setTimeout(() => {
+        this.$.searchButton.setAttribute('focus-ring', true);
+        this.$.searchButton.focus();
+      }, 10);
+    }
   }
 
   _getItemLabel(item) {
@@ -360,6 +401,25 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       /**
        * @type {Boolean}
        */
+      defaultselectdisabled: {
+        type: Boolean,
+        value: true
+      },
+
+      /**
+       * @type {Boolean}
+       */
+      programselectdisabled: {
+        type: Boolean,
+        value: true
+      },
+      selectdisabled: {
+        type: Boolean,
+        computed: 'computeselectdisabled(defaultselectdisabled, programselectdisabled)'
+      },
+      /**
+       * @type {Boolean}
+       */
       required: Boolean,
 
       /**
@@ -390,7 +450,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             search: 'Search',
             searcharialabel: 'Click to open the search dialog',
             headerprefix: '',
-            headerpostfix: ''
+            headerpostfix: '',
+            emptyselection: 'Please select an item.'
           };
         }
       }

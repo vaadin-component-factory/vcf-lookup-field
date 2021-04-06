@@ -189,10 +189,10 @@
                                         {id: '1', name: 'Product'},
                                         {id: '2', name: 'Service'},
                                         {id: '3', name: 'HR'},
-                                        {id: '4', name: 'Accounting'}
+                                        {id: '4', name: 'Accounting1'}
                                       ];
-                lookupField[0].itemValuePath = 'id';
-                lookupField[0].itemLabelPath = 'name';
+              lookupField[0].itemValuePath = 'id';
+              lookupField[0].itemLabelPath = 'name';
               });
             </script>
           </template>
@@ -203,7 +203,7 @@
         <demo-snippet>
           <template>
             <vcf-lookup-field title="users" modeless draggable resizable>
-              <vaadin-combo-box slot="field" clear-button-visible allow-custom-value item-label-path="id"  item-value-path="name"></vaadin-combo-box>
+              <vaadin-combo-box slot="field" clear-button-visible allow-custom-value item-label-path="name"  item-value-path="id"></vaadin-combo-box>
                 <vaadin-grid slot="grid">
                   <vaadin-grid-column path="id" header="ID"></vaadin-grid-column>
                   <vaadin-grid-column path="name" header="Name"></vaadin-grid-column>
@@ -212,12 +212,35 @@
             <script>
               window.addEventListener('WebComponentsReady', () => {
                 const lookupField = document.querySelectorAll('vcf-lookup-field');
-                lookupField[0].items = [
+                lookupField[1].items = [
                                         {id: '1', name: 'Product'},
                                         {id: '2', name: 'Service'},
                                         {id: '3', name: 'HR'},
-                                        {id: '4', name: 'Accounting'}
+                                        {id: '4', name: 'Accounting2'}
                                       ];
+              });
+            </script>
+          </template>
+        </demo-snippet>
+      </vcf-anchor-nav-section>
+      <vcf-anchor-nav-section name="Example 3">
+        <h2 slot="header">Example 3</h2>
+        <demo-snippet>
+          <template>
+            <vcf-lookup-field title="users" modeless draggable resizable>
+              <vaadin-combo-box slot="field" clear-button-visible allow-custom-value item-label-path="name"  item-value-path="id"></vaadin-combo-box>
+            </vcf-lookup-field>
+            <script>
+              window.addEventListener('WebComponentsReady', () => {
+                const lookupField = document.querySelectorAll('vcf-lookup-field');
+                debugger;
+                lookupField[2].items = [
+                  {id: '1', name: 'Product'},
+                  {id: '2', name: 'Service'},
+                  {id: '3', name: 'HR'},
+                  {id: '4', name: 'Accounting33'}
+                ];
+                lookupField[2].defaultselectdisabled = false;
               });
             </script>
           </template>
