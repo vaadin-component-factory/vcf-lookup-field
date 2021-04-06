@@ -42,23 +42,15 @@ Add `<vcf-lookup-field>` element to the page.
 
 1. Fork the `vcf-lookup-field` repository and clone it locally.
 
-1. Make sure you have [npm](https://www.npmjs.com/) installed.
+2. Make sure you have [npm](https://www.npmjs.com/) installed.
 
-1. When in the `vcf-lookup-field` directory, run `npm install` to install dependencies.
+3. When in the `vcf-lookup-field` directory, run `npm install` to install dependencies.
 
-1. Run `npm start` to open the demo.
+4. Run `npm start` to open the demo.
 
-<!--
-## Server-side API
+## Publishing
 
-This is the client-side (Polymer 3) web component. If you are looking for the server-side (Java) API for the Vaadin Platform, it can be found here: [VcfLookupField](https://vaadin.com/directory/component/VcfLookupField)
--->
-
-<!--
-## Vaadin Pro
-
-This component is available in the Vaadin Pro subscription. It is still open source, but you need to have a valid CVAL license in order to use it. Read more at: [Pricing](https://vaadin.com/pricing)
--->
+To publish a new version run: `npm run publish x.x.x` with a account on npm that can update this component.
 
 ## License
 
