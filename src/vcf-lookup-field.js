@@ -190,6 +190,15 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         that.$.dialogfooter.appendChild(that._dialogFooter);
       }
     };
+    this.$.dialog.addEventListener('opened-changed', e => {
+      // dialog close
+      if (!e.detail.value) {
+        setTimeout(() => {
+          this.$.searchButton.focus();
+          this.$.searchButton.setAttribute('focus-ring', true);
+        }, 10);
+      }
+    });
   }
   __opendialog() {
     this.$.basic.opened = true;
@@ -282,11 +291,6 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   /** @private */
   __close() {
     this.$.dialog.opened = false;
-
-    setTimeout(() => {
-      this.$.searchButton.focus();
-      this.$.searchButton.setAttribute('focus-ring', true);
-    }, 10);
   }
   /** @private */
   __select() {
@@ -304,11 +308,6 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
 
       this.$.dialog.opened = false;
-
-      setTimeout(() => {
-        this.$.searchButton.setAttribute('focus-ring', true);
-        this.$.searchButton.focus();
-      }, 10);
     }
   }
 
@@ -331,7 +330,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.1.0';
+    return '1.1.1';
   }
 
   static get properties() {
