@@ -210,7 +210,6 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.programselectdisabled = false;
     } else {
       this.programselectdisabled = true;
-      // this.$.selectbtn.setAttribute('disabled', 'disabled');
     }
     this._grid.selectedItems = item ? [item] : [];
     this._gridSelectedItem = item;
