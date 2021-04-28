@@ -200,6 +200,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       }
     });
   }
+
   __opendialog() {
     this.$.basic.opened = true;
   }
@@ -248,6 +249,10 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   __filterGrid(event) {
     if (this.$server) {
       this.$server.filterGrid(event.detail.value);
+    } else {
+      if (this._grid) {
+        this._grid.items = this.filterItems(this.items, event.detail.value);
+      }
     }
   }
 
@@ -312,7 +317,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   _getItemLabel(item) {
-    let label = item && this.itemLabelPath ? this.get(this.itemLabelPath, item) : undefined;
+    const itemLabelPath = this._field.itemLabelPath;
+    let label = item && itemLabelPath ? this.get(itemLabelPath, item) : undefined;
     if (label === undefined) {
       label = item ? item.toString() : '';
     }
@@ -330,7 +336,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.1.1';
+    return '1.1.2';
   }
 
   static get properties() {

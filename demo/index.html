@@ -218,6 +218,8 @@
                                         {id: '3', name: 'HR'},
                                         {id: '4', name: 'Accounting2'}
                                       ];
+                const grids = document.querySelectorAll('vaadin-grid');
+                grids[0].items = lookupField[1].items;
               });
             </script>
           </template>
