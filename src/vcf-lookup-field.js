@@ -207,7 +207,6 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   __onSelectItem(event) {
     const item = event.detail.value;
     if (item) {
-      // this.$.selectbtn.removeAttribute('disabled');
       this.programselectdisabled = false;
     } else {
       this.programselectdisabled = true;
