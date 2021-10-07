@@ -55,6 +55,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           display: inline-flex;
           align-items: baseline;
         }
+        .enhanced-dialog-footer {
+          display: flex;
+        }
       </style>
       <div class="container">
         <slot name="field" id="fieldSlot">
@@ -93,53 +96,64 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             </slot>
           </header>
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer">
-            <vaadin-button
-              id="selectbtn"
-              theme="primary"
-              disabled$="[[selectdisabled]]"
-              aria-disabled$="[[selectdisabled]]"
-              role="button"
-              on-click="__select"
-            >
-              [[i18n.select]]
-            </vaadin-button>
-            <vaadin-button tabindex="0" role="button" on-click="__close" theme="tertiary">
-              [[i18n.cancel]]
-            </vaadin-button>
+            <div style="display: flex;">
+              <vaadin-button
+                id="selectbtn"
+                theme="primary"
+                disabled$="[[selectdisabled]]"
+                aria-disabled$="[[selectdisabled]]"
+                role="button"
+                on-click="__select"
+              >
+                [[i18n.select]]
+              </vaadin-button>
+              <vaadin-button tabindex="0" role="button" on-click="__close" theme="tertiary">
+                [[i18n.cancel]]
+              </vaadin-button>
+              <div style="flex-grow: 1;"></div>
+              <vaadin-button tabindex="0" role="button" on-click="__create" theme="tertiary" hidden$="[[createhidden]]">
+                [[i18n.create]]
+              </vaadin-button>
+            </div>
           </footer>
-          <div id="dialogmain" class="enhanced-dialog-content">
-            <vaadin-text-field
-              id="lookupFieldFilter"
-              class="lookup-field-filter"
-              style="width:100%;"
-              tabindex="0"
-              label="[[i18n.search]]"
-              on-value-changed="__filterGrid"
-              clear-button-visible
-              value="{{_filterdata}}"
-            >
-              <iron-icon icon="lumo:search" slot="suffix"></iron-icon>
-            </vaadin-text-field>
-          </div>
+          <div id="dialogmain" class="enhanced-dialog-content"></div>
         </vcf-enhanced-dialog>
         <slot name="grid" style="display:none;" id="gridSlot">
           <vaadin-grid items="[[filterItems(items, _filterdata)]]">
             <vaadin-grid-column path="name" path="{{itemLabelPath}}"></vaadin-grid-column>
           </vaadin-grid>
         </slot>
+
+        <slot name="filter" style="display:none;" id="filterSlot">
+          <vaadin-text-field
+            id="lookupFieldFilter"
+            class="lookup-field-filter"
+            style="width:100%;"
+            tabindex="0"
+            label="[[i18n.search]]"
+            on-value-changed="__filterGrid"
+            clear-button-visible
+            value="{{_filterdata}}"
+          >
+            <iron-icon icon="lumo:search" slot="suffix"></iron-icon>
+          </vaadin-text-field>
+        </slot>
+
         <vaadin-notification id="notification" position="top-center">
           <template>
             <div>
               [[i18n.emptyselection]]
             </div>
-          </template></vaadin-notification
-        >
+          </template>
+        </vaadin-notification>
       </div>
     `;
   }
 
   constructor() {
     super();
+    this.__onSelectItemsChangedBinded = this.__onSelectChanged.bind(this);
+    this.__onActiveItemChangedBinded = this.__onSelectItem.bind(this);
     this._observer = new FlattenedNodesObserver(this, info => {
       this.__onDomChange(info.addedNodes);
     });
@@ -148,13 +162,13 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   ready() {
     super.ready();
     this._grid = this.$.gridSlot.firstElementChild;
+    this._filter = this.$.filterSlot.firstElementChild;
     this._field = this.$.fieldSlot.firstElementChild;
     const that = this;
 
     if (this._grid) {
-      this._grid.addEventListener('active-item-changed', e => {
-        that.__onSelectItem(e);
-      });
+      this._grid.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
+      this._grid.addEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
     }
 
     if (this._field) {
@@ -180,6 +194,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         root.appendChild(that.$.dialogheader);
       }
       root.appendChild(that.$.dialogmain);
+      that.$.dialogmain.appendChild(that._filter);
       that.$.dialogmain.appendChild(that._grid);
 
       root.appendChild(that.$.dialogfooter);
@@ -206,13 +221,16 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
   __onSelectItem(event) {
     const item = event.detail.value;
-    if (item) {
+    this._grid.selectedItems = item ? [item] : [];
+  }
+
+  __onSelectChanged(event) {
+    this._gridSelectedItem = [...event.detail.value];
+    if (event.detail.value.length > 0) {
       this.programselectdisabled = false;
     } else {
       this.programselectdisabled = true;
     }
-    this._grid.selectedItems = item ? [item] : [];
-    this._gridSelectedItem = item;
   }
 
   /** @private */
@@ -221,10 +239,11 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     nodes.forEach(node => {
       if (node.getAttribute) {
         if (node.getAttribute('slot') == 'grid') {
+          this._grid.removeEventListener('active-item-changed', this.__onActiveItemChangedBinded);
+          this._grid.removeEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
           this._grid = node;
-          this._grid.addEventListener('active-item-changed', e => {
-            that.__onSelectItem(e);
-          });
+          this._grid.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
+          this._grid.addEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
         } else if (node.getAttribute('slot') == 'field') {
           this._field = node;
           this._field.style.flexGrow = 1;
@@ -235,6 +254,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           this._dialogHeader = node;
         } else if (node.getAttribute('slot') == 'dialog-footer') {
           this._dialogFooter = node;
+        } else if (node.getAttribute('slot') == 'filter') {
+          this._filter = node;
         }
       }
     });
@@ -274,26 +295,28 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       this.$.lookupFieldFilter.focus();
     }, 10);
 
-    this._filterdata = this._field.inputElement.value;
     if (this.$server) {
       this.$server.copyFieldValueToGrid();
       this.$server.filterGrid(this._filterdata);
     } else {
+      this._filterdata = this._field.inputElement.value;
       const item = this._field.selectedItem;
       this._grid.selectedItems = item ? [item] : [];
       this._gridSelectedItem = item;
       if (item) {
-        // this.$.selectbtn.removeAttribute('disabled');
         this.programselectdisabled = false;
       } else {
         this.programselectdisabled = true;
-        // this.$.selectbtn.setAttribute('disabled', 'disabled');
       }
     }
   }
   /** @private */
   __close() {
     this.$.dialog.opened = false;
+  }
+  /** @private */
+  __create() {
+    this.dispatchEvent(new CustomEvent('vcf-lookup-field-create-item-event'));
   }
   /** @private */
   __select() {
@@ -408,7 +431,10 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Boolean,
         value: true
       },
-
+      createhidden: {
+        type: Boolean,
+        value: true
+      },
       /**
        * @type {Boolean}
        */
@@ -454,7 +480,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             searcharialabel: 'Click to open the search dialog',
             headerprefix: '',
             headerpostfix: '',
-            emptyselection: 'Please select an item.'
+            emptyselection: 'Please select an item.',
+            create: 'Create new'
           };
         }
       }
