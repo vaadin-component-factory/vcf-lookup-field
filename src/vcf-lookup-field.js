@@ -11,6 +11,7 @@ import '@vaadin/vaadin-grid/vaadin-grid-filter';
 import '@polymer/iron-icon';
 import '@vaadin/vaadin-icons';
 import '@vaadin/vaadin-notification/vaadin-notification';
+import '@vaadin/vaadin-ordered-layout/vaadin-horizontal-layout';
 /**
  * `<vcf-lookup-field>` [element-description]
  *
@@ -59,7 +60,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           display: flex;
         }
       </style>
-      <div class="container">
+      <vaadin-horizontal-layout class="container">
         <slot name="field" id="fieldSlot">
           <vaadin-combo-box
             clear-button-visible
@@ -89,6 +90,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           modeless$="[[modeless]]"
           draggable$="[[draggable]]"
           resizable$="[[resizable]]"
+          no-close-on-outside-click
         >
           <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header">
             <slot name="dialog-header">
@@ -96,7 +98,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             </slot>
           </header>
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer">
-            <div style="display: flex;">
+            <vaadin-horizontal-layout theme="spacing-s">
               <vaadin-button
                 id="selectbtn"
                 theme="primary"
@@ -114,7 +116,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
               <vaadin-button tabindex="0" role="button" on-click="__create" theme="tertiary" hidden$="[[createhidden]]">
                 [[i18n.create]]
               </vaadin-button>
-            </div>
+            </vaadin-horizontal-layout>
           </footer>
           <div id="dialogmain" class="enhanced-dialog-content"></div>
         </vcf-enhanced-dialog>
@@ -139,6 +141,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           </vaadin-text-field>
         </slot>
 
+        <slot name="selected" style="display:none;" id="selectedSlot">
+          <div></div>
+        </slot>
         <vaadin-notification id="notification" position="top-center">
           <template>
             <div>
@@ -164,6 +169,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._grid = this.$.gridSlot.firstElementChild;
     this._filter = this.$.filterSlot.firstElementChild;
     this._field = this.$.fieldSlot.firstElementChild;
+    this._selected = this.$.selectedSlot.firstElementChild;
     const that = this;
 
     if (this._grid) {
@@ -196,6 +202,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       root.appendChild(that.$.dialogmain);
       that.$.dialogmain.appendChild(that._filter);
       that.$.dialogmain.appendChild(that._grid);
+      that.$.dialogmain.appendChild(that._selected);
 
       root.appendChild(that.$.dialogfooter);
       if (that._dialogFooter) {
@@ -256,6 +263,8 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           this._dialogFooter = node;
         } else if (node.getAttribute('slot') == 'filter') {
           this._filter = node;
+        } else if (node.getAttribute('slot') == 'selected') {
+          this._selected = node;
         }
       }
     });
@@ -357,7 +366,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.2.0';
+    return '1.3.0';
   }
 
   static get properties() {
