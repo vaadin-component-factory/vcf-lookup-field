@@ -97,7 +97,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
               [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
             </slot>
           </header>
-          <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer">
+          <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer" has-selected$="[[hasselected]]">
             <vaadin-horizontal-layout theme="spacing-s">
               <vaadin-button
                 id="selectbtn"
@@ -274,6 +274,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     return defaultselectdisabled && programselectdisabled;
   }
 
+  computehasselected(programselectdisabled) {
+    return !programselectdisabled;
+  }
   __filterGrid(event) {
     if (this.$server) {
       this.$server.filterGrid(event.detail.value);
@@ -366,7 +369,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.3.0';
+    return '1.3.1';
   }
 
   static get properties() {
@@ -454,6 +457,10 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       selectdisabled: {
         type: Boolean,
         computed: 'computeselectdisabled(defaultselectdisabled, programselectdisabled)'
+      },
+      hasselected: {
+        type: Boolean,
+        computed: 'computehasselected(programselectdisabled)'
       },
       /**
        * @type {Boolean}
