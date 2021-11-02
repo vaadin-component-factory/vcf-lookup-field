@@ -59,6 +59,18 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         .enhanced-dialog-footer {
           display: flex;
         }
+        :host([theme="integrated"]) .container {
+            align-items: flex-end;
+        }
+        
+        :host([theme="integrated"]) vaadin-combo-box {
+            --lumo-border-radius: var(--lumo-border-radius-s) 0 0 var(--lumo-border-radius-s);
+        }
+        
+        :host([theme="integrated"]) .search-button {
+            margin-left: 0;
+            --lumo-border-radius: 0 var(--lumo-border-radius-s) var(--lumo-border-radius-s) 0;
+        }
       </style>
       <vaadin-horizontal-layout class="container">
         <slot name="field" id="fieldSlot">
