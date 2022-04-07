@@ -79,7 +79,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           theme="icon"
           on-click="__open"
           aria-label="[[i18n.searcharialabel]]"
-          disabled$="[[readonly]]"
+          disabled$="[[buttondisabled]]"
         >
           <iron-icon icon="vaadin:search"></iron-icon>
         </vaadin-button>
@@ -277,6 +277,11 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   computehasselected(programselectdisabled) {
     return !programselectdisabled;
   }
+
+  computebuttondisabled(readonly, disabled) {
+    return readonly || disabled;
+  }
+
   __filterGrid(event) {
     if (this.$server) {
       this.$server.filterGrid(event.detail.value);
@@ -369,7 +374,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.3.1';
+    return '1.3.2';
   }
 
   static get properties() {
@@ -470,8 +475,26 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       /**
        * @type {Boolean}
        */
-      readonly: Boolean,
+      readonly: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+      buttondisabled: {
+        type: Boolean,
+        computed: 'computebuttondisabled(readonly, disabled)'
+      },
 
+      /**
+       * @type {Boolean}
+       */
+      invalid: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
       /**
        * @type {String}
        */
