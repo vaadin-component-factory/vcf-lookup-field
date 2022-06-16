@@ -48,7 +48,6 @@
     "@vaadin/button": "^23.1.0",
     "@vaadin/combo-box": "^23.1.0",
     "@vaadin/component-base": "^23.1.0",
-    "@vaadin/dialog": "^23.1.0",
     "@vaadin/grid": "^23.1.0",
     "@vaadin/horizontal-layout": "^23.1.0",
     "@vaadin/icon": "^23.1.0",
