@@ -100,6 +100,13 @@
     "webpack-dev-server": "^3.8.0",
     "webpack-merge": "^4.2.1"
   },
+  "overrides": {
+    "@vaadin/tabs": "^23.1.0",
+    "@vaadin/overlay": "^23.1.0",
+    "@vaadin/component-base": "^23.1.0",
+    "@vaadin/vaadin-lumo-styles": "^23.1.0",
+    "@vaadin/vaadin-themable-mixin": "^23.1.0"
+  },
   "bugs": {
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
   },
