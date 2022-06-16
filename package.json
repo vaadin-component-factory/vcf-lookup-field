@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@polymer/polymer": "^3.4.1",
-    "@vaadin-component-factory/vcf-enhanced-dialog": "^23.0.2",
+    "@vaadin-component-factory/vcf-enhanced-dialog": "^23.1.1",
     "@vaadin/button": "^23.1.0",
     "@vaadin/combo-box": "^23.1.0",
     "@vaadin/component-base": "^23.1.0",
