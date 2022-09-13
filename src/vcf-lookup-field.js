@@ -1,17 +1,18 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
-import { ElementMixin } from '@vaadin/vaadin-element-mixin';
+import { ElementMixin } from '@vaadin/component-base/src/element-mixin';
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
-import '@vaadin/vaadin-button';
-import '@vaadin/vaadin-combo-box';
-import '@vaadin/vaadin-text-field';
 import '@vaadin-component-factory/vcf-enhanced-dialog';
-import '@vaadin/vaadin-grid';
-import '@vaadin/vaadin-grid/vaadin-grid-filter';
-import '@polymer/iron-icon';
-import '@vaadin/vaadin-icons';
-import '@vaadin/vaadin-notification/vaadin-notification';
-import '@vaadin/vaadin-ordered-layout/vaadin-horizontal-layout';
+import '@vaadin/button';
+import '@vaadin/combo-box';
+import '@vaadin/grid';
+import '@vaadin/grid/vaadin-grid-filter';
+import '@vaadin/horizontal-layout';
+import '@vaadin/icon';
+import '@vaadin/icons';
+import '@vaadin/notification/vaadin-notification';
+import '@vaadin/text-field';
+
 /**
  * `<vcf-lookup-field>` [element-description]
  *
@@ -43,8 +44,7 @@ import '@vaadin/vaadin-ordered-layout/vaadin-horizontal-layout';
  * @mixes ThemableMixin
  * @demo demo/index.html
  */
-
-class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
+export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get template() {
     return html`
       <style>
@@ -72,6 +72,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             --lumo-border-radius: 0 var(--lumo-border-radius-s) var(--lumo-border-radius-s) 0;
         }
       </style>
+
       <vaadin-horizontal-layout class="container">
         <slot name="field" id="fieldSlot">
           <vaadin-combo-box
@@ -91,10 +92,11 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           theme="icon"
           on-click="__open"
           aria-label="[[i18n.searcharialabel]]"
-          disabled$="[[readonly]]"
+          disabled$="[[buttondisabled]]"
         >
-          <iron-icon icon="vaadin:search"></iron-icon>
+          <vaadin-icon icon="vaadin:search"></vaadin-icon>
         </vaadin-button>
+
         <vcf-enhanced-dialog
           aria-label="lookup-grid"
           id="dialog"
@@ -109,6 +111,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
               [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
             </slot>
           </header>
+
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer" has-selected$="[[hasselected]]">
             <vaadin-horizontal-layout theme="spacing-s">
               <vaadin-button
@@ -132,6 +135,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           </footer>
           <div id="dialogmain" class="enhanced-dialog-content"></div>
         </vcf-enhanced-dialog>
+
         <slot name="grid" style="display:none;" id="gridSlot">
           <vaadin-grid items="[[filterItems(items, _filterdata)]]">
             <vaadin-grid-column path="name" path="{{itemLabelPath}}"></vaadin-grid-column>
@@ -149,13 +153,14 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             clear-button-visible
             value="{{_filterdata}}"
           >
-            <iron-icon icon="lumo:search" slot="suffix"></iron-icon>
+            <vaadin-icon icon="lumo:search" slot="suffix"></vaadin-icon>
           </vaadin-text-field>
         </slot>
 
         <slot name="selected" style="display:none;" id="selectedSlot">
           <div></div>
         </slot>
+
         <vaadin-notification id="notification" position="top-center">
           <template>
             <div>
@@ -163,7 +168,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             </div>
           </template>
         </vaadin-notification>
-      </div>
+      </vaadin-horizontal-layout>
     `;
   }
 
@@ -238,6 +243,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   __opendialog() {
     this.$.basic.opened = true;
   }
+
   __onSelectItem(event) {
     const item = event.detail.value;
     this._grid.selectedItems = item ? [item] : [];
@@ -289,6 +295,11 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   computehasselected(programselectdisabled) {
     return !programselectdisabled;
   }
+
+  computebuttondisabled(readonly, disabled) {
+    return readonly || disabled;
+  }
+
   __filterGrid(event) {
     if (this.$server) {
       this.$server.filterGrid(event.detail.value);
@@ -354,7 +365,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (this.$server) {
         this.$server.copyFieldValueFromGrid();
       } else {
-        this._field.selectedItem = this._gridSelectedItem;
+        const item = this._gridSelectedItem;
+        const selectedItem = Array.isArray(item) ? item[0] : item;
+        this._field.selectedItem = selectedItem;
       }
 
       this.$.dialog.opened = false;
@@ -381,7 +394,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '1.3.1';
+    return '23.1.2';
   }
 
   static get properties() {
@@ -389,6 +402,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       header: {
         type: String
       },
+
       /**
        * A full set of items to filter the visible options from.
        * The items can be of either `String` or `Object` type.
@@ -402,6 +416,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       _filterdata: {
         type: String
       },
+
       /**
        * Path for label of the item. If `items` is an array of objects, the
        * `itemLabelPath` is used to fetch the displayed string label for each
@@ -439,10 +454,12 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * @type {Boolean}
        */
       modeless: Boolean,
+
       /**
        * @type {Boolean}
        */
       draggable: Boolean,
+
       /**
        * @type {Boolean}
        */
@@ -455,6 +472,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Boolean,
         value: true
       },
+
       createhidden: {
         type: Boolean,
         value: true
@@ -466,14 +484,17 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         type: Boolean,
         value: true
       },
+
       selectdisabled: {
         type: Boolean,
         computed: 'computeselectdisabled(defaultselectdisabled, programselectdisabled)'
       },
+
       hasselected: {
         type: Boolean,
         computed: 'computehasselected(programselectdisabled)'
       },
+
       /**
        * @type {Boolean}
        */
@@ -482,7 +503,28 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       /**
        * @type {Boolean}
        */
-      readonly: Boolean,
+      readonly: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+
+      disabled: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
+
+      buttondisabled: {
+        type: Boolean,
+        computed: 'computebuttondisabled(readonly, disabled)'
+      },
+
+      /**
+       * @type {Boolean}
+       */
+      invalid: {
+        type: Boolean,
+        reflectToAttribute: true
+      },
 
       /**
        * @type {String}
@@ -496,8 +538,7 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * The object used to localize this component.
        * For changing the default localization, change the entire
        * _i18n_ object or just the property you want to modify.
-       **/
-
+       */
       i18n: {
         type: Object,
         value: function() {
@@ -517,9 +558,9 @@ class VcfLookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 }
 
-customElements.define(VcfLookupField.is, VcfLookupField);
+customElements.define(LookupField.is, LookupField);
 
 /**
  * @namespace Vaadin
  */
-window.Vaadin.VcfLookupField = VcfLookupField;
+window.Vaadin.VcfLookupField = LookupField;

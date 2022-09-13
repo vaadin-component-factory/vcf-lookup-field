@@ -1,20 +1,14 @@
 # &lt;vcf-lookup-field&gt;
 
+[![npm version](https://badgen.net/npm/v/@vaadin-component-factory/vcf-lookup-field)](https://www.npmjs.com/package/@vaadin-component-factory/vcf-lookup-field) [![Published on Vaadin Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/vaadin-component-factoryvcf-lookup-field)
 
+The Lookup field component allows you to search a specific record with either a combobox or a dialog with a grid view.
 
+![lookup-field](https://user-images.githubusercontent.com/3392815/174095935-b001519e-3bdb-4aad-b01d-4ee8dc49f364.gif)
 
+![lookup-field-dialog](https://user-images.githubusercontent.com/3392815/174095944-700f641d-111e-4a6d-9278-12b8793cea19.gif)
 
-<!--
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/vaadin/web-components?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![npm version](https://badgen.net/npm/v/@vaadin-component-factory/vcf-lookup-field)](https://www.npmjs.com/package/@vaadin-component-factory/vcf-lookup-field) [![Published on Vaadin Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/vaadin-component-factoryvcf-lookup-field)
-
-[element-description]
--->
-
-![vcf-lookup-field-screenshot](https://user-images.githubusercontent.com/3392815/99876883-a41f3f00-2c02-11eb-81ab-b99c512ebf79.png)
-
-<!--
-[Live demo ↗](https://vcf-lookup-field.netlify.com) | [API documentation ↗](https://vcf-lookup-field.netlify.com/api/#/elements/Vaadin.VcfLookupField)
--->
+[Live demo ↗](https://vcf-lookup-field-demo.netlify.com) | [API documentation ↗](https://vcf-lookup-field-demo.netlify.com/api/#/elements/Vaadin.VcfLookupField)
 
 ## Installation
 
