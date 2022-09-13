@@ -11,14 +11,3 @@ registerStyles(
     }
   `
 );
-
-
-registerStyles(
-  'vcf-lookup-field',
-  css`.search-button {
-  margin-left: var(--lumo-space-xs);
-}
-  `
-);
-
-
