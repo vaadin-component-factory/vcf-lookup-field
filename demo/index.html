@@ -181,8 +181,16 @@
         <h2 slot="header">Example 1</h2>
         <demo-snippet>
           <template>
-            <vcf-lookup-field>
-            </vcf-lookup-field>
+            <div style="display: inline-flex; flex-direction: column; gap: 1rem;">
+              <vcf-lookup-field>
+              </vcf-lookup-field>
+              <vcf-lookup-field disabled>
+              </vcf-lookup-field>
+              <vcf-lookup-field readonly>
+              </vcf-lookup-field>
+              <vcf-lookup-field invalid>
+              </vcf-lookup-field>
+            </div>
             <script>
               window.addEventListener('WebComponentsReady', () => {
                 const lookupField = document.querySelectorAll('vcf-lookup-field');

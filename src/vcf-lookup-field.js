@@ -56,8 +56,34 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           display: inline-flex;
           align-items: baseline;
         }
+        vaadin-combo-box {
+          width: 100%;
+          min-width: 0;
+        }
+        vaadin-button.search-button {
+          margin-left: var(--lumo-space-xs);
+          flex: 0 0 auto;
+        }
         .enhanced-dialog-footer {
           display: flex;
+        }
+        :host([theme~='integrated']) .container {
+          align-items: flex-end;
+        }
+        :host([theme~='integrated']) vaadin-combo-box::part(input-field) {
+          border-radius: var(--lumo-border-radius-s) 0 0 var(--lumo-border-radius-s);
+        }
+        :host([theme~='integrated']) .search-button {
+          margin-left: 0;
+          border-radius: 0 var(--lumo-border-radius-s) var(--lumo-border-radius-s) 0;
+        }
+        :host([readonly]) vaadin-button.search-button {
+          background-color: transparent;
+          border: 1px dashed var(--lumo-contrast-30pct);
+        }
+        :host([invalid]) vaadin-button.search-button {
+          color: var(--lumo-error-text-color);
+          background-color: var(--lumo-error-color-10pct);
         }
       </style>
 
