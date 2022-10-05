@@ -1,4 +1,5 @@
-import { html, PolymerElement } from '@polymer/polymer/polymer-element';
+import { html, LitElement, css } from 'lit';
+
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/component-base/src/element-mixin';
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
@@ -45,10 +46,10 @@ import '@vaadin/vertical-layout';
  * @mixes ThemableMixin
  * @demo demo/index.html
  */
-export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
-  static get template() {
-    return html`
-      <style>
+export class LookupField extends ElementMixin(ThemableMixin(LitElement)) {
+  static get styles() {
+    return [
+      css`
         :host {
           display: inline-block;
         }
@@ -86,18 +87,24 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           color: var(--lumo-error-text-color);
           background-color: var(--lumo-error-color-10pct);
         }
-      </style>
-
+      `
+    ];
+  }
+  render() {
+    return html`
       <vaadin-horizontal-layout class="container">
         <slot name="field" id="fieldSlot">
           <vaadin-combo-box
             clear-button-visible
             allow-custom-value
-            items="{{items}}"
-            item-label-path="{{itemLabelPath}}"
-            item-value-path="{{itemValuePath}}"
-            required$="[[required]]"
-            readonly$="[[readonly]]"
+            .items="${this.items}"
+            @items-changed="${e => (this.items = e.target.value)}"
+            .item-label-path="${this.itemLabelPath}"
+            @item-label-path-changed="${e => (this.itemLabelPath = e.target.value)}"
+            .item-value-path="${this.itemValuePath}"
+            @item-value-path-changed="${e => (this.itemValuePath = e.target.value)}"
+            required="${this.required}"
+            readonly="${this.readonly}"
           ></vaadin-combo-box>
         </slot>
 
@@ -105,28 +112,32 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           id="searchButton"
           class="search-button"
           theme="icon"
-          on-click="__open"
-          aria-label="[[i18n.searcharialabel]]"
-          disabled$="[[buttondisabled]]"
+          @click="${this.__open}"
+          .aria-label="${this.i18n ? this.i18n.searcharialabel : undefined}"
+          disabled="${this.buttondisabled}"
         >
           <vaadin-icon icon="vaadin:search"></vaadin-icon>
         </vaadin-button>
 
         <vaadin-dialog
-          header-title="[[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]"
           aria-label="lookup-grid"
           id="dialog"
-          theme$="[[theme]]"
-          modeless$="[[modeless]]"
-          draggable$="[[draggable]]"
-          resizable$="[[resizable]]"
           no-close-on-outside-click
+          .header-title="${(this.i18n && this.i18n.headerprefix ? this.i18n.headerprefix : '') +
+            ' ' +
+            (this.header ? this.header : '') +
+            ' ' +
+            (this.i18n && this.i18n.headerpostfix ? this.i18n.headerpostfix : '')}"
+          theme="${this.theme}"
+          modeless="${this.modeless}"
+          draggable="${this.draggable}"
+          resizable="${this.resizable}"
         >
           <vaadin-vertical-layout id="dialogmain" theme="spacing" style="height: 100%;"></vaadin-vertical-layout>
         </vaadin-dialog>
 
         <slot name="grid" style="display:none;" id="gridSlot">
-          <vaadin-grid items="[[filterItems(items, _filterdata)]]">
+          <vaadin-grid .items="${this.filterItems(this.items, this._filterdata)}">
             <vaadin-grid-column path="name" path="{{itemLabelPath}}"></vaadin-grid-column>
           </vaadin-grid>
         </slot>
@@ -137,10 +148,10 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             class="lookup-field-filter"
             style="width:100%;"
             tabindex="0"
-            label="[[i18n.search]]"
-            on-value-changed="__filterGrid"
             clear-button-visible
-            value="{{_filterdata}}"
+            .label="${this.i18n ? this.i18n.search : undefined}"
+            @value-changed="${e => (this._filterdata = e.target.value)}"
+            .value="${this._filterdata}"
           >
             <vaadin-icon icon="lumo:search" slot="suffix"></vaadin-icon>
           </vaadin-text-field>
@@ -151,19 +162,25 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             <vaadin-button
               id="selectbtn"
               theme="primary"
-              disabled$="[[selectdisabled]]"
-              aria-disabled$="[[selectdisabled]]"
               role="button"
-              on-click="__select"
+              disabled="${this.selectdisabled}"
+              aria-disabled="${this.selectdisabled}"
+              @click="${this.__select}"
             >
-              [[i18n.select]]
+              ${this.i18n ? this.i18n.select : undefined}
             </vaadin-button>
-            <vaadin-button tabindex="0" role="button" on-click="__close" theme="tertiary">
-              [[i18n.cancel]]
+            <vaadin-button tabindex="0" role="button" theme="tertiary" @click="${this.__close}">
+              ${this.i18n ? this.i18n.cancel : undefined}
             </vaadin-button>
             <div style="flex-grow: 1;"></div>
-            <vaadin-button tabindex="0" role="button" on-click="__create" theme="tertiary" hidden$="[[createhidden]]">
-              [[i18n.create]]
+            <vaadin-button
+              tabindex="0"
+              role="button"
+              theme="tertiary"
+              @click="${this.__create}"
+              ?hidden="${this.createhidden}"
+            >
+              ${this.i18n ? this.i18n.create : undefined}
             </vaadin-button>
           </vaadin-horizontal-layout>
         </slot>
@@ -174,9 +191,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
         <vaadin-notification id="notification" position="top-center">
           <template>
-            <div>
-              [[i18n.emptyselection]]
-            </div>
+            <div>${this.i18n ? this.i18n.emptyselection : undefined}</div>
           </template>
         </vaadin-notification>
       </vaadin-horizontal-layout>
@@ -190,15 +205,31 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._observer = new FlattenedNodesObserver(this, info => {
       this.__onDomChange(info.addedNodes);
     });
+    this.itemLabelPath = 'label';
+    this.itemValuePath = 'value';
+    this.defaultselectdisabled = true;
+    this.createhidden = true;
+    this.programselectdisabled = true;
+    this.theme = 'lookup-dialog';
+    this.i18n = {
+      select: 'Select',
+      cancel: 'Cancel',
+      search: 'Search',
+      searcharialabel: 'Click to open the search dialog',
+      headerprefix: '',
+      headerpostfix: '',
+      emptyselection: 'Please select an item.',
+      create: 'Create new'
+    };
   }
 
-  ready() {
-    super.ready();
-    this._grid = this.$.gridSlot.firstElementChild;
-    this._filter = this.$.filterSlot.firstElementChild;
-    this._footer = this.$.footerSlot.firstElementChild;
-    this._field = this.$.fieldSlot.firstElementChild;
-    this._selected = this.$.selectedSlot.firstElementChild;
+  firstUpdated(_changedProperties) {
+    super.firstUpdated(_changedProperties);
+    this._grid = this.renderRoot.querySelector('#gridSlot').firstElementChild;
+    this._filter = this.renderRoot.querySelector('#filterSlot').firstElementChild;
+    this._footer = this.renderRoot.querySelector('#footerSlot').firstElementChild;
+    this._field = this.renderRoot.querySelector('#fieldSlot').firstElementChild;
+    this._selected = this.renderRoot.querySelector('#selectedSlot').firstElementChild;
     const that = this;
 
     if (this._grid) {
@@ -215,7 +246,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     /**
      * fill the dialog content because template in template is not working well
      */
-    this.$.dialog.renderer = function(root, dialog) {
+    this.renderRoot.querySelector('#dialog').renderer = function(root, dialog) {
       if (root.firstElementChild) {
         return;
       }
@@ -242,19 +273,19 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         that.$.dialogfooter.appendChild(that._dialogFooter);
       }
     };
-    this.$.dialog.addEventListener('opened-changed', e => {
+    this.renderRoot.querySelector('#dialog').addEventListener('opened-changed', e => {
       // dialog close
       if (!e.detail.value) {
         setTimeout(() => {
-          this.$.searchButton.focus();
-          this.$.searchButton.setAttribute('focus-ring', true);
+          this.renderRoot.querySelector('#searchButton').focus();
+          this.renderRoot.querySelector('#searchButton').setAttribute('focus-ring', true);
         }, 10);
       }
     });
   }
 
   __opendialog() {
-    this.$.basic.opened = true;
+    this.renderRoot.querySelector('#basic').opened = true;
   }
 
   __onSelectItem(event) {
@@ -337,10 +368,10 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   /** @private */
   __open() {
-    this.$.dialog.opened = true;
+    this.renderRoot.querySelector('#dialog').opened = true;
     setTimeout(() => {
-      this.$.lookupFieldFilter.setAttribute('focus-ring', true);
-      this.$.lookupFieldFilter.focus();
+      this.renderRoot.querySelector('#lookupFieldFilter').setAttribute('focus-ring', true);
+      this.renderRoot.querySelector('#lookupFieldFilter').focus();
     }, 10);
 
     if (this.$server) {
@@ -360,7 +391,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
   /** @private */
   __close() {
-    this.$.dialog.opened = false;
+    this.renderRoot.querySelector('#dialog').opened = false;
   }
   /** @private */
   __create() {
@@ -372,7 +403,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (this.$server) {
         this.$server.openErrorNotification();
       } else {
-        this.$.notification.open();
+        this.renderRoot.querySelector('#notification').open();
       }
     } else {
       if (this.$server) {
@@ -383,7 +414,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         this._field.selectedItem = selectedItem;
       }
 
-      this.$.dialog.opened = false;
+      this.renderRoot.querySelector('#dialog').opened = false;
     }
   }
 
@@ -422,8 +453,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * @type {!Array<string> | undefined}
        */
       items: {
-        type: Array,
-        observer: '_itemsChanged'
+        type: Array
       },
 
       _filterdata: {
@@ -444,8 +474,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * @type {string}
        */
       itemLabelPath: {
-        type: String,
-        value: 'label'
+        type: String
       },
 
       /**
@@ -459,8 +488,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * @type {string}
        */
       itemValuePath: {
-        type: String,
-        value: 'value'
+        type: String
       },
 
       /**
@@ -482,30 +510,25 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * @type {Boolean}
        */
       defaultselectdisabled: {
-        type: Boolean,
-        value: true
+        type: Boolean
       },
 
       createhidden: {
-        type: Boolean,
-        value: true
+        type: Boolean
       },
       /**
        * @type {Boolean}
        */
       programselectdisabled: {
-        type: Boolean,
-        value: true
+        type: Boolean
       },
 
       selectdisabled: {
-        type: Boolean,
-        computed: 'computeselectdisabled(defaultselectdisabled, programselectdisabled)'
+        type: Boolean
       },
 
       hasselected: {
-        type: Boolean,
-        computed: 'computehasselected(programselectdisabled)'
+        type: Boolean
       },
 
       /**
@@ -518,17 +541,16 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        */
       readonly: {
         type: Boolean,
-        reflectToAttribute: true
+        reflect: true
       },
 
       disabled: {
         type: Boolean,
-        reflectToAttribute: true
+        reflect: true
       },
 
       buttondisabled: {
-        type: Boolean,
-        computed: 'computebuttondisabled(readonly, disabled)'
+        type: Boolean
       },
 
       /**
@@ -536,15 +558,14 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        */
       invalid: {
         type: Boolean,
-        reflectToAttribute: true
+        reflect: true
       },
 
       /**
        * @type {String}
        */
       theme: {
-        type: String,
-        value: 'lookup-dialog'
+        type: String
       },
 
       /**
@@ -553,21 +574,29 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
        * _i18n_ object or just the property you want to modify.
        */
       i18n: {
-        type: Object,
-        value: function() {
-          return {
-            select: 'Select',
-            cancel: 'Cancel',
-            search: 'Search',
-            searcharialabel: 'Click to open the search dialog',
-            headerprefix: '',
-            headerpostfix: '',
-            emptyselection: 'Please select an item.',
-            create: 'Create new'
-          };
-        }
+        type: Object
       }
     };
+  }
+  get selectdisabled() {
+    return this.computeselectdisabled(this.defaultselectdisabled, this.programselectdisabled);
+  }
+  get hasselected() {
+    return this.computehasselected(this.programselectdisabled);
+  }
+  get buttondisabled() {
+    return this.computebuttondisabled(this.readonly, this.disabled);
+  }
+  set items(newValue) {
+    const oldValue = this.items;
+    this._items = newValue;
+    if (oldValue !== newValue) {
+      this._itemsChanged(newValue, oldValue);
+      this.requestUpdateInternal('items', oldValue, this.constructor.properties.items);
+    }
+  }
+  get items() {
+    return this._items;
   }
 }
 
