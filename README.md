@@ -40,7 +40,7 @@ Add `<vcf-lookup-field>` element to the page.
 
 3. When in the `vcf-lookup-field` directory, run `npm install` to install dependencies.
 
-4. Run `npm start` to open the demo.
+4. Run `npm run serve` to open the demo.
 
 ## Publishing
 
