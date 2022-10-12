@@ -1,4 +1,4 @@
-declare const LookupField_base: typeof PolymerElement & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin").ThemableMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin/vaadin-theme-property-mixin").ThemePropertyMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/dir-mixin").DirMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/element-mixin").ElementMixinClass>;
+declare const LookupField_base: import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/dir-mixin").DirMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/element-mixin").ElementMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin").ThemableMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin/vaadin-theme-property-mixin").ThemePropertyMixinClass> & typeof LitElement;
 /**
  * `<vcf-lookup-field>` [element-description]
  *
@@ -31,7 +31,7 @@ declare const LookupField_base: typeof PolymerElement & import("@open-wc/dedupe-
  * @demo demo/index.html
  */
 export class LookupField extends LookupField_base {
-    static get template(): HTMLTemplateElement;
+    static get styles(): import("lit").CSSResult[];
     static get is(): string;
     static get version(): string;
     static get properties(): {
@@ -90,7 +90,6 @@ export class LookupField extends LookupField_base {
         defaultselectdisabled: boolean;
         createhidden: {
             type: BooleanConstructor;
-            value: boolean;
         };
         /**
          * @type {Boolean}
@@ -98,11 +97,9 @@ export class LookupField extends LookupField_base {
         programselectdisabled: boolean;
         selectdisabled: {
             type: BooleanConstructor;
-            computed: string;
         };
         hasselected: {
             type: BooleanConstructor;
-            computed: string;
         };
         /**
          * @type {Boolean}
@@ -114,11 +111,10 @@ export class LookupField extends LookupField_base {
         readonly: boolean;
         disabled: {
             type: BooleanConstructor;
-            reflectToAttribute: boolean;
+            reflect: boolean;
         };
         buttondisabled: {
             type: BooleanConstructor;
-            computed: string;
         };
         /**
          * @type {Boolean}
@@ -135,31 +131,42 @@ export class LookupField extends LookupField_base {
          */
         i18n: {
             type: ObjectConstructor;
-            value: () => {
-                select: string;
-                cancel: string;
-                search: string;
-                searcharialabel: string;
-                headerprefix: string;
-                headerpostfix: string;
-                emptyselection: string;
-                create: string;
-            };
         };
     };
+    render(): import("lit-html").TemplateResult<1>;
+    set items(arg: any);
+    get items(): any;
+    itemLabelPath: string;
+    itemValuePath: string;
+    _filterdata: any;
     __onSelectItemsChangedBinded: any;
     __onActiveItemChangedBinded: any;
     _observer: FlattenedNodesObserver;
-    ready(): void;
+    disabled: boolean;
+    readonly: boolean;
+    defaultselectdisabled: boolean;
+    createhidden: boolean;
+    programselectdisabled: boolean;
+    i18n: {
+        select: string;
+        cancel: string;
+        search: string;
+        searcharialabel: string;
+        headerprefix: string;
+        headerpostfix: string;
+        emptyselection: string;
+        create: string;
+    };
+    firstUpdated(_changedProperties: any): void;
     _grid: any;
     _filter: any;
+    _footer: Element;
     _field: any;
     _selected: any;
     __opendialog(): void;
     __onSelectItem(event: any): void;
     __onSelectChanged(event: any): void;
     _gridSelectedItem: any;
-    programselectdisabled: boolean;
     /** @private */
     private __onDomChange;
     _dialogHeader: any;
@@ -171,7 +178,6 @@ export class LookupField extends LookupField_base {
     filterItems(items: any, filterData: any): any;
     /** @private */
     private __open;
-    _filterdata: any;
     /** @private */
     private __close;
     /** @private */
@@ -180,8 +186,12 @@ export class LookupField extends LookupField_base {
     private __select;
     _getItemLabel(item: any): any;
     _itemsChanged(): void;
+    get selectdisabled(): any;
+    get hasselected(): boolean;
+    get buttondisabled(): any;
+    _items: any;
 }
-import { PolymerElement } from "@polymer/polymer/polymer-element";
+import { LitElement } from "lit-element/lit-element";
 import { FlattenedNodesObserver } from "@polymer/polymer/lib/utils/flattened-nodes-observer.js";
 export {};
 //# sourceMappingURL=vcf-lookup-field.d.ts.map

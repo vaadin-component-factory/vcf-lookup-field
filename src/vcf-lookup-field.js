@@ -114,7 +114,7 @@ export class LookupField extends ElementMixin(ThemableMixin(LitElement)) {
           theme="icon"
           @click="${this.__open}"
           .aria-label="${this.i18n ? this.i18n.searcharialabel : undefined}"
-          disabled="${this.buttondisabled}"
+          disabled="${this.buttondisabled()}"
         >
           <vaadin-icon icon="vaadin:search"></vaadin-icon>
         </vaadin-button>
@@ -205,6 +205,8 @@ export class LookupField extends ElementMixin(ThemableMixin(LitElement)) {
     this._observer = new FlattenedNodesObserver(this, info => {
       this.__onDomChange(info.addedNodes);
     });
+    this.disabled = false;
+    this.readonly = false;
     this.itemLabelPath = 'label';
     this.itemValuePath = 'value';
     this.defaultselectdisabled = true;
@@ -584,6 +586,7 @@ export class LookupField extends ElementMixin(ThemableMixin(LitElement)) {
   get hasselected() {
     return this.computehasselected(this.programselectdisabled);
   }
+  // @property
   get buttondisabled() {
     return this.computebuttondisabled(this.readonly, this.disabled);
   }
@@ -592,7 +595,7 @@ export class LookupField extends ElementMixin(ThemableMixin(LitElement)) {
     this._items = newValue;
     if (oldValue !== newValue) {
       this._itemsChanged(newValue, oldValue);
-      this.requestUpdateInternal('items', oldValue, this.constructor.properties.items);
+      this.requestUpdate('items', oldValue, this.constructor.properties.items);
     }
   }
   get items() {

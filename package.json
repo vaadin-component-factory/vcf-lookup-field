@@ -22,7 +22,7 @@
     "test": "wct",
     "lint": "eslint src/*.js",
     "prestart": "polymer analyze src/*.js > analysis.json",
-    "serve": "web-dev-server --node-resolve --open",
+    "serve": "web-dev-server --node-resolve --open --esbuild-target auto",
     "build": "run-s build:api build:demo",
     "build:api": "npm run prestart && polymer build",
     "build:demo": "webpack --env production",
@@ -56,7 +56,9 @@
     "@vaadin/text-field": "^23.1.0",
     "@vaadin/vaadin-lumo-styles": "^23.1.0",
     "@vaadin/vaadin-themable-mixin": "^23.1.0",
-    "@vaadin/vertical-layout": "^23.1.0"
+    "@vaadin/vertical-layout": "^23.1.0",
+    "@web/dev-server-esbuild": "^0.3.2",
+    "esbuild": "^0.15.10"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

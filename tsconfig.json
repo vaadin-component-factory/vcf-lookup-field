@@ -5,7 +5,8 @@
     "emitDeclarationOnly": true,
     "outDir": "src",
     "declarationMap": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+	"experimentalDecorators": true
   },
   "include": ["src/*.js"],
   "exclude": ["src/*-styles.js"]
