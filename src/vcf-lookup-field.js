@@ -2,7 +2,7 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/component-base/src/element-mixin';
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
-import '@vaadin-component-factory/vcf-enhanced-dialog';
+import '@vaadin/dialog';
 import '@vaadin/button';
 import '@vaadin/combo-box';
 import '@vaadin/grid';
@@ -111,7 +111,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           <vaadin-icon icon="vaadin:search"></vaadin-icon>
         </vaadin-button>
 
-        <vcf-enhanced-dialog
+        <vaadin-dialog
           aria-label="lookup-grid"
           id="dialog"
           theme$="[[theme]]"
@@ -120,11 +120,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           resizable$="[[resizable]]"
           no-close-on-outside-click
         >
-          <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header">
-            <slot name="dialog-header">
-              [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
-            </slot>
-          </header>
+          <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header"></header>
 
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer" has-selected$="[[hasselected]]">
             <vaadin-horizontal-layout theme="spacing-s">
@@ -148,7 +144,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             </vaadin-horizontal-layout>
           </footer>
           <div id="dialogmain" class="enhanced-dialog-content"></div>
-        </vcf-enhanced-dialog>
+        </vaadin-dialog>
 
         <slot name="grid" style="display:none;" id="gridSlot">
           <vaadin-grid items="[[filterItems(items, _filterdata)]]">
@@ -214,6 +210,28 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       });
     }
 
+    this.$.dialog.footerRenderer = function(root) {
+      const div = document.createElement('div');
+      root.appendChild(div);
+    };
+
+    this.$.dialog.headerRenderer = function(root) {
+      while (root.firstChild) {
+        root.removeChild(root.firstChild);
+      }
+
+      const header = document.createElement('header');
+      header.setAttribute('name', 'dialog-header');
+      header.setAttribute('slot', 'header');
+      var headerText = that.header ? that.header : '';
+
+      if (that.i18n) {
+        headerText = that.i18n.headerprefix ? that.i18n.headerprefix + ' ' + headerText : headerText;
+        headerText = that.i18n.headerpostfix ? headerText + ' ' + that.i18n.headerpostfix : headerText;
+      }
+      header.textContent = headerText;
+      root.appendChild(header);
+    };
     /**
      * fill the dialog content because template in template is not working well
      */
@@ -221,6 +239,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (root.firstElementChild) {
         return;
       }
+
       if (that._dialogHeader) {
         root.appendChild(that.$.dialogheader);
         while (that.$.dialogheader.firstChild) {
@@ -235,7 +254,9 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       that.$.dialogmain.appendChild(that._grid);
       that.$.dialogmain.appendChild(that._selected);
 
+      root.appendChild(that.$.dialogheader);
       root.appendChild(that.$.dialogfooter);
+
       if (that._dialogFooter) {
         while (that.$.dialogfooter.firstChild) {
           that.$.dialogfooter.removeChild(that.$.dialogfooter.lastChild);

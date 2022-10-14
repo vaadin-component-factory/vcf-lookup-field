@@ -190,6 +190,8 @@
               </vcf-lookup-field>
               <vcf-lookup-field invalid>
               </vcf-lookup-field>
+              <vcf-lookup-field>
+              </vcf-lookup-field>
             </div>
             <script>
               window.addEventListener('WebComponentsReady', () => {
@@ -202,6 +204,19 @@
                 ];
                 lookupField[0].itemValuePath = 'id';
                 lookupField[0].itemLabelPath = 'name';
+                lookupField[0].header = 'header';
+                lookupField[0].i18n = {
+                  headerprefix:"-headerprefix-",
+                  create:"-create-",
+                  cancel:"-cancel-",
+                  select:"-select-"};
+                lookupField[4].items = [
+                  {id: '1', name: 'Product'},
+                  {id: '2', name: 'Service'},
+                  {id: '3', name: 'HR'}
+                ];
+                lookupField[4].itemValuePath = 'id';
+                lookupField[4].itemLabelPath = 'name';
               });
             </script>
           </template>

@@ -4,7 +4,7 @@ import '@vaadin/vaadin-lumo-styles/color.js';
 import '@vaadin/vaadin-lumo-styles/mixins/overlay.js';
 
 registerStyles(
-  'vcf-enhanced-dialog-overlay',
+  'vaadin-dialog-overlay',
   css`
     :host([theme~="lookup-dialog"]) [part="content"] {
         min-width: 400px;
