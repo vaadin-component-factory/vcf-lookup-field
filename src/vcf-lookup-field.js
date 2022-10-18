@@ -120,7 +120,11 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           resizable$="[[resizable]]"
           no-close-on-outside-click
         >
-          <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header"></header>
+          <header id="dialogheader" slot="header-content" class="draggable enhanced-dialog-header">
+            <slot name="dialog-header">
+              [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
+            </slot>
+          </header>
 
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer" has-selected$="[[hasselected]]">
             <vaadin-horizontal-layout theme="spacing-s">
@@ -197,7 +201,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._filter = this.$.filterSlot.firstElementChild;
     this._field = this.$.fieldSlot.firstElementChild;
     this._selected = this.$.selectedSlot.firstElementChild;
-    const that = this;
 
     if (this._grid) {
       this._grid.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
@@ -205,65 +208,41 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
 
     if (this._field) {
-      this._field.addEventListener('filter-changed', function(e) {
-        that._filterValue = e.detail.value;
+      this._field.addEventListener('filter-changed', e => {
+        this._filterValue = e.detail.value;
       });
     }
 
-    this.$.dialog.footerRenderer = function(root) {
-      const div = document.createElement('div');
-      root.appendChild(div);
-    };
-
-    this.$.dialog.headerRenderer = function(root) {
-      while (root.firstChild) {
-        root.removeChild(root.firstChild);
-      }
-
-      const header = document.createElement('header');
-      header.setAttribute('name', 'dialog-header');
-      header.setAttribute('slot', 'header');
-      var headerText = that.header ? that.header : '';
-
-      if (that.i18n) {
-        headerText = that.i18n.headerprefix ? that.i18n.headerprefix + ' ' + headerText : headerText;
-        headerText = that.i18n.headerpostfix ? headerText + ' ' + that.i18n.headerpostfix : headerText;
-      }
-      header.textContent = headerText;
-      root.appendChild(header);
-    };
-    /**
-     * fill the dialog content because template in template is not working well
-     */
-    this.$.dialog.renderer = function(root, dialog) {
+    this.$.dialog.footerRenderer = root => {
       if (root.firstElementChild) {
         return;
       }
 
-      if (that._dialogHeader) {
-        root.appendChild(that.$.dialogheader);
-        while (that.$.dialogheader.firstChild) {
-          that.$.dialogheader.removeChild(that.$.dialogheader.lastChild);
-        }
-        that.$.dialogheader.appendChild(that._dialogHeader);
-      } else if (that.header) {
-        root.appendChild(that.$.dialogheader);
-      }
-      root.appendChild(that.$.dialogmain);
-      that.$.dialogmain.appendChild(that._filter);
-      that.$.dialogmain.appendChild(that._grid);
-      that.$.dialogmain.appendChild(that._selected);
-
-      root.appendChild(that.$.dialogheader);
-      root.appendChild(that.$.dialogfooter);
-
-      if (that._dialogFooter) {
-        while (that.$.dialogfooter.firstChild) {
-          that.$.dialogfooter.removeChild(that.$.dialogfooter.lastChild);
-        }
-        that.$.dialogfooter.appendChild(that._dialogFooter);
-      }
+      root.appendChild(this.$.dialogfooter);
     };
+
+    this.$.dialog.headerRenderer = root => {
+      if (root.firstElementChild) {
+        return;
+      }
+
+      root.appendChild(this.$.dialogheader);
+    };
+
+    /**
+     * fill the dialog content because template in template is not working well
+     */
+    this.$.dialog.renderer = root => {
+      if (root.firstElementChild) {
+        return;
+      }
+
+      root.appendChild(this.$.dialogmain);
+      this.$.dialogmain.appendChild(this._filter);
+      this.$.dialogmain.appendChild(this._grid);
+      this.$.dialogmain.appendChild(this._selected);
+    };
+
     this.$.dialog.addEventListener('opened-changed', e => {
       // dialog close
       if (!e.detail.value) {
