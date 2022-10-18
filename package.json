@@ -22,13 +22,14 @@
     "test": "wct",
     "lint": "eslint src/*.js",
     "prestart": "polymer analyze src/*.js > analysis.json",
-    "serve": "web-dev-server --node-resolve --open",
+    "serve": "wds --node-resolve --open demo/",
     "build": "run-s build:api build:demo",
     "build:api": "npm run prestart && polymer build",
     "build:demo": "webpack --env production",
     "build:types": "tsc",
     "publish": "node util/publish.js",
-    "prepublishOnly": "run-s build:types"
+    "prepublishOnly": "run-s build:types",
+    "start": "run-s serve"
   },
   "husky": {
     "hooks": {
@@ -47,6 +48,7 @@
     "@vaadin/button": "^23.2.4",
     "@vaadin/combo-box": "^23.2.4",
     "@vaadin/component-base": "^23.2.4",
+    "@vaadin/dialog": "^23.2.5",
     "@vaadin/grid": "^23.2.4",
     "@vaadin/horizontal-layout": "^23.2.4",
     "@vaadin/icon": "^23.2.4",
@@ -100,9 +102,7 @@
     "webpack-dev-server": "^3.8.0",
     "webpack-merge": "^4.2.1"
   },
-  "overrides": {
-
-  },
+  "overrides": {},
   "bugs": {
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
   },
