@@ -22,13 +22,14 @@
     "test": "wct",
     "lint": "eslint src/*.js",
     "prestart": "polymer analyze src/*.js > analysis.json",
-    "start": "polymer serve -o",
+    "serve": "wds --node-resolve --open demo/",
     "build": "run-s build:api build:demo",
     "build:api": "npm run prestart && polymer build",
     "build:demo": "webpack --env production",
     "build:types": "tsc",
     "publish": "node util/publish.js",
-    "prepublishOnly": "run-s build:types"
+    "prepublishOnly": "run-s build:types",
+    "start": "run-s serve"
   },
   "husky": {
     "hooks": {
@@ -44,18 +45,18 @@
   },
   "dependencies": {
     "@polymer/polymer": "^3.4.1",
-    "@vaadin-component-factory/vcf-enhanced-dialog": "^23.1.1",
-    "@vaadin/button": "^23.1.0",
-    "@vaadin/combo-box": "^23.1.0",
-    "@vaadin/component-base": "^23.1.0",
-    "@vaadin/grid": "^23.1.0",
-    "@vaadin/horizontal-layout": "^23.1.0",
-    "@vaadin/icon": "^23.1.0",
-    "@vaadin/icons": "^23.1.0",
-    "@vaadin/notification": "^23.1.0",
-    "@vaadin/text-field": "^23.1.0",
-    "@vaadin/vaadin-lumo-styles": "^23.1.0",
-    "@vaadin/vaadin-themable-mixin": "^23.1.0"
+    "@vaadin/button": "^23.2.4",
+    "@vaadin/combo-box": "^23.2.4",
+    "@vaadin/component-base": "^23.2.4",
+    "@vaadin/dialog": "^23.2.5",
+    "@vaadin/grid": "^23.2.4",
+    "@vaadin/horizontal-layout": "^23.2.4",
+    "@vaadin/icon": "^23.2.4",
+    "@vaadin/icons": "^23.2.4",
+    "@vaadin/notification": "^23.2.4",
+    "@vaadin/text-field": "^23.2.4",
+    "@vaadin/vaadin-lumo-styles": "^23.2.4",
+    "@vaadin/vaadin-themable-mixin": "^23.2.4"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -67,6 +68,7 @@
     "@polymer/test-fixture": "^4.0.2",
     "@vaadin-component-factory/vcf-anchor-nav": "^23.0.1",
     "@vaadin-component-factory/vcf-element-util": "^0.2.8",
+    "@web/dev-server": "^0.1.34",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
@@ -100,13 +102,7 @@
     "webpack-dev-server": "^3.8.0",
     "webpack-merge": "^4.2.1"
   },
-  "overrides": {
-    "@vaadin/tabs": "^23.1.0",
-    "@vaadin/overlay": "^23.1.0",
-    "@vaadin/component-base": "^23.1.0",
-    "@vaadin/vaadin-lumo-styles": "^23.1.0",
-    "@vaadin/vaadin-themable-mixin": "^23.1.0"
-  },
+  "overrides": {},
   "bugs": {
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
   },

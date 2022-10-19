@@ -2,7 +2,7 @@ import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/component-base/src/element-mixin';
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
-import '@vaadin-component-factory/vcf-enhanced-dialog';
+import '@vaadin/dialog';
 import '@vaadin/button';
 import '@vaadin/combo-box';
 import '@vaadin/grid';
@@ -111,7 +111,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           <vaadin-icon icon="vaadin:search"></vaadin-icon>
         </vaadin-button>
 
-        <vcf-enhanced-dialog
+        <vaadin-dialog
           aria-label="lookup-grid"
           id="dialog"
           theme$="[[theme]]"
@@ -120,7 +120,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           resizable$="[[resizable]]"
           no-close-on-outside-click
         >
-          <header id="dialogheader" slot="header" class="draggable enhanced-dialog-header">
+          <header id="dialogheader" slot="header-content" class="draggable enhanced-dialog-header">
             <slot name="dialog-header">
               [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
             </slot>
@@ -148,7 +148,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             </vaadin-horizontal-layout>
           </footer>
           <div id="dialogmain" class="enhanced-dialog-content"></div>
-        </vcf-enhanced-dialog>
+        </vaadin-dialog>
 
         <slot name="grid" style="display:none;" id="gridSlot">
           <vaadin-grid items="[[filterItems(items, _filterdata)]]">
@@ -201,7 +201,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     this._filter = this.$.filterSlot.firstElementChild;
     this._field = this.$.fieldSlot.firstElementChild;
     this._selected = this.$.selectedSlot.firstElementChild;
-    const that = this;
 
     if (this._grid) {
       this._grid.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
@@ -209,40 +208,41 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
 
     if (this._field) {
-      this._field.addEventListener('filter-changed', function(e) {
-        that._filterValue = e.detail.value;
+      this._field.addEventListener('filter-changed', e => {
+        this._filterValue = e.detail.value;
       });
     }
+
+    this.$.dialog.footerRenderer = root => {
+      if (root.firstElementChild) {
+        return;
+      }
+
+      root.appendChild(this.$.dialogfooter);
+    };
+
+    this.$.dialog.headerRenderer = root => {
+      if (root.firstElementChild) {
+        return;
+      }
+
+      root.appendChild(this.$.dialogheader);
+    };
 
     /**
      * fill the dialog content because template in template is not working well
      */
-    this.$.dialog.renderer = function(root, dialog) {
+    this.$.dialog.renderer = root => {
       if (root.firstElementChild) {
         return;
       }
-      if (that._dialogHeader) {
-        root.appendChild(that.$.dialogheader);
-        while (that.$.dialogheader.firstChild) {
-          that.$.dialogheader.removeChild(that.$.dialogheader.lastChild);
-        }
-        that.$.dialogheader.appendChild(that._dialogHeader);
-      } else if (that.header) {
-        root.appendChild(that.$.dialogheader);
-      }
-      root.appendChild(that.$.dialogmain);
-      that.$.dialogmain.appendChild(that._filter);
-      that.$.dialogmain.appendChild(that._grid);
-      that.$.dialogmain.appendChild(that._selected);
 
-      root.appendChild(that.$.dialogfooter);
-      if (that._dialogFooter) {
-        while (that.$.dialogfooter.firstChild) {
-          that.$.dialogfooter.removeChild(that.$.dialogfooter.lastChild);
-        }
-        that.$.dialogfooter.appendChild(that._dialogFooter);
-      }
+      root.appendChild(this.$.dialogmain);
+      this.$.dialogmain.appendChild(this._filter);
+      this.$.dialogmain.appendChild(this._grid);
+      this.$.dialogmain.appendChild(this._selected);
     };
+
     this.$.dialog.addEventListener('opened-changed', e => {
       // dialog close
       if (!e.detail.value) {
