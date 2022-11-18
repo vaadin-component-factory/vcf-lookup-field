@@ -1,4 +1,4 @@
-declare const LookupField_base: typeof PolymerElement & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin").ThemableMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin/vaadin-theme-property-mixin").ThemePropertyMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/dir-mixin").DirMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/element-mixin").ElementMixinClass>;
+declare const LookupField_base: import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/dir-mixin").DirMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/component-base/src/element-mixin").ElementMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin").ThemableMixinClass> & import("@open-wc/dedupe-mixin").Constructor<import("@vaadin/vaadin-themable-mixin/vaadin-theme-property-mixin").ThemePropertyMixinClass> & typeof PolymerElement;
 /**
  * `<vcf-lookup-field>` [element-description]
  *
@@ -155,6 +155,7 @@ export class LookupField extends LookupField_base {
     _filter: any;
     _field: any;
     _selected: any;
+    _filterValue: any;
     __opendialog(): void;
     __onSelectItem(event: any): void;
     __onSelectChanged(event: any): void;

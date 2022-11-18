@@ -128,14 +128,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
           <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer" has-selected$="[[hasselected]]">
             <vaadin-horizontal-layout theme="spacing-s">
-              <vaadin-button
-                id="selectbtn"
-                theme="primary"
-                disabled$="[[selectdisabled]]"
-                aria-disabled$="[[selectdisabled]]"
-                role="button"
-                on-click="__select"
-              >
+              <vaadin-button id="selectbtn" theme="primary" role="button" on-click="__select" tabindex="0">
                 [[i18n.select]]
               </vaadin-button>
               <vaadin-button tabindex="0" role="button" on-click="__close" theme="tertiary">
@@ -197,14 +190,31 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   ready() {
     super.ready();
-    this._grid = this.$.gridSlot.firstElementChild;
-    this._filter = this.$.filterSlot.firstElementChild;
-    this._field = this.$.fieldSlot.firstElementChild;
-    this._selected = this.$.selectedSlot.firstElementChild;
 
-    if (this._grid) {
-      this._grid.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
-      this._grid.addEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
+    if (this.$.gridSlot.assignedNodes()[0]) {
+      this._grod = this.$.gridSlot.assignedNodes()[0];
+    } else {
+      this._grod = this.$.gridSlot.firstElementChild;
+    }
+    if (this.$.filterSlot.assignedNodes()[0]) {
+      this._filter = this.$.filterSolt.assignedNodes()[0];
+    } else {
+      this._filter = this.$.filterSlot.firstElementChild;
+    }
+    if (this.$.fieldSlot.assignedNodes()[0]) {
+      this._field = this.$.fieldSlot.assignedNodes()[0];
+    } else {
+      this._field = this.$.fieldSlot.firstElementChild;
+    }
+    if (this.$.selectedSlot.assignedNodes()[0]) {
+      this._selected = this.$.selectedSlot.assignedNodes()[0];
+    } else {
+      this._selected = this.$.selectedSlot.firstElementChild;
+    }
+
+    if (this._grod) {
+      this._grod.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
+      this._grod.addEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
     }
 
     if (this._field) {
@@ -212,6 +222,8 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         this._filterValue = e.detail.value;
       });
     }
+
+    this.$.dialog.$.overlay.removeAttribute('focus-trap');
 
     this.$.dialog.footerRenderer = root => {
       if (root.firstElementChild) {
@@ -236,20 +248,23 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (root.firstElementChild) {
         return;
       }
-
       root.appendChild(this.$.dialogmain);
       this.$.dialogmain.appendChild(this._filter);
-      this.$.dialogmain.appendChild(this._grid);
+      this.$.dialogmain.appendChild(this._grod);
       this.$.dialogmain.appendChild(this._selected);
     };
 
     this.$.dialog.addEventListener('opened-changed', e => {
-      // dialog close
       if (!e.detail.value) {
+        if (typeof this._grid != 'undefined') {
+          this._grid._dialogOpen = false;
+        }
         setTimeout(() => {
           this.$.searchButton.focus();
           this.$.searchButton.setAttribute('focus-ring', true);
         }, 10);
+      } else if (typeof this._grid != 'undefined') {
+        this._grid._dialogOpen = true;
       }
     });
   }
@@ -260,11 +275,11 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   __onSelectItem(event) {
     const item = event.detail.value;
-    this._grid.selectedItems = item ? [item] : [];
+    this._grod.selectedItems = item ? [item] : [];
   }
 
   __onSelectChanged(event) {
-    this._gridSelectedItem = [...event.detail.value];
+    this._grodSelectedItem = [...event.detail.value];
     if (event.detail.value.length > 0) {
       this.programselectdisabled = false;
     } else {
@@ -272,17 +287,32 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
   }
 
+  set _grid(grid) {
+    if (grid && 'VAADIN-GRID-PRO' === grid.tagName) {
+      grid._dialogOpen = true;
+      grid._oldStopEdit = grid._stopEdit;
+      grid._stopEdit = this._customStopEdit.bind(grid);
+    }
+  }
+
+  _customStopEdit(shouldCancel, shouldRestoreFocus) {
+    if (this._dialogOpen) {
+      return;
+    }
+    this._oldStopEdit(shouldCancel, shouldRestoreFocus);
+  }
+
   /** @private */
   __onDomChange(nodes) {
     const that = this;
     nodes.forEach(node => {
       if (node.getAttribute) {
-        if (node.getAttribute('slot') == 'grid') {
-          this._grid.removeEventListener('active-item-changed', this.__onActiveItemChangedBinded);
-          this._grid.removeEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
-          this._grid = node;
-          this._grid.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
-          this._grid.addEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
+        if (node.getAttribute('slot') == 'grid' && this._grod) {
+          this._grod.removeEventListener('active-item-changed', this.__onActiveItemChangedBinded);
+          this._grod.removeEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
+          this._grod = node;
+          this._grod.addEventListener('active-item-changed', this.__onActiveItemChangedBinded);
+          this._grod.addEventListener('selected-items-changed', this.__onSelectItemsChangedBinded);
         } else if (node.getAttribute('slot') == 'field') {
           this._field = node;
           this._field.style.flexGrow = 1;
@@ -318,8 +348,8 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.$server) {
       this.$server.filterGrid(event.detail.value);
     } else {
-      if (this._grid) {
-        this._grid.items = this.filterItems(this.items, event.detail.value);
+      if (this._grod) {
+        this._grod.items = this.filterItems(this.items, event.detail.value);
       }
     }
   }
@@ -350,8 +380,8 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       this._filterdata = this._field.inputElement.value;
       const item = this._field.selectedItem;
-      this._grid.selectedItems = item ? [item] : [];
-      this._gridSelectedItem = item;
+      this._grod.selectedItems = item ? [item] : [];
+      this._grodSelectedItem = item;
       if (item) {
         this.programselectdisabled = false;
       } else {
@@ -369,22 +399,15 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
   /** @private */
   __select() {
-    if (this.programselectdisabled) {
-      if (this.$server) {
-        this.$server.openErrorNotification();
-      } else {
-        this.$.notification.open();
-      }
+    if (this.$server) {
+      this.$server.copyFieldValueFromGrid();
     } else {
-      if (this.$server) {
-        this.$server.copyFieldValueFromGrid();
-      } else {
-        const item = this._gridSelectedItem;
-        const selectedItem = Array.isArray(item) ? item[0] : item;
+      const item = this._grodSelectedItem;
+      const selectedItem = Array.isArray(item) ? item[0] : item;
+      if (selectedItem) {
         this._field.selectedItem = selectedItem;
+        this.$.dialog.opened = false;
       }
-
-      this.$.dialog.opened = false;
     }
   }
 
