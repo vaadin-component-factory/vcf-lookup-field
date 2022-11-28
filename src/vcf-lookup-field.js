@@ -402,11 +402,17 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     if (this.$server) {
       this.$server.copyFieldValueFromGrid();
     } else {
+      var that = this;
       const item = this._grodSelectedItem;
       const selectedItem = Array.isArray(item) ? item[0] : item;
       if (selectedItem) {
         this._field.selectedItem = selectedItem;
         this.$.dialog.opened = false;
+      } else {
+        this.$.notification.renderer = function(root, notification) {
+          root.textContent = that.i18n.emptyselection;
+        };
+        this.$.notification.open();
       }
     }
   }
