@@ -151,7 +151,7 @@ export class LookupField extends LookupField_base {
     __onActiveItemChangedBinded: any;
     _observer: FlattenedNodesObserver;
     ready(): void;
-    _grid: any;
+    _grod: any;
     _filter: any;
     _field: any;
     _selected: any;
@@ -159,8 +159,10 @@ export class LookupField extends LookupField_base {
     __opendialog(): void;
     __onSelectItem(event: any): void;
     __onSelectChanged(event: any): void;
-    _gridSelectedItem: any;
+    _grodSelectedItem: any;
     programselectdisabled: boolean;
+    set _grid(arg: any);
+    _customStopEdit(shouldCancel: any, shouldRestoreFocus: any): void;
     /** @private */
     private __onDomChange;
     _dialogHeader: any;
