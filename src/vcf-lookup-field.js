@@ -223,8 +223,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       });
     }
 
-    this.$.dialog.$.overlay.removeAttribute('focus-trap');
-
     this.$.dialog.footerRenderer = root => {
       if (root.firstElementChild) {
         return;
@@ -256,15 +254,17 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
     this.$.dialog.addEventListener('opened-changed', e => {
       if (!e.detail.value) {
-        if (typeof this._grid != 'undefined') {
-          this._grid._dialogOpen = false;
+        if (typeof this._gridPro != 'undefined') {
+          // we're in a GridPro -> it's now ok to close the editor
+          this._gridPro._dialogOpen = false;
         }
         setTimeout(() => {
           this.$.searchButton.focus();
           this.$.searchButton.setAttribute('focus-ring', true);
         }, 10);
-      } else if (typeof this._grid != 'undefined') {
-        this._grid._dialogOpen = true;
+      } else if (typeof this._gridPro != 'undefined') {
+        // we're in a GridPro -> update the _dialogOpen status so editor won't close
+        this._gridPro._dialogOpen = true;
       }
     });
   }
@@ -288,17 +288,26 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   set _grid(grid) {
+    // GridPro sets a "_grid" property to the editor field when the field is entered
     if (grid && 'VAADIN-GRID-PRO' === grid.tagName) {
-      grid._dialogOpen = true;
-      grid._oldStopEdit = grid._stopEdit;
-      grid._stopEdit = this._customStopEdit.bind(grid);
+      // override the _stopEdit function (if it hasn't been done already) so that opening
+      // the lookup field's dialog doesn't close the GridPro editor
+      if (typeof this._gridPro == 'undefined') {
+        this._gridPro = grid;
+        // store the old _stopEdit function
+        grid._oldStopEdit = grid._stopEdit;
+        // override the _stopEdit function
+        grid._stopEdit = this._customStopEdit.bind(grid);
+      }
     }
   }
 
   _customStopEdit(shouldCancel, shouldRestoreFocus) {
+    // if the editor dialog is open, don't stop editing in GridPro
     if (this._dialogOpen) {
       return;
     }
+    // otherwise fall back to the original _stopEdit
     this._oldStopEdit(shouldCancel, shouldRestoreFocus);
   }
 
