@@ -190,7 +190,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   ready() {
     super.ready();
-
     if (this.$.gridSlot.assignedNodes()[0]) {
       this._grod = this.$.gridSlot.assignedNodes()[0];
     } else {
@@ -206,6 +205,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       this._field = this.$.fieldSlot.firstElementChild;
     }
+
     if (this.$.selectedSlot.assignedNodes()[0]) {
       this._selected = this.$.selectedSlot.assignedNodes()[0];
     } else {
@@ -262,11 +262,22 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           this.$.searchButton.focus();
           this.$.searchButton.setAttribute('focus-ring', true);
         }, 10);
-      } else if (typeof this._gridPro != 'undefined') {
-        // we're in a GridPro -> update the _dialogOpen status so editor won't close
-        this._gridPro._dialogOpen = true;
+      } else {
+        if (typeof this._gridPro != 'undefined') {
+          // we're in a GridPro -> update the _dialogOpen status so editor won't close
+          this._gridPro._dialogOpen = true;
+        }
+        this.$.lookupFieldFilter.focus();
+        this.$.lookupFieldFilter.setAttribute('focus-ring', true);
       }
     });
+  }
+
+  focus() {
+    setTimeout(() => {
+      this._field.focusElement.focus();
+      this._field.focusElement.select();
+    }, 100);
   }
 
   __opendialog() {
@@ -294,15 +305,44 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       // the lookup field's dialog doesn't close the GridPro editor
       if (typeof this._gridPro == 'undefined') {
         this._gridPro = grid;
+        grid._editor = this;
         // store the old _stopEdit function
         grid._oldStopEdit = grid._stopEdit;
         // override the _stopEdit function
         grid._stopEdit = this._customStopEdit.bind(grid);
+
+        this._field.addEventListener('keydown', e => {
+          if (e.shiftKey == false && e.keyCode == 9) {
+            e.stopPropagation();
+            grid._hasFocusCallback = true;
+            grid._focusCallback = () => {
+              this.$.searchButton.focus();
+              this.$.searchButton.setAttribute('focus-ring', true);
+            };
+            this.$.searchButton.focus();
+          }
+        });
+        this.$.searchButton.addEventListener('keydown', e => {
+          if (e.shiftKey == true && e.keyCode == 9) {
+            e.stopPropagation();
+            grid._hasFocusCallback = true;
+            grid._focusCallback = () => {
+              this._field.focus();
+              this._field.setAttribute('focus-ring', true);
+            };
+            this._field.focus();
+          }
+        });
       }
     }
   }
 
   _customStopEdit(shouldCancel, shouldRestoreFocus) {
+    if (this._hasFocusCallback) {
+      this._hasFocusCallback = false;
+      this._focusCallback();
+      return;
+    }
     // if the editor dialog is open, don't stop editing in GridPro
     if (this._dialogOpen) {
       return;
