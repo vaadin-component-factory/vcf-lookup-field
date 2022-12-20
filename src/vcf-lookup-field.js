@@ -105,6 +105,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           class="search-button"
           theme="icon"
           on-click="__open"
+          on-keydown="__searchKeydown"
           aria-label="[[i18n.searcharialabel]]"
           disabled$="[[buttondisabled]]"
         >
@@ -280,10 +281,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     }, 100);
   }
 
-  __opendialog() {
-    this.$.basic.opened = true;
-  }
-
   __onSelectItem(event) {
     const item = event.detail.value;
     this._grod.selectedItems = item ? [item] : [];
@@ -413,6 +410,11 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       return items;
     }
+  }
+
+  /** @private */
+  __searchKeydown(event) {
+    event.stopPropagation();
   }
 
   /** @private */
