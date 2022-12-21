@@ -156,13 +156,15 @@ export class LookupField extends LookupField_base {
     _field: any;
     _selected: any;
     _filterValue: any;
-    __opendialog(): void;
+    focus(): void;
     __onSelectItem(event: any): void;
     __onSelectChanged(event: any): void;
     _grodSelectedItem: any;
     programselectdisabled: boolean;
     set _grid(arg: any);
+    _gridPro: any;
     _customStopEdit(shouldCancel: any, shouldRestoreFocus: any): void;
+    _hasFocusCallback: boolean;
     /** @private */
     private __onDomChange;
     _dialogHeader: any;
@@ -172,6 +174,8 @@ export class LookupField extends LookupField_base {
     computebuttondisabled(readonly: any, disabled: any): any;
     __filterGrid(event: any): void;
     filterItems(items: any, filterData: any): any;
+    /** @private */
+    private __searchKeydown;
     /** @private */
     private __open;
     _filterdata: any;
