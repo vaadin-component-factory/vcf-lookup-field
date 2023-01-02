@@ -247,6 +247,15 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (root.firstElementChild) {
         return;
       }
+      if (!root.enterKeydown) {
+        const keydown = e => {
+          if (e.keyCode == 13) {
+            this.__select();
+          }
+        };
+        root.addEventListener('keydown', keydown);
+        root.enterKeydown = keydown;
+      }
       root.appendChild(this.$.dialogmain);
       this.$.dialogmain.appendChild(this._filter);
       this.$.dialogmain.appendChild(this._grod);
@@ -254,16 +263,19 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     };
 
     this.$.dialog.addEventListener('opened-changed', e => {
+      // dialog closed
       if (!e.detail.value) {
         if (typeof this._gridPro != 'undefined') {
           // we're in a GridPro -> it's now ok to close the editor
           this._gridPro._dialogOpen = false;
         }
         setTimeout(() => {
-          this.$.searchButton.focus();
-          this.$.searchButton.setAttribute('focus-ring', true);
+          this._field.focus();
+          this._field.setAttribute('focus-ring', true);
         }, 10);
-      } else {
+      }
+      // dialog opened
+      else {
         if (typeof this._gridPro != 'undefined') {
           // we're in a GridPro -> update the _dialogOpen status so editor won't close
           this._gridPro._dialogOpen = true;
@@ -328,6 +340,8 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
               this._field.setAttribute('focus-ring', true);
             };
             this._field.focus();
+          } else if (typeof this._gridPro != 'undefined' && e.keyCode == 9) {
+            this._gridPro._switchEditCell(e);
           }
         });
       }
