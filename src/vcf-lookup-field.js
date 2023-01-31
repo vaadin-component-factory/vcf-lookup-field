@@ -428,7 +428,17 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   /** @private */
   __searchKeydown(event) {
-    event.stopPropagation();
+    /**
+     * Stop propagation of enter key events when search button is focused
+     * so GridPro won't change lines. Don't stop propagation in other situations
+     * in case this inteferes with other desired behavior.
+     */
+    let preventPropagation = false;
+    ['vaadin-grid', 'vaadin-grid-pro'].forEach(el => {
+      const isAncestor = this.closest(el);
+      if (isAncestor) preventPropagation = true;
+    });
+    if (preventPropagation) event.stopPropagation();
   }
 
   /** @private */
