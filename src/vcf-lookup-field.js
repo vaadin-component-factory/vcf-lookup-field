@@ -197,7 +197,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       this._grod = this.$.gridSlot.firstElementChild;
     }
     if (this.$.filterSlot.assignedNodes()[0]) {
-      this._filter = this.$.filterSolt.assignedNodes()[0];
+      this._filter = this.$.filterSlot.assignedNodes()[0];
     } else {
       this._filter = this.$.filterSlot.firstElementChild;
     }
