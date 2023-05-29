@@ -5,3 +5,4 @@ package-lock.json
 analysis.json
 /next/
 /.idea/
+*.iml
