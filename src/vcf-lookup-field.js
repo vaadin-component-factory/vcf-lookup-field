@@ -64,9 +64,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           margin-left: var(--lumo-space-xs);
           flex: 0 0 auto;
         }
-        .enhanced-dialog-footer {
-          display: flex;
-        }
         :host([theme~='integrated']) .container {
           align-items: flex-end;
         }
@@ -115,33 +112,37 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         <vaadin-dialog
           aria-label="lookup-grid"
           id="dialog"
+          header-title="[[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]"
           theme$="[[theme]]"
           modeless$="[[modeless]]"
           draggable$="[[draggable]]"
           resizable$="[[resizable]]"
           no-close-on-outside-click
         >
-          <header id="dialogheader" slot="header-content" class="draggable enhanced-dialog-header">
-            <slot name="dialog-header">
-              [[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]
-            </slot>
-          </header>
-
-          <footer id="dialogfooter" slot="footer" class="enhanced-dialog-footer" has-selected$="[[hasselected]]">
-            <vaadin-horizontal-layout theme="spacing-s">
-              <vaadin-button id="selectbtn" theme="primary" role="button" on-click="__select" tabindex="0">
-                [[i18n.select]]
-              </vaadin-button>
-              <vaadin-button tabindex="0" role="button" on-click="__close" theme="tertiary">
-                [[i18n.cancel]]
-              </vaadin-button>
-              <div style="flex-grow: 1;"></div>
-              <vaadin-button tabindex="0" role="button" on-click="__create" theme="tertiary" hidden$="[[createhidden]]">
-                [[i18n.create]]
-              </vaadin-button>
-            </vaadin-horizontal-layout>
+          <footer id="dialogfooter">
+            <vaadin-button
+              slot="footer"
+              on-click="__create"
+              hidden$="[[createhidden]]"
+              style="margin-inline-end: auto;"
+              has-selected$="[[hasselected]]"
+            >
+              [[i18n.create]]
+            </vaadin-button>
+            <vaadin-button slot="footer" on-click="__close" has-selected$="[[hasselected]]">
+              [[i18n.cancel]]
+            </vaadin-button>
+            <vaadin-button
+              slot="footer"
+              id="selectbtn"
+              theme="primary"
+              on-click="__select"
+              has-selected$="[[hasselected]]"
+            >
+              [[i18n.select]]
+            </vaadin-button>
           </footer>
-          <div id="dialogmain" class="enhanced-dialog-content"></div>
+          <div id="dialogmain"></div>
         </vaadin-dialog>
 
         <slot name="grid" style="display:none;" id="gridSlot">
@@ -228,16 +229,9 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       if (root.firstElementChild) {
         return;
       }
-
-      root.appendChild(this.$.dialogfooter);
-    };
-
-    this.$.dialog.headerRenderer = root => {
-      if (root.firstElementChild) {
-        return;
-      }
-
-      root.appendChild(this.$.dialogheader);
+      Array.from(this.$.dialogfooter.children).forEach(child => {
+        root.appendChild(child);
+      });
     };
 
     /**
