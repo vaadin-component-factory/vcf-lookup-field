@@ -156,6 +156,8 @@ export class LookupField extends LookupField_base {
     _field: any;
     _selected: any;
     _filterValue: any;
+    _forceFooterRerender: boolean;
+    _forceHeaderRerender: boolean;
     focus(): void;
     __onSelectItem(event: any): void;
     __onSelectChanged(event: any): void;
