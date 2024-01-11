@@ -226,12 +226,30 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     }
 
     this.$.dialog.footerRenderer = root => {
-      if (root.firstElementChild) {
+      if (root.firstElementChild && !this._forceFooterRerender) {
         return;
       }
-      Array.from(this.$.dialogfooter.children).forEach(child => {
-        root.appendChild(child);
-      });
+      this._forceFooterRerender = false;
+
+      if (this._dialogFooter) {
+        root.replaceChildren(this._dialogFooter);
+      } else {
+        Array.from(this.$.dialogfooter.children).forEach(child => {
+          root.appendChild(child);
+        });
+      }
+    };
+
+    this.$.dialog.headerRenderer = (root, dialog) => {
+      if (root.firstElementChild && !this._forceHeaderRerender) {
+        return;
+      }
+      this._forceHeaderRerender = false;
+
+      if (this._dialogHeader) {
+        root.replaceChildren(this._dialogHeader);
+        dialog.headerTitle = null;
+      }
     };
 
     /**
@@ -375,8 +393,10 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           });
         } else if (node.getAttribute('slot') == 'dialog-header') {
           this._dialogHeader = node;
+          this._forceHeaderRerender = true;
         } else if (node.getAttribute('slot') == 'dialog-footer') {
           this._dialogFooter = node;
+          this._forceFooterRerender = true;
         } else if (node.getAttribute('slot') == 'filter') {
           this._filter = node;
         } else if (node.getAttribute('slot') == 'selected') {
