@@ -177,20 +177,18 @@
              title="The server-side (Java) API of this web component for the Vaadin Platform">Lookup Field</a>
         </span>
       </h1>
-      <vcf-anchor-nav-section name="Example 1">
-        <h2 slot="header">Example 1</h2>
+      <vcf-anchor-nav-section name="States">
+        <h2 slot="header">States</h2>
         <demo-snippet>
           <template>
             <div style="display: inline-flex; flex-direction: column; gap: 1rem;">
-              <vcf-lookup-field>
+              <vcf-lookup-field label="Lookup field">
               </vcf-lookup-field>
-              <vcf-lookup-field disabled>
+              <vcf-lookup-field label="Disabled" disabled>
               </vcf-lookup-field>
-              <vcf-lookup-field readonly>
+              <vcf-lookup-field label="Read-only" readonly>
               </vcf-lookup-field>
-              <vcf-lookup-field invalid>
-              </vcf-lookup-field>
-              <vcf-lookup-field>
+              <vcf-lookup-field label="Invalid" invalid>
               </vcf-lookup-field>
             </div>
             <script>
@@ -220,6 +218,23 @@
                 lookupField[4].itemLabelPath = 'name';
               });
             </script>
+          </template>
+        </demo-snippet>
+      </vcf-anchor-nav-section>
+      <vcf-anchor-nav-section name="Theme variants">
+        <h2 slot="header">Theme variants</h2>
+        <demo-snippet>
+          <template>
+            <div style="display: inline-flex; flex-direction: column; gap: 1rem;">
+              <vcf-lookup-field theme="integrated">
+                Testing
+              </vcf-lookup-field>
+              <vcf-lookup-field theme="full-width">
+              </vcf-lookup-field>
+
+              <vcf-lookup-field theme="integrated full-width">
+              </vcf-lookup-field>
+            </div>
           </template>
         </demo-snippet>
       </vcf-anchor-nav-section>
