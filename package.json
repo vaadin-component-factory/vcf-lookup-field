@@ -1,6 +1,6 @@
 {
   "name": "@vaadin-component-factory/vcf-lookup-field",
-  "version": "23.3.3",
+  "version": "24.4.0",
   "description": "Vaadin Lookup field component",
   "main": "theme/lumo/vcf-lookup-field.js",
   "author": "Vaadin Ltd",
@@ -45,18 +45,18 @@
   },
   "dependencies": {
     "@polymer/polymer": "^3.4.1",
-    "@vaadin/button": "^23.3.6",
-    "@vaadin/combo-box": "^23.3.6",
-    "@vaadin/component-base": "^23.3.6",
-    "@vaadin/dialog": "^23.3.6",
-    "@vaadin/grid": "^23.3.6",
-    "@vaadin/horizontal-layout": "^23.3.6",
-    "@vaadin/icon": "^23.3.6",
-    "@vaadin/icons": "^23.3.6",
-    "@vaadin/notification": "^23.3.6",
-    "@vaadin/text-field": "^23.3.6",
-    "@vaadin/vaadin-lumo-styles": "^23.3.6",
-    "@vaadin/vaadin-themable-mixin": "^23.3.6"
+    "@vaadin/button": "^24.0.0",
+    "@vaadin/combo-box": "^24.0.0",
+    "@vaadin/component-base": "^24.0.0",
+    "@vaadin/dialog": "^24.0.0",
+    "@vaadin/grid": "^24.0.0",
+    "@vaadin/horizontal-layout": "^24.0.0",
+    "@vaadin/icon": "^24.0.0",
+    "@vaadin/icons": "^24.0.0",
+    "@vaadin/notification": "^24.0.0",
+    "@vaadin/text-field": "^24.0.0",
+    "@vaadin/vaadin-lumo-styles": "^24.0.0",
+    "@vaadin/vaadin-themable-mixin": "^24.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",

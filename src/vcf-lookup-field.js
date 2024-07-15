@@ -74,7 +74,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           margin-left: 0;
           border-radius: 0 var(--lumo-border-radius-s) var(--lumo-border-radius-s) 0;
         }
-        :host([theme~="full-width"]) vaadin-combo-box::part(input-field) {
+        :host([theme~='full-width']) vaadin-combo-box::part(input-field) {
           margin-inline-end: var(--lumo-size-m);
         }
         :host([theme~='full-width']) vaadin-button.search-button {
@@ -535,7 +535,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '23.3.3';
+    return '24.0.0';
   }
 
   static get properties() {
