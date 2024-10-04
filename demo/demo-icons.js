@@ -1,17 +1,7 @@
 /* eslint-disable max-len */
 import { html } from '@polymer/polymer/polymer-element.js';
-import { registerStyles, css } from '@vaadin/vaadin-themable-mixin/register-styles.js';
 import '@polymer/iron-iconset-svg';
 
-registerStyles(
-  'vaadin-button',
-  css`
-    [part] ::slotted(iron-icon[icon^='vcf-demo:']) {
-      padding: 0.25em;
-      box-sizing: border-box !important;
-    }
-  `
-);
 
 const template = html`
   <iron-iconset-svg name="vcf-demo" size="16">

@@ -45,18 +45,18 @@
   },
   "dependencies": {
     "@polymer/polymer": "^3.4.1",
-    "@vaadin/button": "^24.0.0",
-    "@vaadin/combo-box": "^24.0.0",
-    "@vaadin/component-base": "^24.0.0",
-    "@vaadin/dialog": "^24.0.0",
-    "@vaadin/grid": "^24.0.0",
-    "@vaadin/horizontal-layout": "^24.0.0",
-    "@vaadin/icon": "^24.0.0",
-    "@vaadin/icons": "^24.0.0",
-    "@vaadin/notification": "^24.0.0",
-    "@vaadin/text-field": "^24.0.0",
-    "@vaadin/vaadin-lumo-styles": "^24.0.0",
-    "@vaadin/vaadin-themable-mixin": "^24.0.0"
+    "@vaadin/button": "^24.1.0",
+    "@vaadin/combo-box": "^24.1.0",
+    "@vaadin/component-base": "^24.1.0",
+    "@vaadin/dialog": "^24.1.0",
+    "@vaadin/grid": "^24.1.0",
+    "@vaadin/horizontal-layout": "^24.1.0",
+    "@vaadin/icon": "^24.1.0",
+    "@vaadin/icons": "^24.1.0",
+    "@vaadin/notification": "^24.1.0",
+    "@vaadin/text-field": "^24.1.0",
+    "@vaadin/vaadin-lumo-styles": "^24.1.0",
+    "@vaadin/vaadin-themable-mixin": "^24.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -102,7 +102,13 @@
     "webpack-dev-server": "^3.8.0",
     "webpack-merge": "^4.2.1"
   },
-  "overrides": {},
+  "overrides": {
+  "@vaadin/tabs": "^24.1.0",
+  "@vaadin/overlay": "^24.1.0",
+  "@vaadin/component-base": "^24.1.0",
+  "@vaadin/vaadin-lumo-styles": "^24.1.0",
+  "@vaadin/vaadin-themable-mixin": "^24.1.0"
+},
   "bugs": {
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
   },
