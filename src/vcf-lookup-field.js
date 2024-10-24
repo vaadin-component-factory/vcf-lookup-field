@@ -60,7 +60,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           width: 100%;
           min-width: 0;
         }
-        vaadin-button.search-button {
+        ::slotted(vaadin-button.search-button) {
           margin-left: var(--lumo-space-xs);
           flex: 0 0 auto;
         }
@@ -70,24 +70,24 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         :host([theme~='integrated']) vaadin-combo-box::part(input-field) {
           border-radius: var(--lumo-border-radius-s) 0 0 var(--lumo-border-radius-s);
         }
-        :host([theme~='integrated']) .search-button {
+        :host([theme~='integrated']) ::slotted(.search-button) {
           margin-left: 0;
           border-radius: 0 var(--lumo-border-radius-s) var(--lumo-border-radius-s) 0;
         }
         :host([theme~='full-width']) vaadin-combo-box::part(input-field) {
           margin-inline-end: var(--lumo-size-m);
         }
-        :host([theme~='full-width']) vaadin-button.search-button {
+        :host([theme~='full-width']) ::slotted(vaadin-button.search-button) {
           margin-inline-start: calc(var(--lumo-space-xs) + (var(--lumo-size-m) * -1));
         }
-        :host([theme~='integrated'][theme~='full-width']) vaadin-button.search-button {
+        :host([theme~='integrated'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
           margin-inline-start: calc((var(--lumo-size-m) * -1));
         }
-        :host([readonly]) vaadin-button.search-button {
+        :host([readonly]) ::slotted(vaadin-button.search-button) {
           background-color: transparent;
           border: 1px dashed var(--lumo-contrast-30pct);
         }
-        :host([invalid]) vaadin-button.search-button {
+        :host([invalid]) ::slotted(vaadin-button.search-button) {
           color: var(--lumo-error-text-color);
           background-color: var(--lumo-error-color-10pct);
         }
@@ -106,17 +106,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           ></vaadin-combo-box>
         </slot>
 
-        <vaadin-button
-          id="searchButton"
-          class="search-button"
-          theme="icon"
-          on-click="__open"
-          on-keydown="__searchKeydown"
-          aria-label="[[i18n.searcharialabel]]"
-          disabled$="[[buttondisabled]]"
-        >
-          <vaadin-icon icon="vaadin:search"></vaadin-icon>
-        </vaadin-button>
+        <slot name="search-button-slot"></slot>
 
         <vaadin-dialog
           aria-label="lookup-grid"
@@ -201,6 +191,9 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
 
   ready() {
     super.ready();
+
+    this._createSearchButton();
+
     if (this.$.gridSlot.assignedNodes()[0]) {
       this._grod = this.$.gridSlot.assignedNodes()[0];
     } else {
@@ -305,6 +298,30 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         this.$.lookupFieldFilter.setAttribute('focus-ring', true);
       }
     });
+  }
+
+  _createSearchButton() {
+    const icon = document.createElement('vaadin-icon');
+    icon.setAttribute('icon', 'vaadin:search');
+    icon.setAttribute('slot', 'prefix');
+
+    const button = document.createElement('vaadin-button');
+    button.setAttribute('slot', 'search-button-slot');
+    button.setAttribute('id', 'searchButton');
+    button.classList.add('search-button');
+    button.setAttribute('theme', 'icon');
+    button.setAttribute('aria-label', this.i18n.searcharialabel);
+    button.disabled = this.buttondisabled;
+
+    button.addEventListener('click', () => {
+      this.__open();
+    });
+    button.addEventListener('keydown', () => {
+      this.__searchKeydown();
+    });
+
+    button.appendChild(icon);
+    this.appendChild(button);
   }
 
   focus() {
@@ -535,7 +552,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '24.0.0';
+    return '5.0.0';
   }
 
   static get properties() {
