@@ -64,9 +64,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           margin-left: var(--lumo-space-xs);
           flex: 0 0 auto;
         }
-        :host([theme~='integrated']) .container {
-          align-items: flex-end;
-        }
         :host([theme~='integrated']) vaadin-combo-box::part(input-field) {
           border-radius: var(--lumo-border-radius-s) 0 0 var(--lumo-border-radius-s);
         }
