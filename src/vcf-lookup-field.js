@@ -535,7 +535,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   static get version() {
-    return '24.0.0';
+    return '4.0.0';
   }
 
   static get properties() {
