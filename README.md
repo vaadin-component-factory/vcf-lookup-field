@@ -18,6 +18,13 @@ Install `vcf-lookup-field`:
 npm i @vaadin-component-factory/vcf-lookup-field --save
 ```
 
+## Compatibility
+
+- Version 1.x.x -> Vaadin 14+
+- Version 3.x.x -> Vaadin 23.x
+- Version 4.x.x -> Vaadin 24.x
+- Version 5.x.x -> Vaadin 24.x (improved accessibility)
+
 ## Usage
 
 Once installed, import it in your application:
