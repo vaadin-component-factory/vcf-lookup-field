@@ -100,6 +100,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             item-value-path="{{itemValuePath}}"
             required$="[[required]]"
             readonly$="[[readonly]]"
+            label="{{label}}"
           ></vaadin-combo-box>
         </slot>
 
@@ -555,6 +556,10 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   static get properties() {
     return {
       header: {
+        type: String
+      },
+
+      label: {
         type: String
       },
 

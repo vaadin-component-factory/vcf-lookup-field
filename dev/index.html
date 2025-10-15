@@ -25,24 +25,16 @@
     of other components or imports.</p>
 
 <h3>States</h3>
-<div>Normal</div>
-<vcf-lookup-field></vcf-lookup-field>
-<div>Disabled</div>
-<vcf-lookup-field disabled></vcf-lookup-field>
-<div>Readonly</div>
-<vcf-lookup-field readonly></vcf-lookup-field>
-<div>Invalid</div>
-<vcf-lookup-field invalid></vcf-lookup-field>
+<vcf-lookup-field label="Normal"></vcf-lookup-field>
+<vcf-lookup-field label="Disabled" disabled></vcf-lookup-field>
+<vcf-lookup-field label="Readonly" readonly></vcf-lookup-field>
+<vcf-lookup-field label="Invalid" invalid></vcf-lookup-field>
 
 <h3>Themes</h3>
-<div>Normal</div>
-<vcf-lookup-field></vcf-lookup-field>
-<div>Integrated</div>
-<vcf-lookup-field theme="integrated"></vcf-lookup-field>
-<div>Full width</div>
-<vcf-lookup-field theme="full-width"></vcf-lookup-field>
-<div>Full width integrated</div>
-<vcf-lookup-field theme="integrated full-width"></vcf-lookup-field>
+<vcf-lookup-field label="Normal"></vcf-lookup-field>
+<vcf-lookup-field label="Integrated" theme="integrated"></vcf-lookup-field>
+<vcf-lookup-field label="Full width (long label rendered also above search button)" theme="full-width"></vcf-lookup-field>
+<vcf-lookup-field  label="Full width + Integrated (long label rendered also above search button)" theme="integrated full-width"></vcf-lookup-field>
 
 <script type="module">
     function initializeField(lookupField) {
