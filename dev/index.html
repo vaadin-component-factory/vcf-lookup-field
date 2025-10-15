@@ -12,6 +12,7 @@
         body {
             display: flex;
             flex-direction: column;
+            row-gap: 0.5rem;
         }
 
         vcf-lookup-field {
@@ -24,6 +25,10 @@
 <p>This is a testing page, where the component operation can be tested without influence
     of other components or imports.</p>
 
+<h3>Tests</h3>
+<vcf-lookup-field label="With label"></vcf-lookup-field>
+<vcf-lookup-field></vcf-lookup-field>
+
 <h3>States</h3>
 <vcf-lookup-field label="Normal"></vcf-lookup-field>
 <vcf-lookup-field label="Disabled" disabled></vcf-lookup-field>
@@ -31,8 +36,8 @@
 <vcf-lookup-field label="Invalid" invalid></vcf-lookup-field>
 
 <h3>Themes</h3>
-<vcf-lookup-field label="Normal"></vcf-lookup-field>
-<vcf-lookup-field label="Integrated" theme="integrated"></vcf-lookup-field>
+<vcf-lookup-field label="Normal (long label not rendered above seach button)"></vcf-lookup-field>
+<vcf-lookup-field label="Integrated (no gap)" theme="integrated"></vcf-lookup-field>
 <vcf-lookup-field label="Full width (long label rendered also above search button)" theme="full-width"></vcf-lookup-field>
 <vcf-lookup-field  label="Full width + Integrated (long label rendered also above search button)" theme="integrated full-width"></vcf-lookup-field>
 
@@ -60,6 +65,8 @@
         select: "-select-",
         emptyselection: "-please select a value-"
     };
+
+    lookupField[4]._field.value = '2';
 </script>
 
 </body>

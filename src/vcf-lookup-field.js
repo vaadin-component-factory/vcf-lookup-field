@@ -50,43 +50,52 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       <style>
         :host {
           display: inline-block;
+          --search-button-field-gap: 0.25rem;
+          --search-button-width: 2.6rem;
+          --readonly-search-button-border: 1px dashed
+            var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
+          --invalid-state-button-color: var(--lumo-error-text-color, inherit);
+          --invalid-state-button-backgroud-color: var(--lumo-error-color-10pct, hsla(3, 82%, 59%, 0.1));
         }
         .container {
           width: 100%;
           display: inline-flex;
-          align-items: baseline;
+          align-items: end;
         }
         vaadin-combo-box {
           width: 100%;
           min-width: 0;
         }
         ::slotted(vaadin-button.search-button) {
-          margin-left: var(--lumo-space-xs);
+          margin-left: var(--search-button-field-gap);
           flex: 0 0 auto;
+          width: var(--search-button-width);
         }
         :host([theme~='integrated']) vaadin-combo-box::part(input-field) {
-          border-radius: var(--lumo-border-radius-s) 0 0 var(--lumo-border-radius-s);
+          border-top-right-radius: 0;
+          border-bottom-right-radius: 0;
         }
         :host([theme~='integrated']) ::slotted(.search-button) {
           margin-left: 0;
-          border-radius: 0 var(--lumo-border-radius-s) var(--lumo-border-radius-s) 0;
+          border-top-left-radius: 0;
+          border-bottom-left-radius: 0;
         }
         :host([theme~='full-width']) vaadin-combo-box::part(input-field) {
-          margin-inline-end: var(--lumo-size-m);
+          margin-inline-end: var(--search-button-width);
         }
         :host([theme~='full-width']) ::slotted(vaadin-button.search-button) {
-          margin-inline-start: calc(var(--lumo-space-xs) + (var(--lumo-size-m) * -1));
+          margin-inline-start: calc(var(--search-button-field-gap) + (var(--search-button-width) * -1));
         }
         :host([theme~='integrated'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
-          margin-inline-start: calc((var(--lumo-size-m) * -1));
+          margin-inline-start: calc((var(--search-button-width) * -1));
         }
         :host([readonly]) ::slotted(vaadin-button.search-button) {
           background-color: transparent;
-          border: 1px dashed var(--lumo-contrast-30pct);
+          border: var(--readonly-search-button-border);
         }
         :host([invalid]) ::slotted(vaadin-button.search-button) {
-          color: var(--lumo-error-text-color);
-          background-color: var(--lumo-error-color-10pct);
+          color: var(--invalid-state-button-color);
+          background-color: var(--invalid-state-button-backgroud-color);
         }
       </style>
 
@@ -159,7 +168,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
             clear-button-visible
             value="{{_filterdata}}"
           >
-            <vaadin-icon icon="lumo:search" slot="suffix"></vaadin-icon>
+            <vaadin-icon icon="vaadin:search" slot="suffix"></vaadin-icon>
           </vaadin-text-field>
         </slot>
 

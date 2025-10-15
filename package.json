@@ -2,7 +2,7 @@
   "name": "@vaadin-component-factory/vcf-lookup-field",
   "version": "6.0.0",
   "description": "Vaadin Lookup field component",
-  "main": "theme/lumo/vcf-lookup-field.js",
+  "main": "theme/base/vcf-lookup-field.js",
   "author": "Vaadin Ltd",
   "license": "https://raw.githubusercontent.com/vaadin-component-factory/vcf-lookup-field/master/LICENSE",
   "repository": {
