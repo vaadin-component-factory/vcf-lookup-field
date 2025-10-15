@@ -46,18 +46,17 @@
   },
   "dependencies": {
     "@polymer/polymer": "^3.4.1",
-    "@vaadin/button": "^24.1.0",
-    "@vaadin/combo-box": "^24.1.0",
-    "@vaadin/component-base": "^24.1.0",
-    "@vaadin/dialog": "^24.1.0",
-    "@vaadin/grid": "^24.1.0",
-    "@vaadin/horizontal-layout": "^24.1.0",
-    "@vaadin/icon": "^24.1.0",
-    "@vaadin/icons": "^24.1.0",
-    "@vaadin/notification": "^24.1.0",
-    "@vaadin/text-field": "^24.1.0",
-    "@vaadin/vaadin-lumo-styles": "^24.1.0",
-    "@vaadin/vaadin-themable-mixin": "^24.1.0"
+    "@vaadin/button": "25.0.0-beta1",
+    "@vaadin/combo-box": "25.0.0-beta1",
+    "@vaadin/component-base": "25.0.0-beta1",
+    "@vaadin/dialog": "25.0.0-beta1",
+    "@vaadin/grid": "25.0.0-beta1",
+    "@vaadin/horizontal-layout": "25.0.0-beta1",
+    "@vaadin/icon": "25.0.0-beta1",
+    "@vaadin/icons": "25.0.0-beta1",
+    "@vaadin/notification": "25.0.0-beta1",
+    "@vaadin/text-field": "25.0.0-beta1",
+    "@vaadin/vaadin-themable-mixin": "25.0.0-beta1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -67,6 +66,7 @@
     "@polymer/iron-demo-helpers": "^3.0.0-pre.19",
     "@polymer/iron-iconset-svg": "^3.0.1",
     "@polymer/test-fixture": "^4.0.2",
+    "@vaadin/vaadin-lumo-styles": "25.0.0-beta1",
     "@vaadin-component-factory/vcf-anchor-nav": "^23.0.1",
     "@vaadin-component-factory/vcf-element-util": "^0.2.8",
     "@web/dev-server": "^0.1.34",
@@ -104,11 +104,10 @@
     "webpack-merge": "^4.2.1"
   },
   "overrides": {
-  "@vaadin/tabs": "^24.1.0",
-  "@vaadin/overlay": "^24.1.0",
-  "@vaadin/component-base": "^24.1.0",
-  "@vaadin/vaadin-lumo-styles": "^24.1.0",
-  "@vaadin/vaadin-themable-mixin": "^24.1.0"
+  "@vaadin/tabs": "25.0.0-beta1",
+  "@vaadin/overlay": "25.0.0-beta1",
+  "@vaadin/component-base": "25.0.0-beta1",
+  "@vaadin/vaadin-themable-mixin": "25.0.0-beta1"
 },
   "bugs": {
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
