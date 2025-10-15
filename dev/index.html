@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>vsf-lookup-field dev page</title>
+    <script type="module">
+        import '../vcf-lookup-field';
+    </script>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        vcf-lookup-field {
+            max-width: 15rem;
+        }
+    </style>
+</head>
+
+<body>
+<p>This is a testing page, where the component operation can be tested without influence
+    of other components or imports.</p>
+
+<h3>States</h3>
+<div>Normal</div>
+<vcf-lookup-field></vcf-lookup-field>
+<div>Disabled</div>
+<vcf-lookup-field disabled></vcf-lookup-field>
+<div>Readonly</div>
+<vcf-lookup-field readonly></vcf-lookup-field>
+<div>Invalid</div>
+<vcf-lookup-field invalid></vcf-lookup-field>
+
+<h3>Themes</h3>
+<div>Normal</div>
+<vcf-lookup-field></vcf-lookup-field>
+<div>Integrated</div>
+<vcf-lookup-field theme="integrated"></vcf-lookup-field>
+<div>Full width</div>
+<vcf-lookup-field theme="full-width"></vcf-lookup-field>
+<div>Full width integrated</div>
+<vcf-lookup-field theme="integrated full-width"></vcf-lookup-field>
+
+<script type="module">
+    function initializeField(lookupField) {
+        lookupField.items = [
+            {id: '1', name: 'Product'},
+            {id: '2', name: 'Service'},
+            {id: '3', name: 'HR'},
+            {id: '4', name: 'Accounting1'}
+        ];
+        lookupField.itemValuePath = 'id';
+        lookupField.itemLabelPath = 'name';
+
+    }
+
+    const lookupField = document.querySelectorAll('vcf-lookup-field');
+    lookupField.forEach(initializeField);
+
+    lookupField[0].header = 'header';
+    lookupField[0].i18n = {
+        headerprefix: "-headerprefix-",
+        create: "-create-",
+        cancel: "-cancel-",
+        select: "-select-",
+        emptyselection: "-please select a value-"
+    };
+</script>
+
+</body>
+</html>

@@ -29,7 +29,8 @@
     "build:types": "tsc",
     "publish": "node util/publish.js",
     "prepublishOnly": "run-s build:types",
-    "start": "run-s serve"
+    "start": "run-s serve",
+    "start-dev": "wds --node-resolve --open dev/"
   },
   "husky": {
     "hooks": {
