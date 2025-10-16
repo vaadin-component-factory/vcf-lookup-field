@@ -124,32 +124,31 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           draggable$="[[draggable]]"
           resizable$="[[resizable]]"
           no-close-on-outside-click
-        >
-          <footer id="dialogfooter">
-            <vaadin-button
-              slot="footer"
-              on-click="__create"
-              hidden$="[[createhidden]]"
-              style="margin-inline-end: auto;"
-              has-selected$="[[hasselected]]"
-            >
-              [[i18n.create]]
-            </vaadin-button>
-            <vaadin-button slot="footer" on-click="__close" has-selected$="[[hasselected]]">
-              [[i18n.cancel]]
-            </vaadin-button>
-            <vaadin-button
-              slot="footer"
-              id="selectbtn"
-              theme="primary"
-              on-click="__select"
-              has-selected$="[[hasselected]]"
-            >
-              [[i18n.select]]
-            </vaadin-button>
-          </footer>
-          <div id="dialogmain"></div>
-        </vaadin-dialog>
+        ></vaadin-dialog>
+
+        <footer id="dialogfooter" style="display:none">
+          <vaadin-button
+            slot="footer"
+            on-click="__create"
+            hidden$="[[createhidden]]"
+            style="margin-inline-end: auto;"
+            has-selected$="[[hasselected]]"
+          >
+            [[i18n.create]]
+          </vaadin-button>
+          <vaadin-button slot="footer" on-click="__close" has-selected$="[[hasselected]]">
+            [[i18n.cancel]]
+          </vaadin-button>
+          <vaadin-button
+            slot="footer"
+            id="selectbtn"
+            theme="primary"
+            on-click="__select"
+            has-selected$="[[hasselected]]"
+          >
+            [[i18n.select]]
+          </vaadin-button>
+        </footer>
 
         <slot name="grid" style="display:none;" id="gridSlot">
           <vaadin-grid items="[[filterItems(items, _filterdata)]]">
@@ -277,10 +276,11 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         root.addEventListener('keydown', keydown);
         root.enterKeydown = keydown;
       }
-      root.appendChild(this.$.dialogmain);
-      this.$.dialogmain.appendChild(this._filter);
-      this.$.dialogmain.appendChild(this._grod);
-      this.$.dialogmain.appendChild(this._selected);
+      const content = document.createElement('div');
+      content.appendChild(this._filter);
+      content.appendChild(this._grod);
+      content.appendChild(this._selected);
+      root.appendChild(content);
     };
 
     this.$.dialog.addEventListener('opened-changed', e => {
