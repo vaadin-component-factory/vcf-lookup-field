@@ -60,7 +60,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         .container {
           width: 100%;
           display: inline-flex;
-          align-items: end;
+          align-items: baseline;
         }
         vaadin-combo-box {
           width: 100%;
