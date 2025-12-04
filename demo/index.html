@@ -189,7 +189,7 @@
               </vcf-lookup-field>
               <vcf-lookup-field label="Read-only" readonly>
               </vcf-lookup-field>
-              <vcf-lookup-field label="Invalid" invalid>
+              <vcf-lookup-field label="Invalid" invalid has-error-message="Invalid field">
               </vcf-lookup-field>
             </div>
             <script>
@@ -226,7 +226,7 @@
         <h2 slot="header">Theme variants</h2>
         <demo-snippet>
           <template>
-            <div style="display: inline-flex; flex-direction: column; gap: 1rem;">
+            <div style="display: inline-flex; flex-direction: column; align-items: flex-start; gap: 1rem;">
               <vcf-lookup-field>
                 Testing
               </vcf-lookup-field>

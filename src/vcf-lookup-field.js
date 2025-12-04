@@ -1,6 +1,7 @@
 import { html, PolymerElement } from '@polymer/polymer/polymer-element';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { ElementMixin } from '@vaadin/component-base/src/element-mixin';
+import { SlotStylesMixin } from '@vaadin/component-base';
 import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
 import '@vaadin/dialog';
 import '@vaadin/button';
@@ -12,6 +13,7 @@ import '@vaadin/icon';
 import '@vaadin/icons';
 import '@vaadin/notification/vaadin-notification';
 import '@vaadin/text-field';
+import { ThemeDetectionMixin } from '@vaadin/vaadin-themable-mixin/vaadin-theme-detection-mixin';
 
 /**
  * `<vcf-lookup-field>` [element-description]
@@ -44,12 +46,16 @@ import '@vaadin/text-field';
  * @mixes ThemableMixin
  * @demo demo/index.html
  */
-export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
+
+export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixin(ThemableMixin(PolymerElement)))) {
   static get template() {
     return html`
       <style>
         :host {
           display: inline-block;
+          --search-button-field-gap: var(--vaadin-gap-xs);
+        }
+        :host([data-application-theme='lumo']) {
           --search-button-field-gap: 0.25rem;
           --search-button-width: 2.6rem;
           --readonly-search-button-border: 1px dashed
@@ -80,13 +86,17 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
           border-top-left-radius: 0;
           border-bottom-left-radius: 0;
         }
-        :host([theme~='full-width']) vaadin-combo-box::part(input-field) {
+        :host([theme~='integrated']:not([data-application-theme='lumo'])) ::slotted(.search-button) {
+          border-left-width: 0;
+        }
+        :host([data-application-theme='lumo'][theme~='full-width']) vaadin-combo-box::part(input-field) {
           margin-inline-end: var(--search-button-width);
         }
-        :host([theme~='full-width']) ::slotted(vaadin-button.search-button) {
+        :host([data-application-theme='lumo'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
           margin-inline-start: calc(var(--search-button-field-gap) + (var(--search-button-width) * -1));
         }
-        :host([theme~='integrated'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
+        :host([data-application-theme='lumo'][theme~='integrated'][theme~='full-width'])
+          ::slotted(vaadin-button.search-button) {
           margin-inline-start: calc((var(--search-button-width) * -1));
         }
         :host([readonly]) ::slotted(vaadin-button.search-button) {
@@ -99,7 +109,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         }
       </style>
 
-      <vaadin-horizontal-layout class="container">
+      <vaadin-horizontal-layout class="container" part="container">
         <slot name="field" id="fieldSlot">
           <vaadin-combo-box
             clear-button-visible
@@ -172,6 +182,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         </slot>
 
         <slot name="selected" style="display:none;" id="selectedSlot">
+          <!-- TODO Don't add this div to the DOM unless the slot is being used -->
           <div></div>
         </slot>
 
@@ -184,6 +195,21 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         </vaadin-notification>
       </vaadin-horizontal-layout>
     `;
+  }
+
+  // @ts-expect-error overriding property from `SlotStylesMixinClass`
+  get slotStyles() {
+    const tag = this.localName;
+
+    return [
+      `
+        ${tag}::part(lookup-field-dialog-content) {
+          display: flex;
+          flex-direction: column;
+          gap: var(--vaadin-gap-s);
+        }
+    `
+    ];
   }
 
   constructor() {
@@ -277,6 +303,7 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
         root.enterKeydown = keydown;
       }
       const content = document.createElement('div');
+      content.setAttribute('part', 'lookup-field-dialog-content');
       content.appendChild(this._filter);
       content.appendChild(this._grod);
       content.appendChild(this._selected);
@@ -310,7 +337,6 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   _createSearchButton() {
     const icon = document.createElement('vaadin-icon');
     icon.setAttribute('icon', 'vaadin:search');
-    icon.setAttribute('slot', 'prefix');
 
     const button = document.createElement('vaadin-button');
     button.setAttribute('slot', 'search-button-slot');
