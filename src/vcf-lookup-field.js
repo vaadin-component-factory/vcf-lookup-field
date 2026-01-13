@@ -119,6 +119,9 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
             item-value-path="{{itemValuePath}}"
             required$="[[required]]"
             readonly$="[[readonly]]"
+            disabled$="[[disabled]]"
+            invalid$="[[invalid]]"
+            has-error-message="[[hasErrorMessage]]"
             label="{{label}}"
           ></vaadin-combo-box>
         </slot>
@@ -719,6 +722,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       invalid: {
         type: Boolean,
         reflectToAttribute: true
+      },
+
+      /**
+       * @type {String}
+       */
+      hasErrorMessage: {
+        type: String
       },
 
       /**
