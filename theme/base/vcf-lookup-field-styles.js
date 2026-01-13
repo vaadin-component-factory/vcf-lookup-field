@@ -3,8 +3,8 @@ import { registerStyles, css } from '@vaadin/vaadin-themable-mixin/register-styl
 registerStyles(
   'vaadin-dialog-overlay',
   css`
-    :host([theme~="lookup-dialog"]) [part="content"] {
-        min-width: 400px;
-    }
-  `
+    :host([theme~="lookup-dialog"]) [part="overlay"] {
+        min-width: var(--vcf-lookup-field-dialog-min-width, 400px);
+    }   
+  ` 
 );
