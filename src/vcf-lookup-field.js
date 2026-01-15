@@ -14,6 +14,7 @@ import '@vaadin/icons';
 import '@vaadin/notification/vaadin-notification';
 import '@vaadin/text-field';
 import { ThemeDetectionMixin } from '@vaadin/vaadin-themable-mixin/vaadin-theme-detection-mixin';
+import '../theme/base/vcf-lookup-field-styles.js';
 
 /**
  * `<vcf-lookup-field>` [element-description]
@@ -116,16 +117,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
         <slot name="search-button-slot"></slot>
 
-        <vaadin-dialog
-          aria-label="lookup-grid"
-          id="dialog"
-          header-title="[[i18n.headerprefix]] {{header}} [[i18n.headerpostfix]]"
-          theme$="[[theme]]"
-          modeless$="[[modeless]]"
-          draggable$="[[draggable]]"
-          resizable$="[[resizable]]"
-          no-close-on-outside-click
-        ></vaadin-dialog>
+        <slot name="dialog-slot"></slot>
 
         <footer id="dialogfooter" style="display:none">
           <vaadin-button
@@ -217,6 +209,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
     this._createComboBox();
     this._createSearchButton();
+    this._createDialog();
 
     if (this.$.gridSlot.assignedNodes()[0]) {
       this._grod = this.$.gridSlot.assignedNodes()[0];
@@ -250,7 +243,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       });
     }
 
-    this.$.dialog.footerRenderer = root => {
+    this._dialog.footerRenderer = root => {
       if (root.firstElementChild && !this._forceFooterRerender) {
         return;
       }
@@ -265,7 +258,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       }
     };
 
-    this.$.dialog.headerRenderer = (root, dialog) => {
+    this._dialog.headerRenderer = (root, dialog) => {
       if (root.firstElementChild && !this._forceHeaderRerender) {
         return;
       }
@@ -280,7 +273,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     /**
      * fill the dialog content because template in template is not working well
      */
-    this.$.dialog.renderer = root => {
+    this._dialog.renderer = root => {
       if (root.firstElementChild) {
         return;
       }
@@ -301,7 +294,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       root.appendChild(content);
     };
 
-    this.$.dialog.addEventListener('opened-changed', e => {
+    this._dialog.addEventListener('opened-changed', e => {
       // dialog closed
       if (!e.detail.value) {
         if (typeof this._gridPro != 'undefined') {
@@ -375,6 +368,27 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
     button.appendChild(icon);
     this.appendChild(button);
+  }
+
+  _createDialog() {
+    const dialog = document.createElement('vaadin-dialog');
+    dialog.setAttribute('slot', 'dialog-slot');
+    dialog.setAttribute('aria-label', 'lookup-grid');
+    dialog.setAttribute('id', 'dialog');
+    dialog.setAttribute('no-close-on-outside-click', '');
+
+    this._dialog = dialog;
+    this.appendChild(dialog);
+
+    requestAnimationFrame(() => {
+      const headerPrefix = this.i18n.headerprefix || '';
+      const headerPostfix = this.i18n.headerpostfix || '';
+      dialog.headerTitle = `${headerPrefix} ${this.header || ''} ${headerPostfix}`;
+      dialog.setAttribute('theme', this.theme);
+      dialog.modeless = this.modeless;
+      dialog.draggable = this.draggable;
+      dialog.resizable = this.resizable;
+    });
   }
 
   focus() {
@@ -536,7 +550,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /** @private */
   __open() {
-    this.$.dialog.opened = true;
+    this._dialog.opened = true;
     setTimeout(() => {
       this.$.lookupFieldFilter.setAttribute('focus-ring', true);
       this.$.lookupFieldFilter.focus();
@@ -559,7 +573,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   }
   /** @private */
   __close() {
-    this.$.dialog.opened = false;
+    this._dialog.opened = false;
   }
   /** @private */
   __create() {
@@ -575,7 +589,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       const selectedItem = Array.isArray(item) ? item[0] : item;
       if (selectedItem) {
         this._field.selectedItem = selectedItem;
-        this.$.dialog.opened = false;
+        this._dialog.opened = false;
       } else {
         this.$.notification.renderer = function(root, notification) {
           root.textContent = that.i18n.emptyselection;
