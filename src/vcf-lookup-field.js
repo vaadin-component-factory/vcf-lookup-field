@@ -68,7 +68,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           display: inline-flex;
           align-items: baseline;
         }
-        vaadin-combo-box {
+        ::slotted(vaadin-combo-box) {
           width: 100%;
           min-width: 0;
         }
@@ -77,7 +77,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           flex: 0 0 auto;
           width: var(--search-button-width);
         }
-        :host([theme~='integrated']) vaadin-combo-box::part(input-field) {
+        :host([theme~='integrated']) ::slotted(vaadin-combo-box)::part(input-field) {
           border-top-right-radius: 0;
           border-bottom-right-radius: 0;
         }
@@ -89,7 +89,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         :host([theme~='integrated']:not([data-application-theme='lumo'])) ::slotted(.search-button) {
           border-left-width: 0;
         }
-        :host([data-application-theme='lumo'][theme~='full-width']) vaadin-combo-box::part(input-field) {
+        :host([data-application-theme='lumo'][theme~='full-width']) ::slotted(vaadin-combo-box)::part(input-field) {
           margin-inline-end: var(--search-button-width);
         }
         :host([data-application-theme='lumo'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
@@ -111,19 +111,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
       <vaadin-horizontal-layout class="container" part="container">
         <slot name="field" id="fieldSlot">
-          <vaadin-combo-box
-            clear-button-visible
-            allow-custom-value
-            items="{{items}}"
-            item-label-path="{{itemLabelPath}}"
-            item-value-path="{{itemValuePath}}"
-            required$="[[required]]"
-            readonly$="[[readonly]]"
-            disabled$="[[disabled]]"
-            invalid$="[[invalid]]"
-            has-error-message="[[hasErrorMessage]]"
-            label="{{label}}"
-          ></vaadin-combo-box>
+          <!-- combo box will be created here -->
         </slot>
 
         <slot name="search-button-slot"></slot>
@@ -227,6 +215,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   ready() {
     super.ready();
 
+    this._createComboBox();
     this._createSearchButton();
 
     if (this.$.gridSlot.assignedNodes()[0]) {
@@ -239,10 +228,9 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     } else {
       this._filter = this.$.filterSlot.firstElementChild;
     }
+    // ComboBox is now created programmatically, check for slotted custom field
     if (this.$.fieldSlot.assignedNodes()[0]) {
       this._field = this.$.fieldSlot.assignedNodes()[0];
-    } else {
-      this._field = this.$.fieldSlot.firstElementChild;
     }
 
     if (this.$.selectedSlot.assignedNodes()[0]) {
@@ -334,6 +322,35 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         this.$.lookupFieldFilter.focus();
         this.$.lookupFieldFilter.setAttribute('focus-ring', true);
       }
+    });
+  }
+
+  _createComboBox() {
+    const comboBox = document.createElement('vaadin-combo-box');
+    comboBox.setAttribute('slot', 'field');
+    comboBox.setAttribute('clear-button-visible', '');
+    comboBox.setAttribute('allow-custom-value', '');
+
+    this._field = comboBox;
+    this.appendChild(comboBox);
+
+    // Set up property bindings AFTER appending to DOM
+    // Use requestAnimationFrame to ensure the element is fully initialized
+    requestAnimationFrame(() => {
+      comboBox.itemLabelPath = this.itemLabelPath;
+      comboBox.itemValuePath = this.itemValuePath;
+      comboBox.items = this.items;
+      comboBox.required = this.required;
+      comboBox.readonly = this.readonly;
+      comboBox.disabled = this.disabled;
+      comboBox.invalid = this.invalid;
+      comboBox.hasErrorMessage = this.hasErrorMessage;
+      comboBox.label = this.label;
+    });
+
+    // Add event listener
+    comboBox.addEventListener('filter-changed', e => {
+      this._filterValue = e.detail.value;
     });
   }
 
