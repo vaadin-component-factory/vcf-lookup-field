@@ -55,10 +55,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         :host {
           display: inline-block;
           --search-button-field-gap: var(--vaadin-gap-xs);
+          --search-button-width: 2.6rem;
         }
         :host([data-application-theme='lumo']) {
           --search-button-field-gap: 0.25rem;
-          --search-button-width: 2.6rem;
           --readonly-search-button-border: 1px dashed
             var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
           --invalid-state-button-color: var(--lumo-error-text-color, inherit);
@@ -78,10 +78,6 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           flex: 0 0 auto;
           width: var(--search-button-width);
         }
-        :host([theme~='integrated']) ::slotted(vaadin-combo-box)::part(input-field) {
-          border-top-right-radius: 0;
-          border-bottom-right-radius: 0;
-        }
         :host([theme~='integrated']) ::slotted(.search-button) {
           margin-left: 0;
           border-top-left-radius: 0;
@@ -90,14 +86,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         :host([theme~='integrated']:not([data-application-theme='lumo'])) ::slotted(.search-button) {
           border-left-width: 0;
         }
-        :host([data-application-theme='lumo'][theme~='full-width']) ::slotted(vaadin-combo-box)::part(input-field) {
-          margin-inline-end: var(--search-button-width);
-        }
-        :host([data-application-theme='lumo'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
+        :host([theme~='full-width']) ::slotted(vaadin-button.search-button) {
           margin-inline-start: calc(var(--search-button-field-gap) + (var(--search-button-width) * -1));
         }
-        :host([data-application-theme='lumo'][theme~='integrated'][theme~='full-width'])
-          ::slotted(vaadin-button.search-button) {
+        :host([theme~='integrated'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
           margin-inline-start: calc((var(--search-button-width) * -1));
         }
         :host([readonly]) ::slotted(vaadin-button.search-button) {
@@ -321,6 +313,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   _createComboBox() {
     const comboBox = document.createElement('vaadin-combo-box');
     comboBox.setAttribute('slot', 'field');
+    comboBox.setAttribute('theme', this.theme);
     comboBox.setAttribute('clear-button-visible', '');
     comboBox.setAttribute('allow-custom-value', '');
 
