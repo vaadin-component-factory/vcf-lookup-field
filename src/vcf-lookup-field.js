@@ -199,7 +199,14 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   ready() {
     super.ready();
 
-    this._createComboBox();
+    // Check for slotted custom field BEFORE creating one programmatically
+    if (this.$.fieldSlot.assignedNodes()[0]) {
+      this._field = this.$.fieldSlot.assignedNodes()[0];
+    } else {
+      // Only create combo box if no slotted field exists
+      this._createComboBox();
+    }
+
     this._createSearchButton();
     this._createDialog();
 
@@ -212,10 +219,6 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       this._filter = this.$.filterSlot.assignedNodes()[0];
     } else {
       this._filter = this.$.filterSlot.firstElementChild;
-    }
-    // ComboBox is now created programmatically, check for slotted custom field
-    if (this.$.fieldSlot.assignedNodes()[0]) {
-      this._field = this.$.fieldSlot.assignedNodes()[0];
     }
 
     if (this.$.selectedSlot.assignedNodes()[0]) {
