@@ -360,6 +360,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     });
 
     button.appendChild(icon);
+    this._searchButton = button;
     this.appendChild(button);
   }
 
@@ -423,13 +424,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
             e.stopPropagation();
             grid._hasFocusCallback = true;
             grid._focusCallback = () => {
-              this.$.searchButton.focus();
-              this.$.searchButton.setAttribute('focus-ring', true);
+              this._searchButton.focus();
+              this._searchButton.setAttribute('focus-ring', true);
             };
-            this.$.searchButton.focus();
+            this._searchButton.focus();
           }
         });
-        this.$.searchButton.addEventListener('keydown', e => {
+        this._searchButton.addEventListener('keydown', e => {
           if (e.shiftKey == true && e.keyCode == 9) {
             e.stopPropagation();
             grid._hasFocusCallback = true;
