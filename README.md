@@ -27,6 +27,7 @@ npm i @vaadin-component-factory/vcf-lookup-field --save
 - Version 3.x.x -> Vaadin 23.x
 - Version 4.x.x -> Vaadin 24.x
 - Version 5.x.x -> Vaadin 24.x (improved accessibility)
+- Version 6.x.x -> Vaadin 25.x
 
 ## Usage
 
