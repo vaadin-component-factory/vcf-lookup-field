@@ -46,17 +46,17 @@
   },
   "dependencies": {
     "@polymer/polymer": "^3.4.1",
-    "@vaadin/button": "25.0.0",
-    "@vaadin/combo-box": "25.0.0",
-    "@vaadin/component-base": "25.0.0",
-    "@vaadin/dialog": "25.0.0",
-    "@vaadin/grid": "25.0.0",
-    "@vaadin/horizontal-layout": "25.0.0",
-    "@vaadin/icon": "25.0.0",
-    "@vaadin/icons": "25.0.0",
-    "@vaadin/notification": "25.0.0",
-    "@vaadin/text-field": "25.0.0",
-    "@vaadin/vaadin-themable-mixin": "25.0.0"
+    "@vaadin/button": "^25.0.0",
+    "@vaadin/combo-box": "^25.0.0",
+    "@vaadin/component-base": "^25.0.0",
+    "@vaadin/dialog": "^25.0.0",
+    "@vaadin/grid": "^25.0.0",
+    "@vaadin/horizontal-layout": "^25.0.0",
+    "@vaadin/icon": "^25.0.0",
+    "@vaadin/icons": "^25.0.0",
+    "@vaadin/notification": "^25.0.0",
+    "@vaadin/text-field": "^25.0.0",
+    "@vaadin/vaadin-themable-mixin": "^25.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -68,7 +68,7 @@
     "@polymer/test-fixture": "^4.0.2",
     "@vaadin-component-factory/vcf-anchor-nav": "^4.0.0",
     "@vaadin-component-factory/vcf-element-util": "^0.2.8",
-    "@vaadin/vaadin-lumo-styles": "25.0.0",
+    "@vaadin/vaadin-lumo-styles": "^25.0.0",
     "@web/dev-server": "^0.1.34",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "babel-eslint": "^10.0.2",
@@ -104,10 +104,10 @@
     "webpack-merge": "^4.2.1"
   },
   "overrides": {
-    "@vaadin/tabs": "25.0.0",
-    "@vaadin/overlay": "25.0.0",
-    "@vaadin/component-base": "25.0.0",
-    "@vaadin/vaadin-themable-mixin": "25.0.0"
+    "@vaadin/tabs": "^25.0.0",
+    "@vaadin/overlay": "^25.0.0",
+    "@vaadin/component-base": "^25.0.0",
+    "@vaadin/vaadin-themable-mixin": "^25.0.0"
   },
   "bugs": {
     "url": "https://github.com/vaadin-component-factory/vcf-lookup-field/issues"
