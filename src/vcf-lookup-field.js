@@ -62,12 +62,12 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           --readonly-search-button-border: 1px dashed
             var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
           --invalid-state-button-color: var(--lumo-error-text-color, inherit);
-          --invalid-state-button-backgroud-color: var(--lumo-error-color-10pct, hsla(3, 82%, 59%, 0.1));
+          --invalid-state-button-background-color: var(--lumo-error-color-10pct, hsla(3, 82%, 59%, 0.1));
         }
         .container {
           width: 100%;
           display: inline-flex;
-          align-items: baseline;
+          align-items: flex-end;
         }
         ::slotted(vaadin-combo-box) {
           width: 100%;
@@ -98,7 +98,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         }
         :host([invalid]) ::slotted(vaadin-button.search-button) {
           color: var(--invalid-state-button-color);
-          background-color: var(--invalid-state-button-backgroud-color);
+          background-color: var(--invalid-state-button-background-color);
         }
       </style>
 
@@ -175,6 +175,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   // @ts-expect-error overriding property from `SlotStylesMixinClass`
   get slotStyles() {
     const tag = this.localName;
+    const lumo = '[data-application-theme="lumo"]';
+    /* eslint-disable max-len */
+    const SEARCH_ICON =
+      "data:image/svg+xml,%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' " +
+      "xmlns:xlink='http://www.w3.org/1999/xlink' width='16' height='16' viewBox='0 0 16 16'%3E" +
+      "%3Cpath fill='%23444' d='M15.7 14.3l-4.2-4.2c-0.2-0.2-0.5-0.3-0.8-0.3 0.8-1 1.3-2.4 1.3-3.8 0-3.3-2.7-6-6-6s-6 2.7-6 6 2.7 6 6 6c1.4 0 2.8-0.5 3.8-1.4 0 0.3 0 0.6 0.3 0.8l4.2 4.2c0.2 0.2 0.5 0.3 0.7 0.3s0.5-0.1 0.7-0.3c0.4-0.3 0.4-0.9 0-1.3zM6 10.5c-2.5 0-4.5-2-4.5-4.5s2-4.5 4.5-4.5 4.5 2 4.5 4.5-2 4.5-4.5 4.5z'/%3E%3C/svg%3E";
+    /* eslint-enable max-len */
 
     return [
       `
@@ -182,6 +189,77 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           display: flex;
           flex-direction: column;
           gap: var(--vaadin-gap-s);
+        }
+         
+        ${tag} vaadin-button[id="searchButton"] {
+          padding: var(--vaadin-button-padding, var(--vaadin-padding-xs));
+          color: var(--vaadin-button-text-color, var(--vaadin-text-color));
+          background: var(--vaadin-button-background, var(--vaadin-background-container));
+        }
+
+        ${tag} vaadin-button[id="searchButton"]::part(label)::before {
+          background: currentColor;
+          content: '';
+          display: block;
+          height: var(--vaadin-icon-size, 1lh);
+          width: var(--vaadin-icon-size, 1lh);
+          mask-image: url("${SEARCH_ICON}");
+          mask-repeat: no-repeat;
+          mask-position: center;
+          mask-size: contain;
+        }
+
+        ${tag}[disabled] vaadin-button[id="searchButton"] {
+          background: var(--vaadin-disabled-background-color, var(--vaadin-background-container));
+          color: var(--vaadin-disabled-text-color);
+          opacity: 0.5;
+        }
+
+        ${tag}[readonly] vaadin-button[id="searchButton"] {
+          background-color: transparent;
+          border: var(--readonly-search-button-border);
+        }
+
+        ${tag}[invalid] vaadin-button[id="searchButton"] {
+          background-color: var(--invalid-state-button-background-color);
+        }
+
+        ${tag}${lumo} vaadin-button[id="searchButton"] {
+          font-size: var(--lumo-font-size-s);
+          background-color: var(--vaadin-button-background, var(--lumo-contrast-5pct));
+          color: var(--lumo-primary-text-color);
+        }
+
+        ${tag}${lumo} vaadin-button[id="searchButton"]::part(label) {
+          padding: 0;
+          font-family: var(--vcf-lookup-field-search-icon-font-family, 'lumo-icons');
+          font-size: calc(var(--vcf-lookup-field-search-icon-size, var(--lumo-icon-size-m)) * 1.25);
+        }
+
+        ${tag}${lumo} vaadin-button[id="searchButton"]::part(label)::before {
+          background: transparent;
+          content: var(--vcf-lookup-field-search-icon, var(--lumo-icons-search));
+          height: auto;
+          width: auto;
+          mask: none;
+          mask-image: none;
+        }
+
+        ${tag}${lumo}[disabled] vaadin-button[id="searchButton"] {
+          background-color: var(--vaadin-button-background, var(--lumo-contrast-5pct));
+          color: var(--lumo-disabled-text-color);
+        }
+
+        ${tag}${lumo}[readonly] vaadin-button[id="searchButton"] {
+          background-color: transparent;
+          border:1px dashed
+            var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
+          color: var(--lumo-disabled-text-color);
+        }
+
+        ${tag}${lumo}[invalid] vaadin-button[id="searchButton"] {
+          background-color: var(--invalid-state-button-background-color);
+          color: var( --invalid-state-button-color);
         }
     `
     ];
@@ -344,9 +422,6 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   }
 
   _createSearchButton() {
-    const icon = document.createElement('vaadin-icon');
-    icon.setAttribute('icon', 'vaadin:search');
-
     const button = document.createElement('vaadin-button');
     button.setAttribute('slot', 'search-button-slot');
     button.setAttribute('id', 'searchButton');
@@ -362,7 +437,6 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       this.__searchKeydown();
     });
 
-    button.appendChild(icon);
     this._searchButton = button;
     this.appendChild(button);
   }
