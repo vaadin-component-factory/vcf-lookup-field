@@ -252,8 +252,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
         ${tag}${lumo}[readonly] vaadin-button[id="searchButton"] {
           background-color: transparent;
-          border:1px dashed
-            var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
+          border: var(--readonly-search-button-border);
           color: var(--lumo-disabled-text-color);
         }
 
