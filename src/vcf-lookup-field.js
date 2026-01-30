@@ -258,7 +258,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
         ${tag}${lumo}[invalid] vaadin-button[id="searchButton"] {
           background-color: var(--invalid-state-button-background-color);
-          color: var( --invalid-state-button-color);
+          color: var(--invalid-state-button-color);
         }
     `
     ];
