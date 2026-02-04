@@ -55,10 +55,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         :host {
           display: inline-block;
           --search-button-field-gap: var(--vaadin-gap-xs);
-          --search-button-width: 2.6rem;
         }
         :host([data-application-theme='lumo']) {
           --search-button-field-gap: 0.25rem;
+          --search-button-width: 2.6rem;
           --readonly-search-button-border: 1px dashed
             var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
           --invalid-state-button-color: var(--lumo-error-text-color, inherit);
