@@ -329,6 +329,9 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
   }
 
   __onSelectItem(event) {
+    if (this.multiSelect) {
+      return;
+    }
     const item = event.detail.value;
     this._grod.selectedItems = item ? [item] : [];
   }
@@ -492,8 +495,10 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
     } else {
       this._filterdata = this._field.inputElement.value;
       const item = this._field.selectedItem;
-      this._grod.selectedItems = item ? [item] : [];
-      this._grodSelectedItem = item;
+      if (!this.multiSelect) {
+        this._grod.selectedItems = item ? [item] : [];
+        this._grodSelectedItem = item;
+      }
       if (item) {
         this.programselectdisabled = false;
       } else {
@@ -687,6 +692,12 @@ export class LookupField extends ElementMixin(ThemableMixin(PolymerElement)) {
       theme: {
         type: String,
         value: 'lookup-dialog'
+      },
+
+      multiSelect: {
+        type: Boolean,
+        value: false,
+        reflectToAttribute: true
       },
 
       /**
