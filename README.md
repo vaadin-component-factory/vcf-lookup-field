@@ -55,7 +55,7 @@ Add `<vcf-lookup-field>` element to the page.
 
 ## Publishing
 
-To publish a new version run: `npm run publish x.x.x` with a account on npm that can update this component.
+To publish a new version, updte the version then run: `npm publish` with a account on npm that can update this component.
 
 ## License
 
