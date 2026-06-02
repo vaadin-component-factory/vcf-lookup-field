@@ -130,6 +130,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
             theme="primary"
             on-click="__select"
             has-selected$="[[hasselected]]"
+            disabled$="[[selectdisabled]]"
+            aria-disabled$="[[selectdisabled]]"
           >
             [[i18n.select]]
           </vaadin-button>
@@ -274,7 +276,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       }
       if (!root.enterKeydown) {
         const keydown = e => {
-          if (e.keyCode == 13) {
+          if (e.keyCode == 13 && !this.selectdisabled) {
             this.__select();
           }
         };
@@ -621,7 +623,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   }
 
   static get version() {
-    return '6.1.0';
+    return '6.2.0';
   }
 
   static get properties() {
