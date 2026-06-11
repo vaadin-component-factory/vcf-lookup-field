@@ -128,6 +128,11 @@ export class LookupField extends LookupField_base {
          * @type {String}
          */
         theme: string;
+        multiSelect: {
+            type: BooleanConstructor;
+            value: boolean;
+            reflectToAttribute: boolean;
+        };
         /**
          * The object used to localize this component.
          * For changing the default localization, change the entire
