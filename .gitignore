@@ -6,3 +6,5 @@ analysis.json
 /next/
 /.idea/
 *.iml
+
+coverage
