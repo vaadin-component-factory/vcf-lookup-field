@@ -53,6 +53,26 @@ Add `<vcf-lookup-field>` element to the page.
 
 4. Run `npm run serve` to open the demo.
 
+## Running tests
+
+The test suite runs in a real Chromium browser via [`@web/test-runner`](https://modern-web.dev/docs/test-runner/overview).
+
+1. Install dependencies with `npm install`.
+
+2. Install the browser once with `npx playwright install chromium`.
+
+3. Run the tests:
+
+```sh
+npm test              # single run
+npm run test:watch    # re-run on change, with a browser you can debug in
+npm run test:coverage # single run plus a coverage report
+```
+
+The specs live in `test/` and are grouped by concern: `structure`, `properties`, `filtering`,
+`dialog`, `selection`, `slots`, `grid-pro` and `focus`. Shared fixtures and DOM helpers are in
+`test/helpers.js`.
+
 ## Publishing
 
 To publish a new version, updte the version then run: `npm publish` with a account on npm that can update this component.

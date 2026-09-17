@@ -19,7 +19,7 @@
     "polymer"
   ],
   "scripts": {
-    "test": "wct",
+    "test": "web-test-runner --config web-test-runner.config.mjs",
     "lint": "eslint src/*.js",
     "prestart": "polymer analyze src/*.js > analysis.json",
     "serve": "wds --node-resolve --open demo/",
@@ -30,7 +30,9 @@
     "publish": "node util/publish.js",
     "prepublishOnly": "run-s build:types",
     "start": "run-s serve",
-    "start-dev": "wds --node-resolve --open dev/"
+    "start-dev": "wds --node-resolve --open dev/",
+    "test:watch": "web-test-runner --config web-test-runner.config.mjs --watch",
+    "test:coverage": "web-test-runner --config web-test-runner.config.mjs --coverage"
   },
   "husky": {
     "hooks": {
@@ -62,14 +64,16 @@
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
     "@babel/preset-env": "^7.5.5",
+    "@open-wc/testing": "^4.0.0",
     "@polymer/iron-component-page": "^4.0.1",
     "@polymer/iron-demo-helpers": "^3.0.0-pre.19",
     "@polymer/iron-iconset-svg": "^3.0.1",
-    "@polymer/test-fixture": "^4.0.2",
     "@vaadin-component-factory/vcf-anchor-nav": "^4.0.0",
     "@vaadin-component-factory/vcf-element-util": "^0.2.8",
     "@vaadin/vaadin-lumo-styles": "^25.0.0",
     "@web/dev-server": "^0.1.34",
+    "@web/test-runner": "^0.20.2",
+    "@web/test-runner-playwright": "^0.11.1",
     "@webcomponents/webcomponentsjs": "^2.0.0",
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
@@ -93,10 +97,10 @@
     "npm-run-all": "^4.1.5",
     "polymer-cli": "^1.9.10",
     "prettier": "^1.17.1",
+    "sinon": "^19.0.5",
     "terser-webpack-plugin": "^1.4.1",
     "typescript": "^4.7.3",
     "uglify-template-string-loader": "^1.1.1",
-    "wct-mocha": "^1.0.0",
     "webpack": "^4.39.2",
     "webpack-babel-multi-target-plugin": "^2.3.0",
     "webpack-cli": "^3.3.7",
