@@ -198,11 +198,7 @@ describe('vcf-lookup-field: search button keydown', () => {
     expect(stopped).to.be.false;
   });
 
-  // KNOWN BUG: `_createSearchButton` registers `() => this.__searchKeydown()`, which
-  // drops the event argument, so `__searchKeydown` dereferences `undefined` as soon as
-  // a `vaadin-grid`/`vaadin-grid-pro` ancestor makes it call `event.stopPropagation()`.
-  // Un-skip once the listener forwards its event.
-  it.skip('does not throw on keydown when nested inside a grid', async () => {
+  it('does not throw on keydown when nested inside a grid', async () => {
     const wrapper = await fixture(html`
       <vaadin-grid>
         <vcf-lookup-field></vcf-lookup-field>
@@ -218,6 +214,22 @@ describe('vcf-lookup-field: search button keydown', () => {
     window.removeEventListener('error', onError);
 
     expect(uncaught).to.be.null;
+  });
+
+  it('keeps a dispatched keydown from reaching the grid ancestor', async () => {
+    const wrapper = await fixture(html`
+      <vaadin-grid>
+        <vcf-lookup-field></vcf-lookup-field>
+      </vaadin-grid>
+    `);
+    const el = wrapper.querySelector('vcf-lookup-field');
+    await flush();
+    let reachedGrid = 0;
+    wrapper.addEventListener('keydown', () => (reachedGrid += 1));
+
+    el._searchButton.dispatchEvent(new KeyboardEvent('keydown', { keyCode: 13, bubbles: true }));
+
+    expect(reachedGrid).to.equal(0);
   });
 
   it('stops propagation when nested inside a grid', async () => {

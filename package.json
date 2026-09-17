@@ -63,6 +63,13 @@
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-class-properties": "^7.3.4",
+    "@babel/plugin-transform-class-properties": "^7.29.7",
+    "@babel/plugin-transform-class-static-block": "^7.29.7",
+    "@babel/plugin-transform-logical-assignment-operators": "^7.29.7",
+    "@babel/plugin-transform-nullish-coalescing-operator": "^7.29.7",
+    "@babel/plugin-transform-optional-chaining": "^7.29.7",
+    "@babel/plugin-transform-private-methods": "^7.29.7",
+    "@babel/plugin-transform-private-property-in-object": "^7.29.7",
     "@babel/preset-env": "^7.5.5",
     "@open-wc/testing": "^4.0.0",
     "@polymer/iron-component-page": "^4.0.1",

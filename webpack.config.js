@@ -55,6 +55,16 @@ const commonConfig = merge([
       new BabelMultiTargetPlugin({
         babel: {
           plugins: [
+            // webpack 4 bundles acorn 6, which cannot parse the modern syntax that
+            // @vaadin 25 and lit 3 ship in their published sources. preset-env leaves
+            // it alone for the es6 target's modern browsers, so transpile it always.
+            require('@babel/plugin-transform-optional-chaining'),
+            require('@babel/plugin-transform-nullish-coalescing-operator'),
+            require('@babel/plugin-transform-logical-assignment-operators'),
+            require('@babel/plugin-transform-class-properties'),
+            require('@babel/plugin-transform-private-methods'),
+            require('@babel/plugin-transform-private-property-in-object'),
+            require('@babel/plugin-transform-class-static-block'),
             [
               require('babel-plugin-template-html-minifier'),
               {
