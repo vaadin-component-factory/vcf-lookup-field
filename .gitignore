@@ -8,3 +8,4 @@ analysis.json
 *.iml
 
 coverage
+.DS_Store
