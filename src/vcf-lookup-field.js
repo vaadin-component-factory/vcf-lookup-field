@@ -204,6 +204,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     // Check for slotted custom field BEFORE creating one programmatically
     if (this.$.fieldSlot.assignedNodes()[0]) {
       this._field = this.$.fieldSlot.assignedNodes()[0];
+      this._forwardFieldState();
     } else {
       // Only create combo box if no slotted field exists
       this._createComboBox();
@@ -331,17 +332,33 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       comboBox.itemLabelPath = this.itemLabelPath;
       comboBox.itemValuePath = this.itemValuePath;
       comboBox.items = this.items;
-      comboBox.required = this.required;
-      comboBox.readonly = this.readonly;
-      comboBox.disabled = this.disabled;
-      comboBox.invalid = this.invalid;
-      comboBox.hasErrorMessage = this.hasErrorMessage;
-      comboBox.label = this.label;
+      this._forwardFieldState();
     });
 
     // Add event listener
     comboBox.addEventListener('filter-changed', e => {
       this._filterValue = e.detail.value;
+    });
+  }
+
+  /**
+   * Mirrors the host state onto the field so the lookup renders its invalid
+   * border and error message like any other Vaadin field. Called from every
+   * state observer, so a change after initialization reaches the field too.
+   *
+   * Properties the host never received are left alone, otherwise adopting a
+   * slotted field would wipe the state it was declared with.
+   * @private
+   */
+  _forwardFieldState() {
+    const field = this._field;
+    if (!field) {
+      return;
+    }
+    ['invalid', 'errorMessage', 'required', 'readonly', 'disabled', 'label'].forEach(prop => {
+      if (this[prop] !== undefined) {
+        field[prop] = this[prop];
+      }
     });
   }
 
@@ -483,6 +500,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         } else if (node.getAttribute('slot') == 'field') {
           this._field = node;
           this._field.style.flexGrow = 1;
+          this._forwardFieldState();
           this._field.addEventListener('filter-changed', function(e) {
             that._filterValue = e.detail.value;
           });
@@ -633,7 +651,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       },
 
       label: {
-        type: String
+        type: String,
+        observer: '_forwardFieldState'
       },
 
       /**
@@ -731,19 +750,24 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       /**
        * @type {Boolean}
        */
-      required: Boolean,
+      required: {
+        type: Boolean,
+        observer: '_forwardFieldState'
+      },
 
       /**
        * @type {Boolean}
        */
       readonly: {
         type: Boolean,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '_forwardFieldState'
       },
 
       disabled: {
         type: Boolean,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '_forwardFieldState'
       },
 
       buttondisabled: {
@@ -756,10 +780,24 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       invalid: {
         type: Boolean,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '_forwardFieldState'
       },
 
       /**
+       * The error message the field shows while it is invalid.
+       * @attr {string} error-message
+       * @type {String}
+       */
+      errorMessage: {
+        type: String,
+        observer: '_forwardFieldState'
+      },
+
+      /**
+       * @deprecated `has-error-message` is a read-only state attribute that a
+       * Vaadin field sets on itself once its error node has content, so setting
+       * it here does nothing. Use `errorMessage` instead.
        * @type {String}
        */
       hasErrorMessage: {
