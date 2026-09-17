@@ -377,8 +377,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     button.addEventListener('click', () => {
       this.__open();
     });
-    button.addEventListener('keydown', () => {
-      this.__searchKeydown();
+    button.addEventListener('keydown', event => {
+      this.__searchKeydown(event);
     });
 
     button.appendChild(icon);
