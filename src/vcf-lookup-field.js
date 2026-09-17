@@ -265,6 +265,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       if (this._dialogHeader) {
         root.replaceChildren(this._dialogHeader);
         dialog.headerTitle = null;
+        this.__restoreDialogAriaLabel();
       }
     };
 
@@ -319,21 +320,17 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   _createComboBox() {
     const comboBox = document.createElement('vaadin-combo-box');
     comboBox.setAttribute('slot', 'field');
-    comboBox.setAttribute('theme', this.theme);
     comboBox.setAttribute('clear-button-visible', '');
     comboBox.setAttribute('allow-custom-value', '');
 
     this._field = comboBox;
+    this.__generatedField = comboBox;
     this.appendChild(comboBox);
 
-    // Set up property bindings AFTER appending to DOM
-    // Use requestAnimationFrame to ensure the element is fully initialized
-    requestAnimationFrame(() => {
-      comboBox.itemLabelPath = this.itemLabelPath;
-      comboBox.itemValuePath = this.itemValuePath;
-      comboBox.items = this.items;
-      this._forwardFieldState();
-    });
+    // The same path the observers use, so the state applied here and the state
+    // applied by a later change cannot drift apart.
+    this._forwardFieldState();
+    this._itemsChanged();
 
     // Add event listener
     comboBox.addEventListener('filter-changed', e => {
@@ -348,6 +345,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    *
    * Properties the host never received are left alone, otherwise adopting a
    * slotted field would wipe the state it was declared with.
+   *
+   * The item paths and the theme always have a value on the host, so they are
+   * only pushed onto the combo box this element generated. A slotted field
+   * keeps the ones it was declared with.
    * @private
    */
   _forwardFieldState() {
@@ -360,6 +361,118 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         field[prop] = this[prop];
       }
     });
+    if (field === this.__generatedField) {
+      field.itemLabelPath = this.itemLabelPath;
+      field.itemValuePath = this.itemValuePath;
+      this.__forwardTheme(field);
+    }
+  }
+
+  /**
+   * Copies the host theme onto a generated child. `theme` is an attribute on
+   * both the combo box and the dialog, so an unset host theme has to remove it
+   * rather than write the string "undefined".
+   * @private
+   */
+  __forwardTheme(element) {
+    if (this.theme == null) {
+      element.removeAttribute('theme');
+    } else {
+      element.setAttribute('theme', this.theme);
+    }
+  }
+
+  /**
+   * Mirrors the host state onto the generated search button. Called from the
+   * observers of everything it depends on, so a change after initialization
+   * reaches the button too.
+   * @private
+   */
+  __updateSearchButton() {
+    const button = this._searchButton;
+    if (!button) {
+      return;
+    }
+    button.disabled = !!this.buttondisabled;
+    const searchAriaLabel = (this.i18n || {}).searcharialabel;
+    if (searchAriaLabel) {
+      button.setAttribute('aria-label', searchAriaLabel);
+    } else {
+      button.removeAttribute('aria-label');
+    }
+  }
+
+  /**
+   * Mirrors the host state onto the generated dialog. Called from the observers
+   * of everything it depends on, so a change after initialization reaches the
+   * dialog too.
+   * @private
+   */
+  __updateDialog() {
+    const dialog = this._dialog;
+    if (!dialog) {
+      return;
+    }
+    this.__updateDialogHeaderTitle();
+    this.__forwardTheme(dialog);
+    dialog.modeless = !!this.modeless;
+    dialog.draggable = !!this.draggable;
+    dialog.resizable = !!this.resizable;
+  }
+
+  /**
+   * Builds the dialog title out of the i18n prefix, the header and the i18n
+   * postfix, skipping the parts that are empty.
+   *
+   * `vaadin-dialog` copies `headerTitle` onto its `aria-label`, so a title made
+   * only of the separators used to leave the dialog with a whitespace-only
+   * accessible name. Without a title the dialog keeps the `lookup-grid` label
+   * `_createDialog` gave it.
+   * @private
+   */
+  __updateDialogHeaderTitle() {
+    const dialog = this._dialog;
+    const { headerprefix, headerpostfix } = this.i18n || {};
+    const title = [headerprefix, this.header, headerpostfix].filter(part => part).join(' ');
+
+    // A slotted `dialog-header` renders the header itself and clears the title.
+    if (title && !this._dialogHeader) {
+      dialog.headerTitle = title;
+    } else if (dialog.headerTitle) {
+      dialog.headerTitle = null;
+      this.__restoreDialogAriaLabel();
+    }
+  }
+
+  /**
+   * Puts the `lookup-grid` label back once the dialog has processed a cleared
+   * `headerTitle`, which removes the `aria-label` the title had replaced.
+   * @private
+   */
+  __restoreDialogAriaLabel() {
+    const dialog = this._dialog;
+    const restore = () => {
+      if (!dialog.headerTitle) {
+        dialog.setAttribute('aria-label', 'lookup-grid');
+      }
+    };
+    if (dialog.updateComplete) {
+      dialog.updateComplete.then(restore);
+    } else {
+      restore();
+    }
+  }
+
+  /** @private */
+  __i18nChanged() {
+    this.__updateSearchButton();
+    this.__updateDialog();
+  }
+
+  /** @private */
+  __themeChanged() {
+    this._forwardFieldState();
+    this.__updateDialog();
   }
 
   _createSearchButton() {
@@ -371,8 +484,6 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     button.setAttribute('id', 'searchButton');
     button.classList.add('search-button');
     button.setAttribute('theme', 'icon');
-    button.setAttribute('aria-label', this.i18n.searcharialabel);
-    button.disabled = this.buttondisabled;
 
     button.addEventListener('click', () => {
       this.__open();
@@ -384,6 +495,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     button.appendChild(icon);
     this._searchButton = button;
     this.appendChild(button);
+
+    this.__updateSearchButton();
   }
 
   _createDialog() {
@@ -396,15 +509,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     this._dialog = dialog;
     this.appendChild(dialog);
 
-    requestAnimationFrame(() => {
-      const headerPrefix = this.i18n.headerprefix || '';
-      const headerPostfix = this.i18n.headerpostfix || '';
-      dialog.headerTitle = `${headerPrefix} ${this.header || ''} ${headerPostfix}`;
-      dialog.setAttribute('theme', this.theme);
-      dialog.modeless = this.modeless;
-      dialog.draggable = this.draggable;
-      dialog.resizable = this.resizable;
-    });
+    this.__updateDialog();
   }
 
   focus() {
@@ -647,7 +752,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   static get properties() {
     return {
       header: {
-        type: String
+        type: String,
+        observer: '__updateDialog'
       },
 
       label: {
@@ -684,7 +790,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       itemLabelPath: {
         type: String,
-        value: 'label'
+        value: 'label',
+        observer: '_forwardFieldState'
       },
 
       /**
@@ -699,23 +806,33 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       itemValuePath: {
         type: String,
-        value: 'value'
+        value: 'value',
+        observer: '_forwardFieldState'
       },
 
       /**
        * @type {Boolean}
        */
-      modeless: Boolean,
+      modeless: {
+        type: Boolean,
+        observer: '__updateDialog'
+      },
 
       /**
        * @type {Boolean}
        */
-      draggable: Boolean,
+      draggable: {
+        type: Boolean,
+        observer: '__updateDialog'
+      },
 
       /**
        * @type {Boolean}
        */
-      resizable: Boolean,
+      resizable: {
+        type: Boolean,
+        observer: '__updateDialog'
+      },
 
       /**
        * @type {Boolean}
@@ -772,7 +889,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
       buttondisabled: {
         type: Boolean,
-        computed: 'computebuttondisabled(readonly, disabled)'
+        computed: 'computebuttondisabled(readonly, disabled)',
+        observer: '__updateSearchButton'
       },
 
       /**
@@ -809,7 +927,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       theme: {
         type: String,
-        value: 'lookup-dialog'
+        value: 'lookup-dialog',
+        observer: '__themeChanged'
       },
 
       multiSelect: {
@@ -825,6 +944,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       i18n: {
         type: Object,
+        observer: '__i18nChanged',
         value: function() {
           return {
             select: 'Select',

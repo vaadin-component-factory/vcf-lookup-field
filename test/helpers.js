@@ -11,9 +11,10 @@ export const OBJECT_ITEMS = [
 export const STRING_ITEMS = ['Apple', 'Banana', 'Cherry', 'Blueberry'];
 
 /**
- * The component creates its combo box, search button and dialog in `ready()`,
- * but only applies the property bindings on the next animation frame. Waiting
- * for two frames guarantees both steps have run before a test inspects them.
+ * The component creates its combo box, search button and dialog in `ready()`
+ * and applies the host state to them right away, but the children themselves
+ * render asynchronously. Waiting for two frames guarantees everything a test
+ * inspects has settled.
  */
 export async function flush() {
   await nextFrame();
