@@ -33,7 +33,7 @@
 <vcf-lookup-field label="Normal"></vcf-lookup-field>
 <vcf-lookup-field label="Disabled" disabled></vcf-lookup-field>
 <vcf-lookup-field label="Readonly" readonly></vcf-lookup-field>
-<vcf-lookup-field label="Invalid" invalid></vcf-lookup-field>
+<vcf-lookup-field label="Invalid" invalid error-message="Please pick a value"></vcf-lookup-field>
 
 <h3>Themes</h3>
 <vcf-lookup-field label="Normal (long label not rendered above seach button)"></vcf-lookup-field>
@@ -66,7 +66,7 @@
         emptyselection: "-please select a value-"
     };
 
-    lookupField[4]._field.value = '2';
+    lookupField[4].value = '2';
 </script>
 
 </body>

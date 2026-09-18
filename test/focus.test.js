@@ -20,8 +20,8 @@ describe('vcf-lookup-field: focus', () => {
     await openDialog(el);
     await afterTimeout(50);
 
-    expect(el.$.lookupFieldFilter.hasAttribute('focus-ring')).to.be.true;
-    expect(el.$.lookupFieldFilter.hasAttribute('focused')).to.be.true;
+    expect(el._filter.hasAttribute('focus-ring')).to.be.true;
+    expect(el._filter.hasAttribute('focused')).to.be.true;
   });
 
   it('returns focus to the field when the dialog closes', async () => {
@@ -92,7 +92,7 @@ describe('vcf-lookup-field: accessibility', () => {
     const el = await fixture(html`<vcf-lookup-field .i18n="${i18n}"></vcf-lookup-field>`);
     await flush();
 
-    expect(el.$.lookupFieldFilter.label).to.equal('Chercher');
+    expect(el._filter.label).to.equal('Chercher');
   });
 });
 
