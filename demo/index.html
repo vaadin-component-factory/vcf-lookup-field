@@ -189,7 +189,7 @@
               </vcf-lookup-field>
               <vcf-lookup-field label="Read-only" readonly>
               </vcf-lookup-field>
-              <vcf-lookup-field label="Invalid" invalid has-error-message="Invalid field">
+              <vcf-lookup-field label="Invalid" invalid error-message="Invalid field">
               </vcf-lookup-field>
             </div>
             <script>
@@ -239,6 +239,85 @@
               <vcf-lookup-field theme="integrated full-width">
               </vcf-lookup-field>
             </div>
+          </template>
+        </demo-snippet>
+      </vcf-anchor-nav-section>
+      <vcf-anchor-nav-section name="Custom combo box">
+        <h2 slot="header">Custom combo box</h2>
+        <p>
+          Put your own combo box in the <code>field</code> slot when you need more of its API than the
+          lookup field exposes. The lookup field adopts it and leaves its configuration alone, so the
+          label, helper text, item paths and renderer all belong to the combo box. This is how the
+          Vaadin Flow component always uses it. Slot your own <code>vaadin-grid</code> the same way to
+          control the columns in the dialog.
+        </p>
+        <demo-snippet>
+          <template>
+            <div style="display: inline-flex; flex-direction: column; gap: 1rem;">
+              <vcf-lookup-field id="customCombo">
+                <vaadin-combo-box
+                  slot="field"
+                  label="Owner"
+                  placeholder="Pick an owner"
+                  helper-text="Configured on the combo box, not the lookup field"
+                  item-label-path="name"
+                  item-value-path="id"
+                  clear-button-visible>
+                </vaadin-combo-box>
+              </vcf-lookup-field>
+
+              <vcf-lookup-field id="customComboAndGrid" header="Pick an owner">
+                <vaadin-combo-box
+                  slot="field"
+                  label="Owner (custom grid)"
+                  item-label-path="name"
+                  item-value-path="id">
+                </vaadin-combo-box>
+                <vaadin-grid slot="grid"></vaadin-grid>
+              </vcf-lookup-field>
+            </div>
+            <script>
+              window.addEventListener('WebComponentsReady', () => {
+                const owners = [
+                  {id: '1', name: 'Ada Lovelace', email: 'ada@example.com'},
+                  {id: '2', name: 'Alan Turing', email: 'alan@example.com'},
+                  {id: '3', name: 'Grace Hopper', email: 'grace@example.com'},
+                  {id: '4', name: 'Edsger Dijkstra', email: 'edsger@example.com'}
+                ];
+
+                // `items` reaches a slotted combo box the same way it reaches a generated one.
+                const customCombo = document.querySelector('#customCombo');
+                customCombo.items = owners;
+
+                // A renderer is the kind of thing you slot a combo box for: the lookup
+                // field has no property that could express it.
+                customCombo.field.renderer = (root, combo, model) => {
+                  root.innerHTML =
+                    '<div><strong>' + model.item.name + '</strong><br>' +
+                    '<small style="color: var(--lumo-secondary-text-color)">' +
+                    model.item.email + '</small></div>';
+                };
+
+                // Reading the value goes through the lookup field; it reads straight
+                // through to whichever combo box is slotted.
+                customCombo.addEventListener('value-changed', e => {
+                  console.log('owner ->', e.detail.value, customCombo.selectedItem);
+                });
+
+                // With a slotted grid you own the dialog columns and their items.
+                const customComboAndGrid = document.querySelector('#customComboAndGrid');
+                customComboAndGrid.items = owners;
+
+                const grid = customComboAndGrid.querySelector('vaadin-grid[slot="grid"]');
+                grid.items = owners;
+                [['name', 'Name'], ['email', 'Email']].forEach(([path, header]) => {
+                  const column = document.createElement('vaadin-grid-column');
+                  column.path = path;
+                  column.header = header;
+                  grid.appendChild(column);
+                });
+              });
+            </script>
           </template>
         </demo-snippet>
       </vcf-anchor-nav-section>

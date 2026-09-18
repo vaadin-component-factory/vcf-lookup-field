@@ -4,6 +4,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "src",
+    "rootDir": "src",
     "declarationMap": true,
     "skipLibCheck": true
   },
