@@ -41,6 +41,41 @@
 <vcf-lookup-field label="Full width (long label rendered also above search button)" theme="full-width"></vcf-lookup-field>
 <vcf-lookup-field  label="Full width + Integrated (long label rendered also above search button)" theme="integrated full-width"></vcf-lookup-field>
 
+<!--
+  Slotting the combo box is how Vaadin Flow always uses this component, and the
+  recommended way to use it from React: the combo box keeps its own API, so you
+  configure it directly instead of mirroring properties onto the lookup field.
+-->
+<h3>Custom combo box</h3>
+
+<p>Configured on the combo box itself, not on the lookup field.</p>
+<vcf-lookup-field id="slottedField">
+    <vaadin-combo-box slot="field"
+                      label="Department"
+                      placeholder="Pick a department"
+                      helper-text="Label, placeholder and helper text belong to the combo box"
+                      item-label-path="name"
+                      item-value-path="id"
+                      clear-button-visible></vaadin-combo-box>
+</vcf-lookup-field>
+
+<p>A custom renderer, which the lookup field has no property for.</p>
+<vcf-lookup-field id="renderedField">
+    <vaadin-combo-box slot="field"
+                      label="Owner"
+                      item-label-path="name"
+                      item-value-path="id"></vaadin-combo-box>
+</vcf-lookup-field>
+
+<p>A custom combo box and a custom grid together, each with its own columns.</p>
+<vcf-lookup-field id="slottedGridField" header="Pick an owner">
+    <vaadin-combo-box slot="field"
+                      label="Owner (custom grid)"
+                      item-label-path="name"
+                      item-value-path="id"></vaadin-combo-box>
+    <vaadin-grid slot="grid"></vaadin-grid>
+</vcf-lookup-field>
+
 <script type="module">
     function initializeField(lookupField) {
         lookupField.items = [
@@ -67,6 +102,57 @@
     };
 
     lookupField[4].value = '2';
+
+    /* ---------------------------------------------------------------- *
+     * Custom combo boxes                                                *
+     * ---------------------------------------------------------------- */
+
+    const OWNERS = [
+        {id: '1', name: 'Ada Lovelace', email: 'ada@example.com'},
+        {id: '2', name: 'Alan Turing', email: 'alan@example.com'},
+        {id: '3', name: 'Grace Hopper', email: 'grace@example.com'},
+        {id: '4', name: 'Edsger Dijkstra', email: 'edsger@example.com'}
+    ];
+
+    /*
+     * `initializeField` above already gave every lookup field the department
+     * items, which reach a slotted combo box the same way they reach a
+     * generated one. The item paths are the exception: the lookup field only
+     * pushes those onto a combo box it generated itself, so the slotted one
+     * keeps the `item-label-path` and `item-value-path` it was declared with.
+     */
+    const slotted = document.querySelector('#slottedField');
+    slotted.value = '3';
+    console.log('slotted: host and field agree ->', slotted.value === slotted.field.value);
+
+    /* A renderer is the kind of thing you slot a combo box for: there is no
+     * lookup field property that could express it. */
+    const rendered = document.querySelector('#renderedField');
+    rendered.items = OWNERS;
+    rendered.field.renderer = (root, _combo, model) => {
+        root.innerHTML =
+            '<div style="line-height: 1.2"><strong>' + model.item.name +
+            '</strong><br><small style="color: gray">' + model.item.email + '</small></div>';
+    };
+
+    /* With a slotted grid the lookup field stops owning the dialog contents,
+     * so give the grid its own columns and its own items. */
+    const withGrid = document.querySelector('#slottedGridField');
+    withGrid.items = OWNERS;
+
+    const grid = withGrid.querySelector('vaadin-grid[slot="grid"]');
+    grid.items = OWNERS;
+    [['name', 'Name'], ['email', 'Email']].forEach(([path, header]) => {
+        const column = document.createElement('vaadin-grid-column');
+        column.path = path;
+        column.header = header;
+        grid.appendChild(column);
+    });
+
+    /* The value reads straight through to whichever combo box is slotted. */
+    withGrid.addEventListener('value-changed', e => {
+        console.log('slotted grid field value ->', e.detail.value, withGrid.selectedItem);
+    });
 </script>
 
 </body>
