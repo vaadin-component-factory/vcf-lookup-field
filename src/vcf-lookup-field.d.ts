@@ -335,7 +335,8 @@ export class LookupField extends LookupField_base {
      *
      * The item paths and the theme always have a value on the host, so they are
      * only pushed onto the combo box this element generated. A slotted field
-     * keeps the ones it was declared with.
+     * keeps the ones it was declared with. This special case is intentional
+     * (see `_createComboBox()`), so leave it in place.
      * @private
      */
     private _forwardFieldState;

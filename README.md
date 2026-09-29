@@ -28,6 +28,7 @@ npm i @vaadin-component-factory/vcf-lookup-field --save
 - Version 4.x.x -> Vaadin 24.x
 - Version 5.x.x -> Vaadin 24.x (improved accessibility)
 - Version 6.x.x -> Vaadin 25.x
+- Version 7.x.x -> Vaadin 25.x (the host wraps the slotted field, see [Migrating to 7.0.0](#migrating-to-700))
 
 ## Usage
 
@@ -43,7 +44,28 @@ Add `<vcf-lookup-field>` element to the page.
 <vcf-lookup-field></vcf-lookup-field>
 ```
 
-## Customising the dialog content
+### Customising the field
+
+The recommended way to customise the field is to slot your own combo box and configure it
+through its own API. The lookup field has no property for things like the placeholder, the
+helper text or an item renderer, and it does not need one:
+
+```html
+<vcf-lookup-field>
+  <vaadin-combo-box
+    slot="field"
+    label="Country"
+    placeholder="Search a country"
+    item-label-path="name"
+    item-value-path="code"
+  ></vaadin-combo-box>
+</vcf-lookup-field>
+```
+
+`itemLabelPath`, `itemValuePath` and `theme` on `<vcf-lookup-field>` only apply to the combo box
+it generates when nothing is slotted. A slotted field keeps the ones it was declared with.
+
+### Customising the dialog content
 
 The dialog shows a filter, a grid and a selected area. Each has a default. You can replace the
 grid and the filter in two ways:
@@ -72,6 +94,40 @@ a new one. A rendered element is treated like a slotted one:
 - A rendered filter does not filter anything by itself. Listen to it and set the grid items.
 
 `lookupField.items` and `lookupField.filterItems(items, text)` help with both.
+
+## Migrating to 7.0.0
+
+In 7.0.0, `<vcf-lookup-field>` became a decorator over the field in its `field` slot. It no
+longer keeps its own copy of the field state, so the host and the field can no longer disagree.
+
+### Breaking changes
+
+- The `grid`, `filter` and `selected` slots no longer have shadow DOM fallback content. The
+  default grid, filter and selected content are now generated into the light DOM when nothing
+  is slotted.
+- `el.$.lookupFieldFilter` is gone. Use `el._filter` for the default filter, or `el.field` for
+  the field.
+- `invalid` on the host is now derived from the field. Setting it on the host still reaches the
+  field, but the field is the source of truth.
+- Multi-select: when a `vaadin-multi-select-combo-box` is slotted, `value` is `undefined`
+  because that field has no `value`. Use `selectedItems` instead.
+
+### New API
+
+- `value`, `selectedItem` and `selectedItems` read and write straight through to the slotted
+  field. Values set before a field is attached are applied to it once it is.
+- `field` returns the field in the `field` slot, generated or slotted. Use it to reach the
+  parts of the field API that the lookup field does not mirror.
+- `validate()` and `checkValidity()` delegate to the field.
+- `gridRenderer` and `filterRenderer` build the grid and the filter of the dialog in place of
+  the defaults. See [Customising the dialog content](#customising-the-dialog-content).
+- `manualValidation` is forwarded to the field. It has no default on purpose: Flow's
+  `ComboBoxBase` turns manual validation on for every combo box it creates, and forwarding an
+  explicit `false` would switch it back off.
+- The host re-dispatches the field's `value-changed`, `selected-item-changed`,
+  `selected-items-changed`, `invalid-changed` and `validated` events, so you can listen on
+  `<vcf-lookup-field>` directly. The Vaadin fields fire these without bubbling, so they would
+  not reach the host otherwise.
 
 ## Running demo
 

@@ -516,6 +516,11 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     comboBox.setAttribute('clear-button-visible', '');
     comboBox.setAttribute('allow-custom-value', '');
 
+    // Kept on purpose, do not fold it into the slotted-field path: the host
+    // always has a value for `itemLabelPath`, `itemValuePath` and `theme`, so
+    // forwarding them to a slotted field would overwrite the paths and theme it
+    // was declared with. `_forwardFieldState()` uses this reference to push them
+    // onto the combo box generated here and nowhere else. See #33 and #37.
     this.__generatedField = comboBox;
     this.appendChild(comboBox);
 
@@ -536,7 +541,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    *
    * The item paths and the theme always have a value on the host, so they are
    * only pushed onto the combo box this element generated. A slotted field
-   * keeps the ones it was declared with.
+   * keeps the ones it was declared with. This special case is intentional
+   * (see `_createComboBox()`), so leave it in place.
    * @private
    */
   _forwardFieldState() {
