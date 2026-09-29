@@ -8,7 +8,7 @@ The Lookup field component allows you to search a specific record with either a 
 
 ![lookup-field-dialog](https://user-images.githubusercontent.com/3392815/174095944-700f641d-111e-4a6d-9278-12b8793cea19.gif)
 
-[Live demo ↗](https://vcf-lookup-field-demo.netlify.com) | [API documentation ↗](https://vcf-lookup-field-demo.netlify.com/api/#/elements/Vaadin.VcfLookupField)
+[Live demo ↗](https://vcf-lookup-field.netlify.app) | [API documentation ↗](https://vcf-lookup-field.netlify.app/api/#/elements/LookupField)
 
 ## Installation
 
