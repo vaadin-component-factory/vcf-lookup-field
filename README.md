@@ -65,6 +65,36 @@ helper text or an item renderer, and it does not need one:
 `itemLabelPath`, `itemValuePath` and `theme` on `<vcf-lookup-field>` only apply to the combo box
 it generates when nothing is slotted. A slotted field keeps the ones it was declared with.
 
+### Customising the dialog content
+
+The dialog shows a filter, a grid and a selected area. Each has a default. You can replace the
+grid and the filter in two ways:
+
+- Slot your own element into the `grid` or `filter` slot.
+- Set `gridRenderer` or `filterRenderer`, a function that receives the lookup field and returns
+  the element to use. Returning nothing keeps the default.
+
+```js
+lookupField.gridRenderer = lookupField => {
+  const grid = document.createElement('vaadin-grid');
+  grid.items = lookupField.items;
+  // add columns...
+  return grid;
+};
+```
+
+Slotted content takes precedence over a renderer, and a renderer over the default. The renderer
+runs when the lookup field initializes, before the dialog can open, and again whenever you set
+a new one. A rendered element is treated like a slotted one:
+
+- The lookup field does not set the items of a rendered grid, and does not update them when
+  `items` changes. Set them from the renderer. While the default filter is in use, typing in it
+  still replaces the grid items with the matching `items`. In a Flow application it filters on
+  the server instead.
+- A rendered filter does not filter anything by itself. Listen to it and set the grid items.
+
+`lookupField.items` and `lookupField.filterItems(items, text)` help with both.
+
 ## Migrating to 7.0.0
 
 In 7.0.0, `<vcf-lookup-field>` became a decorator over the field in its `field` slot. It no
@@ -89,6 +119,8 @@ longer keeps its own copy of the field state, so the host and the field can no l
 - `field` returns the field in the `field` slot, generated or slotted. Use it to reach the
   parts of the field API that the lookup field does not mirror.
 - `validate()` and `checkValidity()` delegate to the field.
+- `gridRenderer` and `filterRenderer` build the grid and the filter of the dialog in place of
+  the defaults. See [Customising the dialog content](#customising-the-dialog-content).
 - `manualValidation` is forwarded to the field. It has no default on purpose: Flow's
   `ComboBoxBase` turns manual validation on for every combo box it creates, and forwarding an
   explicit `false` would switch it back off.

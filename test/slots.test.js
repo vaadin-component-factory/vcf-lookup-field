@@ -1,5 +1,5 @@
 import { expect, fixture, html, nextFrame } from '@open-wc/testing';
-import { flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
+import { customFilter, customGrid, dialogContent, flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
 import '@vaadin/combo-box';
 import '@vaadin/grid';
 import '@vaadin/text-field';
@@ -242,6 +242,30 @@ describe('vcf-lookup-field: slotted content', () => {
 
       expect(el._dialog.querySelector('#custom-filter')).to.exist;
       expect(el._dialog.querySelector('#custom-selected')).to.exist;
+    });
+
+    it('shows a grid, filter and selected element slotted while the dialog is open', async () => {
+      const el = await lookupFixture();
+      await openDialog(el);
+      const original = { filter: el._filter, grid: el._grod, selected: el._selected };
+
+      const grid = customGrid('late-grid', 'grid');
+      const filter = customFilter('late-filter', 'filter');
+      const selected = document.createElement('div');
+      selected.setAttribute('slot', 'selected');
+      selected.id = 'late-selected';
+      el.append(grid, filter, selected);
+      await flush();
+
+      const content = dialogContent(el);
+      expect(Array.from(content.children).map(child => child.id)).to.deep.equal([
+        'late-filter',
+        'late-grid',
+        'late-selected'
+      ]);
+      expect(content.contains(original.grid)).to.be.false;
+      expect(content.contains(original.filter)).to.be.false;
+      expect(content.contains(original.selected)).to.be.false;
     });
   });
 
