@@ -321,6 +321,66 @@
           </template>
         </demo-snippet>
       </vcf-anchor-nav-section>
+      <vcf-anchor-nav-section name="Dialog content renderers">
+        <h2 slot="header">Dialog content renderers</h2>
+        <p>
+          Instead of slotting a grid or a filter, set <code>gridRenderer</code> or
+          <code>filterRenderer</code>. It is called with the lookup field and returns the element to
+          show in the dialog. Slotted content takes precedence, and a renderer that returns nothing
+          keeps the default. Like slotted content, a rendered grid brings its own items and a
+          rendered filter its own filtering.
+        </p>
+        <demo-snippet>
+          <template>
+            <vcf-lookup-field id="rendererField" header="Pick an owner" label="Owner"></vcf-lookup-field>
+            <script>
+              window.addEventListener('WebComponentsReady', () => {
+                const owners = [
+                  {id: '1', name: 'Ada Lovelace', email: 'ada@example.com'},
+                  {id: '2', name: 'Alan Turing', email: 'alan@example.com'},
+                  {id: '3', name: 'Grace Hopper', email: 'grace@example.com'},
+                  {id: '4', name: 'Edsger Dijkstra', email: 'edsger@example.com'}
+                ];
+
+                const lookupField = document.querySelector('#rendererField');
+                lookupField.items = owners;
+                lookupField.itemLabelPath = 'name';
+                lookupField.itemValuePath = 'id';
+
+                // The grid: your own columns, and its items from the lookup field.
+                // Kept in a variable so the filter below can update it.
+                let grid;
+                lookupField.gridRenderer = field => {
+                  grid = document.createElement('vaadin-grid');
+                  grid.items = field.items;
+                  [['name', 'Name'], ['email', 'Email']].forEach(([path, header]) => {
+                    const column = document.createElement('vaadin-grid-column');
+                    column.path = path;
+                    column.header = header;
+                    grid.appendChild(column);
+                  });
+                  return grid;
+                };
+
+                // The filter: matches the email too, which the default filter,
+                // going by the item label only, does not.
+                lookupField.filterRenderer = field => {
+                  const filter = document.createElement('vaadin-text-field');
+                  filter.placeholder = 'Name or email';
+                  filter.clearButtonVisible = true;
+                  filter.style.width = '100%';
+                  filter.addEventListener('value-changed', e => {
+                    const text = e.detail.value.toLowerCase();
+                    grid.items = field.items.filter(owner =>
+                      owner.name.toLowerCase().includes(text) || owner.email.toLowerCase().includes(text));
+                  });
+                  return filter;
+                };
+              });
+            </script>
+          </template>
+        </demo-snippet>
+      </vcf-anchor-nav-section>
     </vcf-anchor-nav>
   </body>
 </html>

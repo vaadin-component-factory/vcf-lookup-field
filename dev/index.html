@@ -76,6 +76,21 @@
     <vaadin-grid slot="grid"></vaadin-grid>
 </vcf-lookup-field>
 
+<!--
+  The same dialog content built by `gridRenderer` and `filterRenderer` instead of
+  slots. A renderer is called with the lookup field and returns the element; like
+  slotted content, the rendered grid brings its own items and the rendered filter
+  its own filtering.
+-->
+<h3>Dialog content renderers</h3>
+
+<p>A grid with two columns and a filter that matches the name or the email, both from renderers.</p>
+<vcf-lookup-field id="rendererField" header="Pick an owner" label="Owner (renderers)"></vcf-lookup-field>
+
+<p>Swap the grid renderer at runtime: the toggle alternates between the renderer and the default grid.</p>
+<vcf-lookup-field id="swapRendererField" header="Pick an owner" label="Owner (swappable grid)"></vcf-lookup-field>
+<vaadin-button id="swapRenderer">Toggle grid renderer</vaadin-button>
+
 <script type="module">
     function initializeField(lookupField) {
         lookupField.items = [
@@ -152,6 +167,49 @@
     /* The value reads straight through to whichever combo box is slotted. */
     withGrid.addEventListener('value-changed', e => {
         console.log('slotted grid field value ->', e.detail.value, withGrid.selectedItem);
+    });
+
+    /* ---------------------------------------------------------------- *
+     * Dialog content renderers                                          *
+     * ---------------------------------------------------------------- */
+
+    function ownerGrid(lookupField) {
+        const grid = document.createElement('vaadin-grid');
+        grid.items = lookupField.items;
+        [['name', 'Name'], ['email', 'Email']].forEach(([path, header]) => {
+            const column = document.createElement('vaadin-grid-column');
+            column.path = path;
+            column.header = header;
+            grid.appendChild(column);
+        });
+        return grid;
+    }
+
+    const withRenderers = document.querySelector('#rendererField');
+    withRenderers.items = OWNERS;
+    let ownersGrid;
+    withRenderers.gridRenderer = lookupField => (ownersGrid = ownerGrid(lookupField));
+    /* The rendered filter does its own filtering: it matches the email too,
+     * which the default filter, going by the item label only, does not. */
+    withRenderers.filterRenderer = lookupField => {
+        const filter = document.createElement('vaadin-text-field');
+        filter.placeholder = 'Name or email';
+        filter.clearButtonVisible = true;
+        filter.style.width = '100%';
+        filter.addEventListener('value-changed', e => {
+            const text = e.detail.value.toLowerCase();
+            ownersGrid.items = lookupField.items.filter(owner =>
+                owner.name.toLowerCase().includes(text) || owner.email.toLowerCase().includes(text));
+        });
+        return filter;
+    };
+
+    /* Setting the renderer back to null restores the default grid. */
+    const swappable = document.querySelector('#swapRendererField');
+    swappable.items = OWNERS;
+    swappable.gridRenderer = ownerGrid;
+    document.querySelector('#swapRenderer').addEventListener('click', () => {
+        swappable.gridRenderer = swappable.gridRenderer ? null : ownerGrid;
     });
 </script>
 
