@@ -1,5 +1,5 @@
 import { expect, fixture, html, nextFrame } from '@open-wc/testing';
-import { flush, lookupFixture } from './helpers.js';
+import { flush, lookupFixture, OBJECT_ITEMS } from './helpers.js';
 
 /**
  * Regression tests for https://github.com/vaadin-component-factory/vcf-lookup-field/issues/26
@@ -153,6 +153,199 @@ describe('vcf-lookup-field: validation state', () => {
       const inputCenter = inputRect.top + inputRect.height / 2;
       const buttonCenter = buttonRect.top + buttonRect.height / 2;
       expect(Math.abs(inputCenter - buttonCenter)).to.be.below(1);
+    });
+  });
+  describe('who owns the invalid state', () => {
+    it('reflects an invalid state the field set on itself', async () => {
+      const el = await lookupFixture();
+
+      el.field.invalid = true;
+      await flush();
+
+      expect(el.invalid).to.be.true;
+      expect(el.hasAttribute('invalid')).to.be.true;
+    });
+
+    it('clears the host invalid state with the field', async () => {
+      const el = await lookupFixture();
+      el.field.invalid = true;
+      await flush();
+
+      el.field.invalid = false;
+      await flush();
+
+      expect(el.invalid).to.be.false;
+      expect(el.hasAttribute('invalid')).to.be.false;
+    });
+
+    /**
+     * A field with no active constraint keeps whatever `invalid` it was given:
+     * `InputConstraintsMixin.checkValidity()` returns `!this.invalid` in that
+     * case, so validating is a no-op. The state set from outside is only at risk
+     * once the field has a constraint of its own that it finds satisfied.
+     */
+    it('keeps an externally set invalid state while the field has no constraint', async () => {
+      const el = await lookupFixture();
+      el.invalid = true;
+      el.errorMessage = 'Pick a value';
+      await flush();
+
+      el.field._requestValidation();
+      await flush();
+
+      expect(el.field.invalid).to.be.true;
+      expect(renderedErrorMessage(el.field)).to.equal('Pick a value');
+    });
+
+    it('loses an externally set invalid state when the field validates a satisfied constraint', async () => {
+      const el = await fixture(html`<vcf-lookup-field required .items="${OBJECT_ITEMS}"></vcf-lookup-field>`);
+      await flush();
+      el.value = 'apple';
+      await flush();
+
+      // The field's own `required` constraint is satisfied, but something
+      // outside it knows the value is not acceptable.
+      el.invalid = true;
+      el.errorMessage = 'Pick another value';
+      await flush();
+      expect(renderedErrorMessage(el.field)).to.equal('Pick another value');
+
+      // What a blur or a keystroke ends up calling.
+      el.field._requestValidation();
+      await flush();
+
+      expect(el.field.invalid).to.be.false;
+      expect(el.invalid).to.be.false;
+      expect(renderedErrorMessage(el.field)).to.equal('');
+    });
+
+    it('keeps an externally set invalid state under manual validation', async () => {
+      const el = await fixture(
+        html`<vcf-lookup-field required manual-validation .items="${OBJECT_ITEMS}"></vcf-lookup-field>`
+      );
+      await flush();
+      el.value = 'apple';
+      el.invalid = true;
+      el.errorMessage = 'Pick another value';
+      await flush();
+
+      el.field._requestValidation();
+      await flush();
+
+      expect(el.field.invalid).to.be.true;
+      expect(el.invalid).to.be.true;
+      expect(renderedErrorMessage(el.field)).to.equal('Pick another value');
+    });
+
+    it('forwards manualValidation to the generated field', async () => {
+      const el = await lookupFixture();
+      expect(el.field.manualValidation).to.be.false;
+
+      el.manualValidation = true;
+      await nextFrame();
+
+      expect(el.field.manualValidation).to.be.true;
+    });
+
+    it('leaves the manual validation mode of a slotted field alone', async () => {
+      // Flow turns manual validation on for every combo box it creates, so an
+      // unset host property must never switch it back off.
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <vaadin-combo-box slot="field" manual-validation></vaadin-combo-box>
+        </vcf-lookup-field>
+      `);
+      await flush();
+
+      expect(el.manualValidation).to.be.undefined;
+      expect(el.field.manualValidation).to.be.true;
+    });
+  });
+
+  /**
+   * The host re-dispatches the field notifications, and `invalid` is also a host
+   * property that is forwarded back down. A change must still reach a host
+   * listener once, whichever side it started on, or the round trip is echoing.
+   */
+  describe('re-dispatching the validation events', () => {
+    function recordEvents(el, type) {
+      const events = [];
+      el.addEventListener(type, e => events.push(e.detail));
+      return events;
+    }
+
+    it('fires invalid-changed once when the field changes its own invalid state', async () => {
+      const el = await lookupFixture();
+      const events = recordEvents(el, 'invalid-changed');
+
+      el.field.invalid = true;
+      await flush();
+      el.field.invalid = false;
+      await flush();
+
+      expect(events.map(detail => detail.value)).to.deep.equal([true, false]);
+    });
+
+    it('fires invalid-changed once when the invalid state is set on the host', async () => {
+      const el = await lookupFixture();
+      const events = recordEvents(el, 'invalid-changed');
+
+      el.invalid = true;
+      await flush();
+      el.invalid = false;
+      await flush();
+
+      expect(events.map(detail => detail.value)).to.deep.equal([true, false]);
+      expect(el.field.invalid).to.be.false;
+    });
+
+    it('fires validated once per validation', async () => {
+      const el = await fixture(html`<vcf-lookup-field required></vcf-lookup-field>`);
+      await flush();
+      const events = recordEvents(el, 'validated');
+
+      el.validate();
+      await flush();
+
+      expect(events).to.have.lengthOf(1);
+      expect(events[0].valid).to.be.false;
+    });
+  });
+
+  describe('validate and checkValidity', () => {
+    it('reports a required field with no value as invalid', async () => {
+      const el = await fixture(html`<vcf-lookup-field required></vcf-lookup-field>`);
+      await flush();
+
+      expect(el.checkValidity()).to.be.false;
+      expect(el.validate()).to.be.false;
+      await flush();
+
+      expect(el.invalid).to.be.true;
+    });
+
+    it('reports a required field with a value as valid', async () => {
+      const el = await fixture(html`<vcf-lookup-field required .items="${OBJECT_ITEMS}"></vcf-lookup-field>`);
+      await flush();
+      el.value = 'apple';
+      await flush();
+
+      expect(el.validate()).to.be.true;
+      await flush();
+
+      expect(el.hasAttribute('invalid')).to.be.false;
+    });
+
+    it('does not throw when the slotted field is not a Vaadin field', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <input slot="field" />
+        </vcf-lookup-field>
+      `);
+      await flush();
+
+      expect(el.validate()).to.be.true;
+      expect(el.checkValidity()).to.be.true;
     });
   });
 });
