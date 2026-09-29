@@ -856,7 +856,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /** @private */
   __requestDialogContentUpdate() {
-    if (this._dialog.opened) {
+    if (this._dialog && this._dialog.opened) {
       this._dialog.requestContentUpdate();
     }
   }
@@ -1013,10 +1013,12 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       }
     });
 
+    let dialogContentChanged = false;
     addedNodes.forEach(node => {
       if (node.getAttribute) {
         if (node.getAttribute('slot') == 'grid') {
           this.__setGrid(node);
+          dialogContentChanged = true;
         } else if (node.getAttribute('slot') == 'field') {
           node.style.flexGrow = 1;
           this.__setField(node);
@@ -1028,11 +1030,17 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           this._forceFooterRerender = true;
         } else if (node.getAttribute('slot') == 'filter') {
           this._filter = node;
+          dialogContentChanged = true;
         } else if (node.getAttribute('slot') == 'selected') {
           this._selected = node;
+          dialogContentChanged = true;
         }
       }
     });
+    // A dialog that is already open shows the replacement straight away.
+    if (dialogContentChanged) {
+      this.__requestDialogContentUpdate();
+    }
   }
 
   computeselectdisabled(defaultselectdisabled, programselectdisabled) {
