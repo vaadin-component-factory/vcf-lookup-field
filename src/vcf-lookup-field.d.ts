@@ -62,6 +62,35 @@ export class LookupField extends LookupField_base {
             observer: string;
         };
         /**
+         * Builds the grid of the dialog in place of the default one. Called with
+         * the lookup field, it returns the grid element, and the lookup field
+         * binds its selection to that element. Returning nothing falls back to
+         * the default grid.
+         *
+         * A grid in the `grid` slot takes precedence. Like a slotted grid, a
+         * rendered one gets no items from the lookup field: set them from the
+         * renderer, for example from `lookupField.items`.
+         *
+         * Called once during initialization, and again whenever the property
+         * changes.
+         * @type {((lookupField: LookupField) => HTMLElement | null | undefined) | undefined}
+         */
+        gridRenderer: (lookupField: LookupField) => HTMLElement | null | undefined;
+        /**
+         * Builds the search field of the dialog in place of the default one.
+         * Called with the lookup field, it returns the filter element. Returning
+         * nothing falls back to the default filter.
+         *
+         * A filter in the `filter` slot takes precedence. Like a slotted filter, a
+         * rendered one brings its own filtering: listen to it and set the grid
+         * items, for example with `lookupField.filterItems()`.
+         *
+         * Called once during initialization, and again whenever the property
+         * changes.
+         * @type {((lookupField: LookupField) => HTMLElement | null | undefined) | undefined}
+         */
+        filterRenderer: (lookupField: LookupField) => HTMLElement | null | undefined;
+        /**
          * Path for label of the item. If `items` is an array of objects, the
          * `itemLabelPath` is used to fetch the displayed string label for each
          * item.
@@ -208,6 +237,7 @@ export class LookupField extends LookupField_base {
     _observer: FlattenedNodesObserver;
     ready(): void;
     _filter: any;
+    __dialogContentCreated: boolean;
     _selected: any;
     _forceFooterRerender: boolean;
     _forceHeaderRerender: boolean;
@@ -377,6 +407,36 @@ export class LookupField extends LookupField_base {
     private _createFilter;
     _filterdata: any;
     __generatedFilter: import("@vaadin/text-field/src/vaadin-text-field.js").TextField;
+    /**
+     * The grid from `gridRenderer`, or the default grid when there is no renderer
+     * or it returns nothing. A rendered grid lives in the light DOM like a slotted
+     * one, and like a slotted one it gets no items from the host.
+     * @private
+     */
+    private __renderGrid;
+    __renderedGrid: any;
+    /**
+     * The filter from `filterRenderer`, or the default filter when there is no
+     * renderer or it returns nothing. Like a slotted filter, a rendered one is
+     * assumed to bring its own filtering.
+     * @private
+     */
+    private __renderFilter;
+    __renderedFilter: any;
+    /**
+     * Swaps in the grid of a `gridRenderer` set after initialization. A slotted
+     * grid always wins, so nothing changes while one is present.
+     * @private
+     */
+    private __gridRendererChanged;
+    /**
+     * Swaps in the filter of a `filterRenderer` set after initialization. A
+     * slotted filter always wins, so nothing changes while one is present.
+     * @private
+     */
+    private __filterRendererChanged;
+    /** @private */
+    private __requestDialogContentUpdate;
     /** @private */
     private _createSelected;
     /** @private */

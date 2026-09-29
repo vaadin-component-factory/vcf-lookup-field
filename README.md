@@ -43,6 +43,30 @@ Add `<vcf-lookup-field>` element to the page.
 <vcf-lookup-field></vcf-lookup-field>
 ```
 
+## Customising the dialog content
+
+The dialog shows a filter, a grid and a selected area. Each has a default. You can replace the
+grid and the filter in two ways:
+
+- Slot your own element into the `grid` or `filter` slot.
+- Set `gridRenderer` or `filterRenderer`, a function that receives the lookup field and returns
+  the element to use. Returning nothing keeps the default.
+
+```js
+lookupField.gridRenderer = lookupField => {
+  const grid = document.createElement('vaadin-grid');
+  grid.items = lookupField.items;
+  // add columns...
+  return grid;
+};
+```
+
+Slotted content takes precedence over a renderer, and a renderer over the default. The renderer
+runs when the lookup field initializes, before the dialog can open, and again whenever you set
+a new one. A rendered element is treated like a slotted one: a rendered grid gets no items from
+the lookup field, and a rendered filter brings its own filtering. `lookupField.items` and
+`lookupField.filterItems(items, text)` are there to help with both.
+
 ## Running demo
 
 1. Fork the `vcf-lookup-field` repository and clone it locally.
