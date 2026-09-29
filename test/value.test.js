@@ -190,5 +190,69 @@ describe('vcf-lookup-field: value', () => {
       expect(values).to.be.empty;
       expect(el.value).to.not.equal('apple');
     });
+
+    /** What Flow's `setComboBox()` does: the old field leaves, the new one arrives. */
+    it('adopts a field swapped in for one that was removed', async () => {
+      const el = await fixture(html`<vcf-lookup-field .items="${OBJECT_ITEMS}"></vcf-lookup-field>`);
+      await flush();
+      const original = el.field;
+
+      const replacement = document.createElement('vaadin-combo-box');
+      replacement.setAttribute('slot', 'field');
+      replacement.items = OBJECT_ITEMS;
+      original.remove();
+      el.appendChild(replacement);
+      await flush();
+
+      // Compared as a boolean: chai hangs pretty-printing a combo box on failure.
+      expect(el.field === replacement, 'wraps the replacement').to.be.true;
+
+      const values = [];
+      el.addEventListener('value-changed', e => values.push(e.detail.value));
+
+      original.value = 'apple';
+      replacement.value = 'banana';
+      await flush();
+
+      expect(values).to.deep.equal(['banana']);
+      expect(el.value).to.equal('banana');
+    });
+
+    it('lets go of a field that is removed without a replacement', async () => {
+      const el = await lookupFixture();
+      const original = el.field;
+
+      original.remove();
+      await flush();
+
+      expect(el.field == null, 'wraps no field').to.be.true;
+
+      const events = [];
+      ['value-changed', 'invalid-changed'].forEach(type => el.addEventListener(type, () => events.push(type)));
+
+      original.value = 'apple';
+      original.invalid = true;
+      await flush();
+
+      expect(events).to.be.empty;
+      expect(el.invalid).to.not.be.true;
+    });
+
+    it('applies a value written while no field is slotted to the next field', async () => {
+      const el = await lookupFixture();
+      el.field.remove();
+      await flush();
+
+      el.value = 'banana';
+
+      const replacement = document.createElement('vaadin-combo-box');
+      replacement.setAttribute('slot', 'field');
+      replacement.items = OBJECT_ITEMS;
+      el.appendChild(replacement);
+      await flush();
+
+      expect(replacement.value).to.equal('banana');
+      expect(el.value).to.equal('banana');
+    });
   });
 });

@@ -262,6 +262,56 @@ describe('vcf-lookup-field: validation state', () => {
     });
   });
 
+  /**
+   * The host re-dispatches the field notifications, and `invalid` is also a host
+   * property that is forwarded back down. A change must still reach a host
+   * listener once, whichever side it started on, or the round trip is echoing.
+   */
+  describe('re-dispatching the validation events', () => {
+    function recordEvents(el, type) {
+      const events = [];
+      el.addEventListener(type, e => events.push(e.detail));
+      return events;
+    }
+
+    it('fires invalid-changed once when the field changes its own invalid state', async () => {
+      const el = await lookupFixture();
+      const events = recordEvents(el, 'invalid-changed');
+
+      el.field.invalid = true;
+      await flush();
+      el.field.invalid = false;
+      await flush();
+
+      expect(events.map(detail => detail.value)).to.deep.equal([true, false]);
+    });
+
+    it('fires invalid-changed once when the invalid state is set on the host', async () => {
+      const el = await lookupFixture();
+      const events = recordEvents(el, 'invalid-changed');
+
+      el.invalid = true;
+      await flush();
+      el.invalid = false;
+      await flush();
+
+      expect(events.map(detail => detail.value)).to.deep.equal([true, false]);
+      expect(el.field.invalid).to.be.false;
+    });
+
+    it('fires validated once per validation', async () => {
+      const el = await fixture(html`<vcf-lookup-field required></vcf-lookup-field>`);
+      await flush();
+      const events = recordEvents(el, 'validated');
+
+      el.validate();
+      await flush();
+
+      expect(events).to.have.lengthOf(1);
+      expect(events[0].valid).to.be.false;
+    });
+  });
+
   describe('validate and checkValidity', () => {
     it('reports a required field with no value as invalid', async () => {
       const el = await fixture(html`<vcf-lookup-field required></vcf-lookup-field>`);

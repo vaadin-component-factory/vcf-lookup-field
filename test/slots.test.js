@@ -57,6 +57,107 @@ describe('vcf-lookup-field: slotted content', () => {
 
       expect(el._filterValue).to.equal('che');
     });
+
+    /**
+     * The flattened-nodes observer re-reports the field `ready()` already
+     * adopted, and on every later slot change. That used to register the
+     * `filter-changed` listener once more each time.
+     */
+    it('listens to filter-changed on the field once, however often the slot changes', async () => {
+      const field = document.createElement('vaadin-combo-box');
+      field.setAttribute('slot', 'field');
+      const active = new Set();
+      const addEventListener = field.addEventListener.bind(field);
+      const removeEventListener = field.removeEventListener.bind(field);
+      field.addEventListener = (type, listener, options) => {
+        if (type === 'filter-changed') {
+          active.add(listener);
+        }
+        addEventListener(type, listener, options);
+      };
+      field.removeEventListener = (type, listener, options) => {
+        if (type === 'filter-changed') {
+          active.delete(listener);
+        }
+        removeEventListener(type, listener, options);
+      };
+
+      const el = document.createElement('vcf-lookup-field');
+      el.appendChild(field);
+      const container = await fixture(html`<div></div>`);
+      container.appendChild(el);
+      await flush();
+
+      const header = document.createElement('div');
+      header.setAttribute('slot', 'dialog-header');
+      el.appendChild(header);
+      await flush();
+
+      expect([...active]).to.deep.equal([el.__fieldListeners['filter-changed']]);
+    });
+
+    it('stops tracking the filter value of a field it no longer wraps', async () => {
+      const el = await lookupFixture();
+      const original = el.field;
+
+      const replacement = document.createElement('vaadin-combo-box');
+      replacement.setAttribute('slot', 'field');
+      original.remove();
+      el.appendChild(replacement);
+      await flush();
+
+      original.dispatchEvent(new CustomEvent('filter-changed', { detail: { value: 'old' } }));
+      expect(el._filterValue).to.not.equal('old');
+
+      replacement.dispatchEvent(new CustomEvent('filter-changed', { detail: { value: 'new' } }));
+      expect(el._filterValue).to.equal('new');
+    });
+  });
+
+  describe('default grid', () => {
+    /**
+     * The old template declared `path="name" path="{{itemLabelPath}}"` on the
+     * default column; the parser kept the first attribute, so the column was
+     * stuck on `name` whatever the item paths were.
+     */
+    it('shows the item label in its column', async () => {
+      const el = await lookupFixture();
+
+      const column = el._grod.querySelector('vaadin-grid-column');
+      expect(column.path).to.equal('label');
+    });
+
+    it('follows a custom itemLabelPath', async () => {
+      const el = await fixture(html`<vcf-lookup-field item-label-path="title"></vcf-lookup-field>`);
+      await flush();
+
+      expect(el._grod.querySelector('vaadin-grid-column').path).to.equal('title');
+    });
+
+    it('follows itemLabelPath changed after initialization', async () => {
+      const el = await lookupFixture();
+
+      el.itemLabelPath = 'title';
+      await flush();
+
+      expect(el._grod.querySelector('vaadin-grid-column').path).to.equal('title');
+    });
+
+    it('renders the item labels in the dialog', async () => {
+      const items = [
+        { title: 'Apple', value: 'apple' },
+        { title: 'Banana', value: 'banana' }
+      ];
+      const el = await fixture(
+        html`<vcf-lookup-field item-label-path="title" .items="${items}"></vcf-lookup-field>`
+      );
+      await flush();
+      await openDialog(el);
+      await flush();
+
+      const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
+      expect(cells).to.include.members(['Apple', 'Banana']);
+    });
   });
 
   describe('grid', () => {
