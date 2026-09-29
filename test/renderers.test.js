@@ -1,24 +1,10 @@
 import { expect, fixture, html } from '@open-wc/testing';
-import { dialogContent, flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
-import '@vaadin/grid';
-import '@vaadin/text-field';
-
-function customGrid(id = 'rendered-grid') {
-  const grid = document.createElement('vaadin-grid');
-  grid.id = id;
-  return grid;
-}
-
-function customFilter(id = 'rendered-filter') {
-  const filter = document.createElement('vaadin-text-field');
-  filter.id = id;
-  return filter;
-}
+import { customFilter, customGrid, dialogContent, flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
 
 describe('vcf-lookup-field: dialog content renderers', () => {
   describe('gridRenderer', () => {
     it('uses the rendered grid instead of creating the default one', async () => {
-      const el = await lookupFixture(html`<vcf-lookup-field .gridRenderer="${() => customGrid()}"></vcf-lookup-field>`);
+      const el = await lookupFixture(html`<vcf-lookup-field .gridRenderer="${() => customGrid('rendered-grid')}"></vcf-lookup-field>`);
 
       expect(el._grod.id).to.equal('rendered-grid');
       expect(el.querySelectorAll('vaadin-grid')).to.have.lengthOf(1);
@@ -31,7 +17,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
           .items="${OBJECT_ITEMS}"
           .gridRenderer="${lookupField => {
             received = lookupField;
-            const grid = customGrid();
+            const grid = customGrid('rendered-grid');
             grid.items = lookupField.items;
             return grid;
           }}"
@@ -44,7 +30,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
 
     it('binds the selection to the rendered grid', async () => {
       const el = await lookupFixture(html`
-        <vcf-lookup-field .items="${OBJECT_ITEMS}" .gridRenderer="${() => customGrid()}"></vcf-lookup-field>
+        <vcf-lookup-field .items="${OBJECT_ITEMS}" .gridRenderer="${() => customGrid('rendered-grid')}"></vcf-lookup-field>
       `);
 
       el._grod.dispatchEvent(new CustomEvent('selected-items-changed', { detail: { value: [OBJECT_ITEMS[1]] } }));
@@ -53,7 +39,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
     });
 
     it('renders the rendered grid into the dialog', async () => {
-      const el = await lookupFixture(html`<vcf-lookup-field .gridRenderer="${() => customGrid()}"></vcf-lookup-field>`);
+      const el = await lookupFixture(html`<vcf-lookup-field .gridRenderer="${() => customGrid('rendered-grid')}"></vcf-lookup-field>`);
 
       await openDialog(el);
 
@@ -72,7 +58,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
         <vcf-lookup-field
           .gridRenderer="${() => {
             calls++;
-            return customGrid();
+            return customGrid('rendered-grid');
           }}"
         >
           <vaadin-grid slot="grid" id="slotted-grid"></vaadin-grid>
@@ -91,7 +77,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
       const el = await lookupFixture();
       const defaultGrid = el._grod;
 
-      el.gridRenderer = () => customGrid();
+      el.gridRenderer = () => customGrid('rendered-grid');
 
       expect(el._grod.id).to.equal('rendered-grid');
       expect(defaultGrid.isConnected).to.be.false;
@@ -108,7 +94,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
       const el = await lookupFixture();
       await openDialog(el);
 
-      el.gridRenderer = () => customGrid();
+      el.gridRenderer = () => customGrid('rendered-grid');
       await flush();
 
       const content = dialogContent(el);
@@ -118,7 +104,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
 
     it('goes back to the default grid when the renderer is removed', async () => {
       const el = await lookupFixture(html`
-        <vcf-lookup-field .items="${OBJECT_ITEMS}" .gridRenderer="${() => customGrid()}"></vcf-lookup-field>
+        <vcf-lookup-field .items="${OBJECT_ITEMS}" .gridRenderer="${() => customGrid('rendered-grid')}"></vcf-lookup-field>
       `);
       const renderedGrid = el._grod;
 
@@ -132,14 +118,14 @@ describe('vcf-lookup-field: dialog content renderers', () => {
 
   describe('filterRenderer', () => {
     it('uses the rendered filter instead of creating the default one', async () => {
-      const el = await lookupFixture(html`<vcf-lookup-field .filterRenderer="${() => customFilter()}"></vcf-lookup-field>`);
+      const el = await lookupFixture(html`<vcf-lookup-field .filterRenderer="${() => customFilter('rendered-filter')}"></vcf-lookup-field>`);
 
       expect(el._filter.id).to.equal('rendered-filter');
       expect(el.__generatedFilter).to.be.undefined;
     });
 
     it('renders the rendered filter into the dialog and focuses it on open', async () => {
-      const el = await lookupFixture(html`<vcf-lookup-field .filterRenderer="${() => customFilter()}"></vcf-lookup-field>`);
+      const el = await lookupFixture(html`<vcf-lookup-field .filterRenderer="${() => customFilter('rendered-filter')}"></vcf-lookup-field>`);
 
       await openDialog(el);
 
@@ -149,7 +135,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
 
     it('lets a slotted filter take precedence', async () => {
       const el = await fixture(html`
-        <vcf-lookup-field .filterRenderer="${() => customFilter()}">
+        <vcf-lookup-field .filterRenderer="${() => customFilter('rendered-filter')}">
           <vaadin-text-field slot="filter" id="slotted-filter"></vaadin-text-field>
         </vcf-lookup-field>
       `);
@@ -162,7 +148,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
       const el = await lookupFixture();
       const defaultFilter = el._filter;
 
-      el.filterRenderer = () => customFilter();
+      el.filterRenderer = () => customFilter('rendered-filter');
 
       expect(el._filter.id).to.equal('rendered-filter');
       expect(defaultFilter.isConnected).to.be.false;
@@ -170,7 +156,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
     });
 
     it('goes back to the default filter, showing the current filter text, when the renderer is removed', async () => {
-      const el = await lookupFixture(html`<vcf-lookup-field .filterRenderer="${() => customFilter()}"></vcf-lookup-field>`);
+      const el = await lookupFixture(html`<vcf-lookup-field .filterRenderer="${() => customFilter('rendered-filter')}"></vcf-lookup-field>`);
       el._filterdata = 'ban';
 
       el.filterRenderer = undefined;

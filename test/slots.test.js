@@ -1,5 +1,5 @@
 import { expect, fixture, html, nextFrame } from '@open-wc/testing';
-import { dialogContent, flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
+import { customFilter, customGrid, dialogContent, flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
 import '@vaadin/combo-box';
 import '@vaadin/grid';
 import '@vaadin/text-field';
@@ -249,12 +249,8 @@ describe('vcf-lookup-field: slotted content', () => {
       await openDialog(el);
       const original = { filter: el._filter, grid: el._grod, selected: el._selected };
 
-      const grid = document.createElement('vaadin-grid');
-      grid.setAttribute('slot', 'grid');
-      grid.id = 'late-grid';
-      const filter = document.createElement('vaadin-text-field');
-      filter.setAttribute('slot', 'filter');
-      filter.id = 'late-filter';
+      const grid = customGrid('late-grid', 'grid');
+      const filter = customFilter('late-filter', 'filter');
       const selected = document.createElement('div');
       selected.setAttribute('slot', 'selected');
       selected.id = 'late-selected';

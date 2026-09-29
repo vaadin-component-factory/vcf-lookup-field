@@ -50,3 +50,25 @@ export async function openDialog(el) {
 export function dialogContent(el) {
   return el._dialog.querySelector('[part="lookup-field-dialog-content"]');
 }
+
+/**
+ * A grid for a renderer to return or to slot in, told apart by its `id`. Pass a
+ * `slot` to slot it; a renderer's element gets its slot from the lookup field.
+ */
+export function customGrid(id = 'custom-grid', slot) {
+  return customElement('vaadin-grid', id, slot);
+}
+
+/** A filter field for a renderer to return or to slot in. See `customGrid`. */
+export function customFilter(id = 'custom-filter', slot) {
+  return customElement('vaadin-text-field', id, slot);
+}
+
+function customElement(tagName, id, slot) {
+  const element = document.createElement(tagName);
+  element.id = id;
+  if (slot) {
+    element.setAttribute('slot', slot);
+  }
+  return element;
+}
