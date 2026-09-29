@@ -63,9 +63,15 @@ lookupField.gridRenderer = lookupField => {
 
 Slotted content takes precedence over a renderer, and a renderer over the default. The renderer
 runs when the lookup field initializes, before the dialog can open, and again whenever you set
-a new one. A rendered element is treated like a slotted one: a rendered grid gets no items from
-the lookup field, and a rendered filter brings its own filtering. `lookupField.items` and
-`lookupField.filterItems(items, text)` are there to help with both.
+a new one. A rendered element is treated like a slotted one:
+
+- The lookup field does not set the items of a rendered grid, and does not update them when
+  `items` changes. Set them from the renderer. While the default filter is in use, typing in it
+  still replaces the grid items with the matching `items`. In a Flow application it filters on
+  the server instead.
+- A rendered filter does not filter anything by itself. Listen to it and set the grid items.
+
+`lookupField.items` and `lookupField.filterItems(items, text)` help with both.
 
 ## Running demo
 

@@ -247,8 +247,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     // Slotted content wins, then a renderer, then the built-in default. All
     // three run here, before the dialog can open, because selection and
     // filtering bind to `_grod` and `_filter` straight away.
-    this.__setGrid(this.$.gridSlot.assignedNodes()[0] || this.__renderGrid());
-    this._filter = this.$.filterSlot.assignedNodes()[0] || this.__renderFilter();
+    this.__setGrid(this.$.gridSlot.assignedNodes()[0] || this.__resolveGrid());
+    this._filter = this.$.filterSlot.assignedNodes()[0] || this.__resolveFilter();
+    // The renderer observers also fire from `super.ready()`, before any of this
+    // exists; they only swap content from here on.
     this.__dialogContentCreated = true;
     this._selected = this.$.selectedSlot.assignedNodes()[0] || this._createSelected();
 
@@ -775,82 +777,91 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /**
    * The grid from `gridRenderer`, or the default grid when there is no renderer
-   * or it returns nothing. A rendered grid lives in the light DOM like a slotted
-   * one, and like a slotted one it gets no items from the host.
+   * or it returns nothing.
    * @private
    */
-  __renderGrid() {
-    const grid = this.gridRenderer ? this.gridRenderer(this) : null;
-    this.__renderedGrid = grid || null;
-    if (!grid) {
-      return this._createGrid();
-    }
-    grid.setAttribute('slot', 'grid');
-    if (grid.parentNode !== this) {
-      this.appendChild(grid);
-    }
-    return grid;
+  __resolveGrid() {
+    this.__renderedGrid = this.__renderPart(this.gridRenderer, 'grid');
+    return this.__renderedGrid || this._createGrid();
   }
 
   /**
    * The filter from `filterRenderer`, or the default filter when there is no
-   * renderer or it returns nothing. Like a slotted filter, a rendered one is
-   * assumed to bring its own filtering.
+   * renderer or it returns nothing.
    * @private
    */
-  __renderFilter() {
-    const filter = this.filterRenderer ? this.filterRenderer(this) : null;
-    this.__renderedFilter = filter || null;
-    if (!filter) {
-      return this._createFilter();
-    }
-    filter.setAttribute('slot', 'filter');
-    if (filter.parentNode !== this) {
-      this.appendChild(filter);
-    }
-    return filter;
+  __resolveFilter() {
+    this.__renderedFilter = this.__renderPart(this.filterRenderer, 'filter');
+    return this.__renderedFilter || this._createFilter();
   }
 
   /**
-   * Swaps in the grid of a `gridRenderer` set after initialization. A slotted
-   * grid always wins, so nothing changes while one is present.
+   * Calls a dialog content renderer and puts the element it returns into the
+   * light DOM under `slot`, like slotted content, so it can run its update
+   * cycle before the dialog renderer moves it into the overlay.
+   * @return {HTMLElement | null} the rendered element, or null for none
    * @private
    */
+  __renderPart(renderer, slot) {
+    const element = renderer ? renderer(this) : null;
+    if (!element) {
+      return null;
+    }
+    element.setAttribute('slot', slot);
+    if (element.parentNode !== this) {
+      this.appendChild(element);
+    }
+    return element;
+  }
+
+  /** @private */
   __gridRendererChanged() {
-    const current = this._grod;
-    if (!this.__dialogContentCreated || (current !== this.__generatedGrid && current !== this.__renderedGrid)) {
-      return;
-    }
-    const grid = this.__renderGrid();
-    if (current !== grid) {
-      if (current === this.__generatedGrid) {
-        this.__generatedGrid = null;
-        this.__generatedGridColumn = null;
+    this.__replaceOwnedPart(
+      this._grod,
+      [this.__generatedGrid, this.__renderedGrid],
+      () => this.__resolveGrid(),
+      grid => {
+        if (grid !== this.__generatedGrid) {
+          this.__generatedGrid = null;
+          this.__generatedGridColumn = null;
+        }
+        this.__setGrid(grid);
       }
-      current.remove();
-    }
-    this.__setGrid(grid);
-    this.__requestDialogContentUpdate();
+    );
+  }
+
+  /** @private */
+  __filterRendererChanged() {
+    this.__replaceOwnedPart(
+      this._filter,
+      [this.__generatedFilter, this.__renderedFilter],
+      () => this.__resolveFilter(),
+      filter => {
+        if (filter !== this.__generatedFilter) {
+          this.__generatedFilter = null;
+        }
+        this._filter = filter;
+      }
+    );
   }
 
   /**
-   * Swaps in the filter of a `filterRenderer` set after initialization. A
-   * slotted filter always wins, so nothing changes while one is present.
+   * Swaps in the element of a renderer set after initialization. Only a part
+   * the lookup field owns -- the default or a previously rendered element -- is
+   * replaced: slotted content always wins, so nothing changes while it is
+   * present. The replaced element is removed, so a default that `adopt` stops
+   * referencing is gone from the DOM too.
    * @private
    */
-  __filterRendererChanged() {
-    const current = this._filter;
-    if (!this.__dialogContentCreated || (current !== this.__generatedFilter && current !== this.__renderedFilter)) {
+  __replaceOwnedPart(current, owned, resolve, adopt) {
+    if (!this.__dialogContentCreated || !owned.includes(current)) {
       return;
     }
-    const filter = this.__renderFilter();
-    if (current !== filter) {
-      if (current === this.__generatedFilter) {
-        this.__generatedFilter = null;
-      }
+    const next = resolve();
+    if (next !== current) {
       current.remove();
     }
-    this._filter = filter;
+    adopt(next);
     this.__requestDialogContentUpdate();
   }
 
@@ -1202,9 +1213,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        * binds its selection to that element. Returning nothing falls back to
        * the default grid.
        *
-       * A grid in the `grid` slot takes precedence. Like a slotted grid, a
-       * rendered one gets no items from the lookup field: set them from the
-       * renderer, for example from `lookupField.items`.
+       * A grid in the `grid` slot takes precedence. As with a slotted grid, the
+       * lookup field neither sets the items of a rendered grid nor updates them
+       * when `items` changes: set them from the renderer, for example from
+       * `lookupField.items`. While the default filter is in use, typing in it
+       * still replaces the grid items with the matching `items` (in a Flow
+       * application it filters on the server instead); set `filterRenderer`
+       * to control that as well.
        *
        * Called once during initialization, and again whenever the property
        * changes.
@@ -1221,8 +1236,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        * nothing falls back to the default filter.
        *
        * A filter in the `filter` slot takes precedence. Like a slotted filter, a
-       * rendered one brings its own filtering: listen to it and set the grid
-       * items, for example with `lookupField.filterItems()`.
+       * rendered one does not filter anything by itself: listen to it and set
+       * the grid items, for example with `lookupField.filterItems()`.
        *
        * Called once during initialization, and again whenever the property
        * changes.

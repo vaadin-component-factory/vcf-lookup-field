@@ -67,9 +67,13 @@ export class LookupField extends LookupField_base {
          * binds its selection to that element. Returning nothing falls back to
          * the default grid.
          *
-         * A grid in the `grid` slot takes precedence. Like a slotted grid, a
-         * rendered one gets no items from the lookup field: set them from the
-         * renderer, for example from `lookupField.items`.
+         * A grid in the `grid` slot takes precedence. As with a slotted grid, the
+         * lookup field neither sets the items of a rendered grid nor updates them
+         * when `items` changes: set them from the renderer, for example from
+         * `lookupField.items`. While the default filter is in use, typing in it
+         * still replaces the grid items with the matching `items` (in a Flow
+         * application it filters on the server instead); set `filterRenderer`
+         * to control that as well.
          *
          * Called once during initialization, and again whenever the property
          * changes.
@@ -82,8 +86,8 @@ export class LookupField extends LookupField_base {
          * nothing falls back to the default filter.
          *
          * A filter in the `filter` slot takes precedence. Like a slotted filter, a
-         * rendered one brings its own filtering: listen to it and set the grid
-         * items, for example with `lookupField.filterItems()`.
+         * rendered one does not filter anything by itself: listen to it and set
+         * the grid items, for example with `lookupField.filterItems()`.
          *
          * Called once during initialization, and again whenever the property
          * changes.
@@ -409,32 +413,39 @@ export class LookupField extends LookupField_base {
     __generatedFilter: import("@vaadin/text-field/src/vaadin-text-field.js").TextField;
     /**
      * The grid from `gridRenderer`, or the default grid when there is no renderer
-     * or it returns nothing. A rendered grid lives in the light DOM like a slotted
-     * one, and like a slotted one it gets no items from the host.
+     * or it returns nothing.
      * @private
      */
-    private __renderGrid;
-    __renderedGrid: any;
+    private __resolveGrid;
+    __renderedGrid: HTMLElement;
     /**
      * The filter from `filterRenderer`, or the default filter when there is no
-     * renderer or it returns nothing. Like a slotted filter, a rendered one is
-     * assumed to bring its own filtering.
+     * renderer or it returns nothing.
      * @private
      */
-    private __renderFilter;
-    __renderedFilter: any;
+    private __resolveFilter;
+    __renderedFilter: HTMLElement;
     /**
-     * Swaps in the grid of a `gridRenderer` set after initialization. A slotted
-     * grid always wins, so nothing changes while one is present.
+     * Calls a dialog content renderer and puts the element it returns into the
+     * light DOM under `slot`, like slotted content, so it can run its update
+     * cycle before the dialog renderer moves it into the overlay.
+     * @return {HTMLElement | null} the rendered element, or null for none
      * @private
      */
+    private __renderPart;
+    /** @private */
     private __gridRendererChanged;
+    /** @private */
+    private __filterRendererChanged;
     /**
-     * Swaps in the filter of a `filterRenderer` set after initialization. A
-     * slotted filter always wins, so nothing changes while one is present.
+     * Swaps in the element of a renderer set after initialization. Only a part
+     * the lookup field owns -- the default or a previously rendered element -- is
+     * replaced: slotted content always wins, so nothing changes while it is
+     * present. The replaced element is removed, so a default that `adopt` stops
+     * referencing is gone from the DOM too.
      * @private
      */
-    private __filterRendererChanged;
+    private __replaceOwnedPart;
     /** @private */
     private __requestDialogContentUpdate;
     /** @private */
