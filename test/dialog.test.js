@@ -218,6 +218,90 @@ describe('vcf-lookup-field: dialog', () => {
     });
   });
 
+  /**
+   * Regression tests for https://github.com/vaadin-component-factory/vcf-lookup-field/issues/40
+   *
+   * Picking a row in the dialog is the user committing a value, just like
+   * picking an option in the combo box, so it has to validate the field and
+   * fire a bubbling `change` the same way.
+   */
+  describe('committing a pick', () => {
+    async function pick(item) {
+      await openDialog(el);
+      el.__onSelectChanged({ detail: { value: [item] } });
+      await nextFrame();
+      footerButtons(el).select.click();
+      await flush();
+    }
+
+    function recordEvents(target, type) {
+      const events = [];
+      target.addEventListener(type, e => events.push(e));
+      return events;
+    }
+
+    it('clears an error shown before the pick', async () => {
+      el.required = true;
+      el.errorMessage = 'Please pick a fruit';
+      await nextFrame();
+      el.validate();
+      await flush();
+      expect(el.invalid).to.be.true;
+
+      await pick(OBJECT_ITEMS[1]);
+
+      expect(el._field.invalid).to.be.false;
+      expect(el.invalid).to.be.false;
+    });
+
+    it('fires validated from the host', async () => {
+      el.required = true;
+      await nextFrame();
+      const events = recordEvents(el, 'validated');
+
+      await pick(OBJECT_ITEMS[1]);
+
+      expect(events).to.have.lengthOf(1);
+      expect(events[0].detail.valid).to.be.true;
+    });
+
+    it('fires a bubbling change once', async () => {
+      const events = recordEvents(document.body, 'change');
+
+      await pick(OBJECT_ITEMS[1]);
+      // Leaving the field afterwards must not report the same commit again.
+      el._field.focus();
+      el._field.blur();
+      await flush();
+
+      expect(events).to.have.lengthOf(1);
+      expect(events[0].target).to.equal(el._field);
+      expect(events[0].bubbles).to.be.true;
+    });
+
+    it('does not fire change when the same item is picked again', async () => {
+      await pick(OBJECT_ITEMS[1]);
+      const events = recordEvents(el, 'change');
+
+      await pick(OBJECT_ITEMS[1]);
+
+      expect(events).to.have.lengthOf(0);
+    });
+
+    it('does not validate under manual validation', async () => {
+      el.required = true;
+      el.manualValidation = true;
+      el.invalid = true;
+      await nextFrame();
+      const events = recordEvents(el, 'change');
+
+      await pick(OBJECT_ITEMS[1]);
+
+      expect(el.invalid).to.be.true;
+      expect(events).to.have.lengthOf(1);
+    });
+  });
+
   describe('creating', () => {
     it('fires vcf-lookup-field-create-item-event when Create is clicked', async () => {
       el.createhidden = false;

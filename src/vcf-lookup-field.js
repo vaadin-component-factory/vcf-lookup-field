@@ -1151,8 +1151,11 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       const item = this._grodSelectedItem;
       const selectedItem = Array.isArray(item) ? item[0] : item;
       if (selectedItem) {
-        this._field.selectedItem = selectedItem;
+        const field = this._field;
+        const changed = field.selectedItem !== selectedItem;
+        field.selectedItem = selectedItem;
         this._dialog.opened = false;
+        this.__commitPick(field, changed);
       } else {
         this.$.notification.renderer = function(root, notification) {
           root.textContent = that.i18n.emptyselection;
@@ -1160,6 +1163,40 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         this.$.notification.open();
       }
     }
+  }
+
+  /**
+   * Treats a pick made in the dialog as the user committing a value, the way a
+   * pick in the combo box is: the field validates and fires a bubbling `change`.
+   * Assigning `selectedItem` from code does neither (#40).
+   *
+   * Runs once the field has updated, because a Lit based field only syncs its
+   * input text in its update cycle, and validating before that still sees the
+   * old, empty input.
+   * @private
+   */
+  __commitPick(field, changed) {
+    Promise.resolve(field.updateComplete).then(() => {
+      if (field !== this._field) {
+        return;
+      }
+      if (typeof field._detectAndDispatchChange === 'function') {
+        // `vaadin-combo-box` commits a user pick with exactly this: it honours
+        // `manualValidation`, fires `change` only when the value differs from
+        // the last committed one, and records the commit so the next blur does
+        // not report it a second time.
+        field._detectAndDispatchChange();
+        return;
+      }
+      if (typeof field._requestValidation === 'function') {
+        field._requestValidation();
+      } else if (!field.manualValidation && typeof field.validate === 'function') {
+        field.validate();
+      }
+      if (changed) {
+        field.dispatchEvent(new CustomEvent('change', { bubbles: true }));
+      }
+    });
   }
 
   _getItemLabel(item) {
