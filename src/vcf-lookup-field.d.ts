@@ -210,6 +210,7 @@ export class LookupField extends LookupField_base {
             type: BooleanConstructor;
             value: boolean;
             reflectToAttribute: boolean;
+            observer: string;
         };
         /**
          * The object used to localize this component.
@@ -394,7 +395,8 @@ export class LookupField extends LookupField_base {
     _dialog: import("@vaadin/dialog/src/vaadin-dialog.js").Dialog;
     /**
      * The default grid, shown when nothing is slotted into the `grid` slot. Its
-     * single column follows `itemLabelPath`.
+     * column follows `itemLabelPath`, and in multi-select mode a selection column
+     * comes first.
      * @private
      */
     private _createGrid;
@@ -459,6 +461,12 @@ export class LookupField extends LookupField_base {
      * @private
      */
     private __filterdataChanged;
+    /**
+     * Gives the generated grid a selection column while `multiSelect` is set:
+     * rows are ticked there, since activating a row selects nothing in that mode.
+     * @private
+     */
+    private __updateGridSelectionColumn;
     /** @private */
     private __updateGridItems;
     /**
@@ -490,6 +498,13 @@ export class LookupField extends LookupField_base {
     private __searchKeydown;
     /** @private */
     private __open;
+    /**
+     * The field's selection as a list: all of `selectedItems` for a field that
+     * has it, such as `vaadin-multi-select-combo-box`, otherwise its single
+     * `selectedItem`.
+     * @private
+     */
+    private __fieldSelection;
     /** @private */
     private __close;
     /** @private */
