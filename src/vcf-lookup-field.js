@@ -338,8 +338,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    * ------------------------------------------------------------------ */
 
   /**
-   * The value of the wrapped field. `undefined` when the field has no `value`,
-   * which is the case for `vaadin-multi-select-combo-box`.
+   * The value of the wrapped field. `undefined` when the field has no `value`;
+   * writing it is then ignored.
    * @type {string | undefined}
    */
   get value() {
@@ -351,7 +351,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   }
 
   /**
-   * The item selected in the wrapped field.
+   * The item selected in the wrapped field. `undefined`, and ignored when
+   * written, if the field has no `selectedItem`.
    * @type {Object | string | undefined}
    */
   get selectedItem() {
@@ -364,6 +365,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /**
    * The items selected in the wrapped field, for a multi-select field.
+   * `undefined`, and ignored when written, if the field has no `selectedItems`.
    * @type {Array | undefined}
    */
   get selectedItems() {
@@ -388,10 +390,17 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     return this._field ? this._field[prop] : this.__pendingField[prop];
   }
 
-  /** @private */
+  /**
+   * Writes a value property to the field, or buffers it until one is adopted.
+   * A property the field does not have is ignored, as in `__flushPendingField()`,
+   * so that it does not become an expando the getter would then report.
+   * @private
+   */
   __writeField(prop, value) {
     if (this._field) {
-      this._field[prop] = value;
+      if (prop in this._field) {
+        this._field[prop] = value;
+      }
     } else {
       this.__pendingField[prop] = value;
     }

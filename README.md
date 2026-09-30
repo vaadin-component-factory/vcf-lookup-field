@@ -109,13 +109,16 @@ longer keeps its own copy of the field state, so the host and the field can no l
   the field.
 - `invalid` on the host is now derived from the field. Setting it on the host still reaches the
   field, but the field is the source of truth.
-- Multi-select: when a `vaadin-multi-select-combo-box` is slotted, `value` is `undefined`
-  because that field has no `value`. Use `selectedItems` instead.
+- Multi-select: when a `vaadin-multi-select-combo-box` is slotted, `value` reads that field's
+  own `value` (`""` with `@vaadin/multi-select-combo-box` 25.3.0), not the selection. Use
+  `selectedItems` instead.
 
 ### New API
 
 - `value`, `selectedItem` and `selectedItems` read and write straight through to the slotted
-  field. Values set before a field is attached are applied to it once it is.
+  field. Values set before a field is attached are applied to it once it is. A property the
+  field does not have is ignored and reads as `undefined`, such as `selectedItems` on the
+  default `vaadin-combo-box`.
 - `field` returns the field in the `field` slot, generated or slotted. Use it to reach the
   parts of the field API that the lookup field does not mirror.
 - `validate()` and `checkValidity()` delegate to the field.

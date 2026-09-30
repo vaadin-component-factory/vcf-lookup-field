@@ -165,6 +165,45 @@ describe('vcf-lookup-field: value', () => {
 
       expect(el.field.selectedItems).to.deep.equal([OBJECT_ITEMS[1]]);
     });
+
+    it('ignores a value written to a field that has no value', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field multi-select>
+          <fake-multi-select-field slot="field"></fake-multi-select-field>
+        </vcf-lookup-field>
+      `);
+      await flush();
+
+      el.value = 'apple';
+
+      expect('value' in el.field).to.be.false;
+      expect(el.value).to.be.undefined;
+    });
+  });
+
+  describe('a field with no selectedItems property', () => {
+    it('ignores selectedItems written to the default combo box', async () => {
+      const el = await fixture(html`<vcf-lookup-field .items="${OBJECT_ITEMS}"></vcf-lookup-field>`);
+      await flush();
+
+      el.selectedItems = [...OBJECT_ITEMS];
+
+      expect('selectedItems' in el.field).to.be.false;
+      expect(el.selectedItems).to.be.undefined;
+    });
+
+    it('behaves the same whether written before or after the field exists', async () => {
+      const el = document.createElement('vcf-lookup-field');
+      el.items = OBJECT_ITEMS;
+      el.selectedItems = [OBJECT_ITEMS[0]];
+
+      document.body.appendChild(el);
+      await flush();
+
+      expect('selectedItems' in el.field).to.be.false;
+      expect(el.selectedItems).to.be.undefined;
+      el.remove();
+    });
   });
 
   describe('replacing the field', () => {
