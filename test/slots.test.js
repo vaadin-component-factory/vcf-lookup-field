@@ -187,6 +187,34 @@ describe('vcf-lookup-field: slotted content', () => {
       expect(el.programselectdisabled).to.be.false;
     });
 
+    /*
+     * The generated filter reports its initial value after its listener is
+     * attached. That used to replace the slotted grid's items with the
+     * filtered host `items`, which are usually not set yet.
+     */
+    it('keeps the items of a slotted grid through initialization', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <vaadin-grid slot="grid" .items="${OBJECT_ITEMS}"></vaadin-grid>
+        </vcf-lookup-field>
+      `);
+      await flush();
+
+      expect(el._grod.items).to.equal(OBJECT_ITEMS);
+    });
+
+    it('keeps the items of a slotted grid when the host items are set after attaching', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <vaadin-grid slot="grid" .items="${OBJECT_ITEMS}"></vaadin-grid>
+        </vcf-lookup-field>
+      `);
+      el.items = [OBJECT_ITEMS[0]];
+      await flush();
+
+      expect(el._grod.items).to.equal(OBJECT_ITEMS);
+    });
+
     it('moves its listeners over when the grid is replaced at runtime', async () => {
       const el = await lookupFixture();
       const original = el._grod;
