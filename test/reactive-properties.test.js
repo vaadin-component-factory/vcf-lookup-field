@@ -108,6 +108,41 @@ describe('vcf-lookup-field: properties set after initialization', () => {
       expect(el._field.itemLabelPath).to.equal('name');
       expect(el._field.itemValuePath).to.equal('id');
     });
+
+    // https://github.com/vaadin-component-factory/vcf-lookup-field/issues/52
+    it('clears the field state when a property is set back to undefined', async () => {
+      const el = await lookupFixture();
+
+      Object.assign(el, { label: 'Person', errorMessage: 'Pick someone', invalid: true, disabled: true });
+      await nextFrame();
+      expect(el._field.label).to.equal('Person');
+      expect(el._field.disabled).to.be.true;
+
+      Object.assign(el, { label: undefined, errorMessage: undefined, invalid: undefined, disabled: undefined });
+      await nextFrame();
+
+      expect(el._field.label).to.be.not.ok;
+      expect(el._field.errorMessage).to.be.not.ok;
+      expect(el._field.invalid).to.be.not.ok;
+      expect(el._field.disabled).to.be.not.ok;
+      expect(el._searchButton.disabled).to.be.not.ok;
+    });
+
+    it('leaves the declared state of a slotted field alone when the host never set it', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <vaadin-combo-box slot="field" label="Declared" required></vaadin-combo-box>
+        </vcf-lookup-field>
+      `);
+      await flush();
+
+      el.header = 'Unrelated change';
+      el.disabled = undefined;
+      await nextFrame();
+
+      expect(el._field.label).to.equal('Declared');
+      expect(el._field.required).to.be.true;
+    });
   });
 
   describe('dialog', () => {
