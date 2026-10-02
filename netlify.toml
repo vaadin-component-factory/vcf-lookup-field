@@ -1,0 +1,12 @@
+# Builds the demo into build/ and the API docs into build/api.
+[build]
+  publish = "build"
+  # The repository has no lockfile, so installing over the node_modules Netlify
+  # restores from its cache keeps the cached @vaadin versions and upgrades only
+  # what a changed package.json pulls in. The bundle then mixes two Vaadin
+  # releases and the fields fail to start. Install from scratch instead.
+  command = "rm -rf node_modules && npm install --no-audit --no-fund && npm run build"
+
+[build.environment]
+  # Same as CI.
+  NODE_VERSION = "24"

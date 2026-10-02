@@ -8,6 +8,7 @@ import '@vaadin/button';
 import '@vaadin/combo-box';
 import '@vaadin/grid';
 import '@vaadin/grid/vaadin-grid-filter';
+import '@vaadin/grid/vaadin-grid-selection-column';
 import '@vaadin/horizontal-layout';
 import '@vaadin/icon';
 import '@vaadin/icons';
@@ -730,7 +731,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /**
    * The default grid, shown when nothing is slotted into the `grid` slot. Its
-   * single column follows `itemLabelPath`.
+   * column follows `itemLabelPath`, and in multi-select mode a selection column
+   * comes first.
    * @private
    */
   _createGrid() {
@@ -742,6 +744,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
     this.__generatedGrid = grid;
     this.__generatedGridColumn = column;
+    this.__updateGridSelectionColumn();
     // Into the light DOM, like a slotted grid: the `grid` slot is hidden, and
     // being connected is what lets the element run its update cycle before the
     // dialog renderer moves it into the overlay.
@@ -914,6 +917,24 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     const value = filterdata == null ? '' : filterdata;
     if (filter && filter.value !== value) {
       filter.value = value;
+    }
+  }
+
+  /**
+   * Gives the generated grid a selection column while `multiSelect` is set:
+   * rows are ticked there, since activating a row selects nothing in that mode.
+   * @private
+   */
+  __updateGridSelectionColumn() {
+    const grid = this.__generatedGrid;
+    if (!grid) {
+      return;
+    }
+    const column = grid.querySelector(':scope > vaadin-grid-selection-column');
+    if (this.multiSelect && !column) {
+      grid.prepend(document.createElement('vaadin-grid-selection-column'));
+    } else if (!this.multiSelect && column) {
+      column.remove();
     }
   }
 
@@ -1131,18 +1152,35 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       this.$server.filterGrid(this._filterdata);
     } else {
       this._filterdata = this._field.inputElement.value;
-      const item = this._field.selectedItem;
-      if (!this.multiSelect) {
+      if (this.multiSelect) {
+        const items = this.__fieldSelection();
+        this._grod.selectedItems = items;
+        this._grodSelectedItem = [...items];
+        this.programselectdisabled = items.length === 0;
+      } else {
+        const item = this._field.selectedItem;
         this._grod.selectedItems = item ? [item] : [];
         this._grodSelectedItem = item;
-      }
-      if (item) {
-        this.programselectdisabled = false;
-      } else {
-        this.programselectdisabled = true;
+        this.programselectdisabled = !item;
       }
     }
   }
+
+  /**
+   * The field's selection as a list: all of `selectedItems` for a field that
+   * has it, such as `vaadin-multi-select-combo-box`, otherwise its single
+   * `selectedItem`.
+   * @private
+   */
+  __fieldSelection() {
+    const items = this._field.selectedItems;
+    if (Array.isArray(items)) {
+      return [...items];
+    }
+    const item = this._field.selectedItem;
+    return item ? [item] : [];
+  }
+
   /** @private */
   __close() {
     this._dialog.opened = false;
@@ -1158,11 +1196,20 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     } else {
       var that = this;
       const item = this._grodSelectedItem;
-      const selectedItem = Array.isArray(item) ? item[0] : item;
-      if (selectedItem) {
+      const items = Array.isArray(item) ? item : item ? [item] : [];
+      if (items.length) {
         const field = this._field;
-        const changed = field.selectedItem !== selectedItem;
-        field.selectedItem = selectedItem;
+        let changed;
+        // A field without `selectedItems`, such as the default combo box, can
+        // only hold one item, so it gets the first row.
+        if (this.multiSelect && Array.isArray(field.selectedItems)) {
+          const previous = field.selectedItems;
+          changed = previous.length !== items.length || items.some((selected, i) => previous[i] !== selected);
+          field.selectedItems = [...items];
+        } else {
+          changed = field.selectedItem !== items[0];
+          field.selectedItem = items[0];
+        }
         this._dialog.opened = false;
         this.__commitPick(field, changed);
       } else {
@@ -1479,7 +1526,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       multiSelect: {
         type: Boolean,
         value: false,
-        reflectToAttribute: true
+        reflectToAttribute: true,
+        observer: '__updateGridSelectionColumn'
       },
 
       /**

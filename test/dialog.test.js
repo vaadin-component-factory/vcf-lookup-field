@@ -76,7 +76,7 @@ describe('vcf-lookup-field: dialog', () => {
       expect(el.selectdisabled).to.be.true;
     });
 
-    it('does not touch the grid selection in multi-select mode', async () => {
+    it('replaces a stale grid selection with the field selection in multi-select mode', async () => {
       el.multiSelect = true;
       el._field.selectedItem = OBJECT_ITEMS[1];
       el._grod.selectedItems = [OBJECT_ITEMS[0], OBJECT_ITEMS[2]];
@@ -84,7 +84,7 @@ describe('vcf-lookup-field: dialog', () => {
 
       await openDialog(el);
 
-      expect(el._grod.selectedItems).to.deep.equal([OBJECT_ITEMS[0], OBJECT_ITEMS[2]]);
+      expect(el._grod.selectedItems).to.deep.equal([OBJECT_ITEMS[1]]);
     });
 
     it('asks the server connector to seed the dialog when one is present', async () => {

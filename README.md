@@ -95,6 +95,23 @@ a new one. A rendered element is treated like a slotted one:
 
 `lookupField.items` and `lookupField.filterItems(items, text)` help with both.
 
+### Multi-select
+
+Set `multi-select` and slot a `vaadin-multi-select-combo-box` as the field. The dialog opens
+with the field's `selectedItems` ticked in the grid, and **Select** replaces them with the rows
+ticked there. The default grid gets a selection column in this mode. A slotted or rendered grid
+needs its own `<vaadin-grid-selection-column>`, which the lookup field already registers.
+
+```html
+<vcf-lookup-field multi-select>
+  <vaadin-multi-select-combo-box slot="field" item-label-path="name" item-id-path="id">
+  </vaadin-multi-select-combo-box>
+</vcf-lookup-field>
+```
+
+The default combo box holds a single item, so with it **Select** only applies the first ticked
+row.
+
 ## Migrating to 7.0.0
 
 In 7.0.0, `<vcf-lookup-field>` became a decorator over the field in its `field` slot. It no
