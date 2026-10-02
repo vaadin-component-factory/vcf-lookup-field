@@ -1,5 +1,5 @@
 import { expect, fixture, html, nextFrame, oneEvent } from '@open-wc/testing';
-import { dialogContent, flush, footerButtons, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
+import { dialogContent, flush, footerButtons, isShownInDialog, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
 
 describe('vcf-lookup-field: dialog', () => {
   let el;
@@ -18,14 +18,13 @@ describe('vcf-lookup-field: dialog', () => {
       expect(el._dialog.opened).to.be.true;
     });
 
-    it('moves the filter, grid and selected slot content into the dialog', async () => {
+    it('shows the filter, grid and selected element in the dialog through slots', async () => {
       await openDialog(el);
-      const content = dialogContent(el);
 
-      expect(content).to.exist;
-      expect(content.contains(el._filter)).to.be.true;
-      expect(content.contains(el._grod)).to.be.true;
-      expect(content.contains(el._selected)).to.be.true;
+      expect(dialogContent(el)).to.exist;
+      expect(isShownInDialog(el, el._filter)).to.be.true;
+      expect(isShownInDialog(el, el._grod)).to.be.true;
+      expect(isShownInDialog(el, el._selected)).to.be.true;
     });
 
     it('renders the footer buttons with the i18n labels', async () => {
