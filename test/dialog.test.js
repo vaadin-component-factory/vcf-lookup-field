@@ -37,6 +37,19 @@ describe('vcf-lookup-field: dialog', () => {
       expect(select.textContent.trim()).to.equal('Select');
     });
 
+    it('keeps the default texts that a partial i18n object leaves out', async () => {
+      el.i18n = { select: 'Choose' };
+      el.createhidden = false;
+      await openDialog(el);
+      const { create, cancel, select } = footerButtons(el);
+
+      expect(select.textContent.trim()).to.equal('Choose');
+      expect(cancel.textContent.trim()).to.equal('Cancel');
+      expect(create.textContent.trim()).to.equal('Create new');
+      expect(el._filter.label).to.equal('Search');
+      expect(el._searchButton.getAttribute('aria-label')).to.equal('Click to open the search dialog');
+    });
+
     it('hides the create button while createhidden is set', async () => {
       await openDialog(el);
       const { create } = footerButtons(el);
