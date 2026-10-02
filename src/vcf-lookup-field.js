@@ -151,44 +151,48 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
         <slot name="search-button-slot"></slot>
 
-        <slot name="dialog-slot"></slot>
-
-        <footer id="dialogfooter" style="display:none">
-          <vaadin-button
-            slot="footer"
-            on-click="__create"
-            hidden$="[[createhidden]]"
-            style="margin-inline-end: auto;"
-            has-selected$="[[hasselected]]"
-          >
-            [[i18n.create]]
-          </vaadin-button>
-          <vaadin-button slot="footer" on-click="__close" has-selected$="[[hasselected]]">
-            [[i18n.cancel]]
-          </vaadin-button>
-          <vaadin-button
-            slot="footer"
-            id="selectbtn"
-            theme="primary"
-            on-click="__select"
-            has-selected$="[[hasselected]]"
-            disabled$="[[selectdisabled]]"
-            aria-disabled$="[[selectdisabled]]"
-          >
-            [[i18n.select]]
-          </vaadin-button>
-        </footer>
-
         <!--
-          The dialog content lives in the light DOM. The defaults below are built
-          imperatively so that the generated elements and the slotted ones travel
-          the exact same path into the dialog.
+          The dialog lives in this shadow root, so its renderers can forward the
+          slots below into it instead of moving the slotted nodes out of the host.
+          Content slotted into the host stays a child of the host whether the
+          dialog is open or not, which is what lets React, Lit, Vue or Angular keep
+          rendering the light DOM. The forwarding slots wait in this hidden holder
+          until the dialog renders them for the first time.
         -->
-        <slot name="grid" style="display:none;" id="gridSlot"></slot>
+        <div id="dialogParts" hidden>
+          <div id="dialogContent" part="lookup-field-dialog-content">
+            <slot name="filter" id="filterSlot"></slot>
+            <slot name="grid" id="gridSlot"></slot>
+            <slot name="selected" id="selectedSlot"></slot>
+          </div>
 
-        <slot name="filter" style="display:none;" id="filterSlot"></slot>
+          <slot name="dialog-header" id="dialogHeaderSlot"></slot>
 
-        <slot name="selected" style="display:none;" id="selectedSlot"></slot>
+          <!-- The default buttons are the fallback content of the footer slot. -->
+          <slot name="dialog-footer" id="dialogFooterSlot">
+            <vaadin-button
+              on-click="__create"
+              hidden$="[[createhidden]]"
+              style="margin-inline-end: auto;"
+              has-selected$="[[hasselected]]"
+            >
+              [[i18n.create]]
+            </vaadin-button>
+            <vaadin-button on-click="__close" has-selected$="[[hasselected]]">
+              [[i18n.cancel]]
+            </vaadin-button>
+            <vaadin-button
+              id="selectbtn"
+              theme="primary"
+              on-click="__select"
+              has-selected$="[[hasselected]]"
+              disabled$="[[selectdisabled]]"
+              aria-disabled$="[[selectdisabled]]"
+            >
+              [[i18n.select]]
+            </vaadin-button>
+          </slot>
+        </div>
 
         <vaadin-notification id="notification" position="top-center">
           <template>
@@ -250,42 +254,30 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     // filtering bind to `_grod` and `_filter` straight away.
     this.__setGrid(this.$.gridSlot.assignedNodes()[0] || this.__resolveGrid());
     this._filter = this.$.filterSlot.assignedNodes()[0] || this.__resolveFilter();
-    // The renderer observers also fire from `super.ready()`, before any of this
-    // exists; they only swap content from here on.
-    this.__dialogContentCreated = true;
     this._selected = this.$.selectedSlot.assignedNodes()[0] || this._createSelected();
+    this._dialogHeader = this.$.dialogHeaderSlot.assignedNodes()[0] || null;
+    this._dialogFooter = this.$.dialogFooterSlot.assignedNodes()[0] || null;
+    this.__updateDialogHeaderTitle();
+    // The renderer observers also fire from `super.ready()`, before any of this
+    // exists, and so does the slot observer for content slotted before the
+    // element connected; both only swap content from here on.
+    this.__dialogContentCreated = true;
 
+    // The renderers only forward slots: they never touch the slotted nodes,
+    // which stay children of the host. Whatever is slotted, now or later, shows
+    // up in the dialog through the slot without a re-render.
     this._dialog.footerRenderer = root => {
-      if (root.firstElementChild && !this._forceFooterRerender) {
-        return;
-      }
-      this._forceFooterRerender = false;
-
-      if (this._dialogFooter) {
-        root.replaceChildren(this._dialogFooter);
-      } else {
-        Array.from(this.$.dialogfooter.children).forEach(child => {
-          root.appendChild(child);
-        });
+      if (this.$.dialogFooterSlot.parentNode !== root) {
+        root.appendChild(this.$.dialogFooterSlot);
       }
     };
 
-    this._dialog.headerRenderer = (root, dialog) => {
-      if (root.firstElementChild && !this._forceHeaderRerender) {
-        return;
-      }
-      this._forceHeaderRerender = false;
-
-      if (this._dialogHeader) {
-        root.replaceChildren(this._dialogHeader);
-        dialog.headerTitle = null;
-        this.__restoreDialogAriaLabel();
+    this._dialog.headerRenderer = root => {
+      if (this.$.dialogHeaderSlot.parentNode !== root) {
+        root.appendChild(this.$.dialogHeaderSlot);
       }
     };
 
-    /**
-     * fill the dialog content because template in template is not working well
-     */
     this._dialog.renderer = root => {
       if (!root.enterKeydown) {
         const keydown = e => {
@@ -296,17 +288,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         root.addEventListener('keydown', keydown);
         root.enterKeydown = keydown;
       }
-      let content = root.querySelector(':scope > [part="lookup-field-dialog-content"]');
-      if (!content) {
-        content = document.createElement('div');
-        content.setAttribute('part', 'lookup-field-dialog-content');
-        root.appendChild(content);
-      }
-      // Rebuilt only when the filter, the grid or the selected element has been
-      // replaced since the last render, for example by a new renderer.
-      const children = [this._filter, this._grod, this._selected];
-      if (content.children.length !== children.length || children.some((child, i) => content.children[i] !== child)) {
-        content.replaceChildren(...children);
+      if (this.$.dialogContent.parentNode !== root) {
+        root.appendChild(this.$.dialogContent);
       }
     };
 
@@ -636,6 +619,9 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    */
   __updateDialogHeaderTitle() {
     const dialog = this._dialog;
+    if (!dialog) {
+      return;
+    }
     const { headerprefix, headerpostfix } = this.i18n || {};
     const title = [headerprefix, this.header, headerpostfix].filter(part => part).join(' ');
 
@@ -718,13 +704,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   _createDialog() {
     const dialog = document.createElement('vaadin-dialog');
-    dialog.setAttribute('slot', 'dialog-slot');
     dialog.setAttribute('aria-label', 'lookup-grid');
     dialog.setAttribute('id', 'dialog');
     dialog.setAttribute('no-close-on-outside-click', '');
 
     this._dialog = dialog;
-    this.appendChild(dialog);
+    // Into the shadow root, not the light DOM: see the template.
+    this.$.dialogParts.before(dialog);
 
     this.__updateDialog();
   }
@@ -745,9 +731,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     this.__generatedGrid = grid;
     this.__generatedGridColumn = column;
     this.__updateGridSelectionColumn();
-    // Into the light DOM, like a slotted grid: the `grid` slot is hidden, and
-    // being connected is what lets the element run its update cycle before the
-    // dialog renderer moves it into the overlay.
+    // Into the light DOM, like a slotted grid, so the dialog shows it through
+    // the same `grid` slot.
     this.appendChild(grid);
     this.__updateGridItems();
     return grid;
@@ -815,8 +800,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /**
    * Calls a dialog content renderer and puts the element it returns into the
-   * light DOM under `slot`, like slotted content, so it can run its update
-   * cycle before the dialog renderer moves it into the overlay.
+   * light DOM under `slot`, like slotted content, so the dialog shows it
+   * through that slot.
    * @return {HTMLElement | null} the rendered element, or null for none
    * @private
    */
@@ -832,35 +817,59 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     return element;
   }
 
+  /**
+   * The parts of the dialog content, keyed by their slot: how to read the
+   * current element, which elements the lookup field owns, how to build the
+   * default, and how to adopt an element.
+   * @private
+   */
+  get __dialogParts() {
+    return {
+      grid: {
+        current: () => this._grod,
+        owned: () => [this.__generatedGrid, this.__renderedGrid],
+        resolve: () => this.__resolveGrid(),
+        adopt: grid => {
+          if (grid !== this.__generatedGrid) {
+            this.__generatedGrid = null;
+            this.__generatedGridColumn = null;
+          }
+          this.__setGrid(grid);
+        }
+      },
+      filter: {
+        current: () => this._filter,
+        owned: () => [this.__generatedFilter, this.__renderedFilter],
+        resolve: () => this.__resolveFilter(),
+        adopt: filter => {
+          if (filter !== this.__generatedFilter) {
+            this.__generatedFilter = null;
+          }
+          this._filter = filter;
+        }
+      },
+      selected: {
+        current: () => this._selected,
+        owned: () => [this.__generatedSelected],
+        resolve: () => this._createSelected(),
+        adopt: selected => {
+          if (selected !== this.__generatedSelected) {
+            this.__generatedSelected = null;
+          }
+          this._selected = selected;
+        }
+      }
+    };
+  }
+
   /** @private */
   __gridRendererChanged() {
-    this.__replaceOwnedPart(
-      this._grod,
-      [this.__generatedGrid, this.__renderedGrid],
-      () => this.__resolveGrid(),
-      grid => {
-        if (grid !== this.__generatedGrid) {
-          this.__generatedGrid = null;
-          this.__generatedGridColumn = null;
-        }
-        this.__setGrid(grid);
-      }
-    );
+    this.__replaceOwnedPart(this.__dialogParts.grid);
   }
 
   /** @private */
   __filterRendererChanged() {
-    this.__replaceOwnedPart(
-      this._filter,
-      [this.__generatedFilter, this.__renderedFilter],
-      () => this.__resolveFilter(),
-      filter => {
-        if (filter !== this.__generatedFilter) {
-          this.__generatedFilter = null;
-        }
-        this._filter = filter;
-      }
-    );
+    this.__replaceOwnedPart(this.__dialogParts.filter);
   }
 
   /**
@@ -868,32 +877,62 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    * the lookup field owns -- the default or a previously rendered element -- is
    * replaced: slotted content always wins, so nothing changes while it is
    * present. The replaced element is removed, so a default that `adopt` stops
-   * referencing is gone from the DOM too.
+   * referencing is gone from the DOM, and from the slot, too.
    * @private
    */
-  __replaceOwnedPart(current, owned, resolve, adopt) {
-    if (!this.__dialogContentCreated || !owned.includes(current)) {
+  __replaceOwnedPart(part) {
+    const current = part.current();
+    if (!this.__dialogContentCreated || !part.owned().includes(current)) {
       return;
     }
-    const next = resolve();
+    const next = part.resolve();
     if (next !== current) {
       current.remove();
     }
-    adopt(next);
-    this.__requestDialogContentUpdate();
+    part.adopt(next);
   }
 
-  /** @private */
-  __requestDialogContentUpdate() {
-    if (this._dialog && this._dialog.opened) {
-      this._dialog.requestContentUpdate();
+  /**
+   * Adopts an element slotted into a dialog content slot. It replaces the
+   * current element, and a default the lookup field owns is removed so that it
+   * does not keep showing in the slot next to it. An owned element is only ever
+   * adopted by the code that creates it, so its own slot change is ignored.
+   * @private
+   */
+  __adoptSlottedPart(part, node) {
+    const current = part.current();
+    const owned = part.owned();
+    if (node === current || owned.includes(node)) {
+      return;
     }
+    if (current && owned.includes(current)) {
+      current.remove();
+    }
+    part.adopt(node);
+  }
+
+  /**
+   * Lets go of a dialog content element that left the host. Another element
+   * still in the slot takes over, the most recently added first, otherwise the
+   * renderer or the default does, just as when nothing was ever slotted.
+   * @private
+   */
+  __releaseSlottedPart(part, slotName, node) {
+    if (node !== part.current()) {
+      return;
+    }
+    const owned = part.owned();
+    const remaining = Array.from(this.children).filter(
+      child => child.getAttribute('slot') === slotName && !owned.includes(child)
+    );
+    part.adopt(remaining[remaining.length - 1] || part.resolve());
   }
 
   /** @private */
   _createSelected() {
     const selected = document.createElement('div');
     selected.setAttribute('slot', 'selected');
+    this.__generatedSelected = selected;
     this.appendChild(selected);
     return selected;
   }
@@ -1050,44 +1089,41 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     // and the old one has to let go of its listeners before the new one is
     // adopted.
     //
-    // Only the field is handled here. The grid, the filter and the selected
-    // element are reported as removed when the dialog renderer moves them into
-    // the overlay, which is not a removal at all; the field stays in its slot,
-    // so a removal there is always real.
+    // Every slotted node stays a child of the host -- the dialog shows the
+    // dialog content through forwarded slots -- so a removal is always real.
+    const parts = this.__dialogContentCreated ? this.__dialogParts : {};
     (removedNodes || []).forEach(node => {
       if (node === this._field) {
         this.__setField(null);
+      } else if (node === this._dialogHeader) {
+        this._dialogHeader = this.$.dialogHeaderSlot.assignedNodes()[0] || null;
+        this.__updateDialogHeaderTitle();
+      } else if (node === this._dialogFooter) {
+        this._dialogFooter = this.$.dialogFooterSlot.assignedNodes()[0] || null;
+      } else {
+        Object.keys(parts).forEach(slotName => this.__releaseSlottedPart(parts[slotName], slotName, node));
       }
     });
 
-    let dialogContentChanged = false;
     addedNodes.forEach(node => {
-      if (node.getAttribute) {
-        if (node.getAttribute('slot') == 'grid') {
-          this.__setGrid(node);
-          dialogContentChanged = true;
-        } else if (node.getAttribute('slot') == 'field') {
-          node.style.flexGrow = 1;
-          this.__setField(node);
-        } else if (node.getAttribute('slot') == 'dialog-header') {
-          this._dialogHeader = node;
-          this._forceHeaderRerender = true;
-        } else if (node.getAttribute('slot') == 'dialog-footer') {
-          this._dialogFooter = node;
-          this._forceFooterRerender = true;
-        } else if (node.getAttribute('slot') == 'filter') {
-          this._filter = node;
-          dialogContentChanged = true;
-        } else if (node.getAttribute('slot') == 'selected') {
-          this._selected = node;
-          dialogContentChanged = true;
-        }
+      // A node moved away again before this ran is reported as added all the
+      // same; it is not slotted.
+      if (!node.getAttribute || node.parentNode !== this) {
+        return;
+      }
+      const slotName = node.getAttribute('slot');
+      if (slotName == 'field') {
+        node.style.flexGrow = 1;
+        this.__setField(node);
+      } else if (slotName == 'dialog-header') {
+        this._dialogHeader = node;
+        this.__updateDialogHeaderTitle();
+      } else if (slotName == 'dialog-footer') {
+        this._dialogFooter = node;
+      } else if (parts[slotName]) {
+        this.__adoptSlottedPart(parts[slotName], node);
       }
     });
-    // A dialog that is already open shows the replacement straight away.
-    if (dialogContentChanged) {
-      this.__requestDialogContentUpdate();
-    }
   }
 
   computeselectdisabled(defaultselectdisabled, programselectdisabled) {

@@ -42,9 +42,12 @@ describe('vcf-lookup-field: structure', () => {
 
   it('creates a closed, non-light-dismissable dialog', async () => {
     const el = await lookupFixture();
-    const dialog = el.querySelector('vaadin-dialog');
+    // In the shadow root, so that the dialog can show the slotted content
+    // through forwarded slots (#47).
+    const dialog = el.shadowRoot.querySelector('vaadin-dialog');
 
     expect(dialog).to.exist;
+    expect(el.querySelector('vaadin-dialog')).to.not.exist;
     expect(el._dialog).to.equal(dialog);
     expect(dialog.opened).to.be.not.ok;
     expect(dialog.hasAttribute('no-close-on-outside-click')).to.be.true;
