@@ -1,5 +1,14 @@
 import { expect, fixture, html } from '@open-wc/testing';
-import { customFilter, customGrid, dialogContent, flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
+import {
+  customFilter,
+  customGrid,
+  dialogContentElements,
+  flush,
+  isShownInDialog,
+  lookupFixture,
+  openDialog,
+  OBJECT_ITEMS
+} from './helpers.js';
 
 describe('vcf-lookup-field: dialog content renderers', () => {
   describe('gridRenderer', () => {
@@ -43,7 +52,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
 
       await openDialog(el);
 
-      expect(dialogContent(el).querySelector('#rendered-grid')).to.exist;
+      expect(isShownInDialog(el, el.querySelector('#rendered-grid'))).to.be.true;
     });
 
     it('falls back to the default grid when the renderer returns nothing', async () => {
@@ -97,9 +106,8 @@ describe('vcf-lookup-field: dialog content renderers', () => {
       el.gridRenderer = () => customGrid('rendered-grid');
       await flush();
 
-      const content = dialogContent(el);
-      expect(content.querySelector('#rendered-grid')).to.exist;
-      expect(content.querySelectorAll('vaadin-grid')).to.have.lengthOf(1);
+      const grids = dialogContentElements(el).filter(element => element.localName === 'vaadin-grid');
+      expect(grids.map(grid => grid.id)).to.deep.equal(['rendered-grid']);
     });
 
     it('goes back to the default grid when the renderer is removed', async () => {
@@ -129,7 +137,7 @@ describe('vcf-lookup-field: dialog content renderers', () => {
 
       await openDialog(el);
 
-      expect(dialogContent(el).firstElementChild.id).to.equal('rendered-filter');
+      expect(dialogContentElements(el)[0].id).to.equal('rendered-filter');
       expect(el._filter.hasAttribute('focus-ring')).to.be.true;
     });
 
