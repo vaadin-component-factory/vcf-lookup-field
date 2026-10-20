@@ -29,13 +29,11 @@ export async function lookupFixture(template = html`<vcf-lookup-field></vcf-look
 }
 
 /**
- * The three footer buttons, in DOM order. They start out in the element's
- * shadow root and the dialog's footer renderer moves them into the dialog on
- * the first open, so look in both places.
+ * The three footer buttons, in DOM order. They are the fallback content of the
+ * `dialog-footer` slot, which the footer renderer forwards into the dialog.
  */
 export function footerButtons(el) {
-  const root = el.$.dialogfooter.children.length ? el.$.dialogfooter : el._dialog;
-  const [create, cancel, select] = root.querySelectorAll('vaadin-button');
+  const [create, cancel, select] = el.$.dialogFooterSlot.querySelectorAll(':scope > vaadin-button');
   return { create, cancel, select };
 }
 
@@ -49,6 +47,22 @@ export async function openDialog(el) {
 /** The content the dialog renderer builds inside the opened dialog. */
 export function dialogContent(el) {
   return el._dialog.querySelector('[part="lookup-field-dialog-content"]');
+}
+
+/**
+ * The elements the dialog content shows, in order: whatever is assigned to the
+ * slots the dialog renderer forwards.
+ */
+export function dialogContentElements(el) {
+  return Array.from(dialogContent(el).querySelectorAll('slot')).flatMap(slot => slot.assignedElements());
+}
+
+/**
+ * True when `node` is still a child of the lookup field and the dialog shows it
+ * through a forwarded slot -- it is never moved into the dialog itself.
+ */
+export function isShownInDialog(el, node) {
+  return !!node && node.parentNode === el && !!node.assignedSlot && el._dialog.contains(node.assignedSlot);
 }
 
 /**

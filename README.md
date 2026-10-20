@@ -95,6 +95,14 @@ a new one. A rendered element is treated like a slotted one:
 
 `lookupField.items` and `lookupField.filterItems(items, text)` help with both.
 
+Everything in the `filter`, `grid`, `selected`, `dialog-header` and `dialog-footer` slots, and
+the defaults the lookup field generates for them, stays a child of `<vcf-lookup-field>` whether
+the dialog is open or not. The dialog lives in the lookup field's shadow root and shows these
+slots by forwarding them, so frameworks that render the light DOM of the lookup field, such as
+React, Lit, Vue or Angular, can keep updating it. Removing a slotted grid or filter brings back
+the rendered or the default one, and removing a slotted header or footer brings back the header
+title or the default buttons.
+
 ### Multi-select
 
 Set `multi-select` and slot a `vaadin-multi-select-combo-box` as the field. The dialog opens
