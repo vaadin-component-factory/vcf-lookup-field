@@ -770,10 +770,14 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     filter.classList.add('lookup-field-filter');
     filter.style.width = '100%';
     filter.clearButtonVisible = true;
-    // Seeded before the listener below is attached, otherwise a filter created
-    // after initialization reports its empty initial value and wipes the
-    // current filter text.
+    // Seeded so that a filter created after initialization shows the current
+    // filter text instead of wiping it.
     filter.value = this._filterdata == null ? '' : this._filterdata;
+    // The field reports its initial value asynchronously, after the listener
+    // below is attached. That notification changes nothing, and acting on it
+    // would replace the items of a slotted or rendered grid, so only a value
+    // that differs from the last one seen is handled.
+    let lastValue = filter.value;
 
     const icon = document.createElement('vaadin-icon');
     icon.setAttribute('icon', 'vaadin:search');
@@ -781,6 +785,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     filter.appendChild(icon);
 
     filter.addEventListener('value-changed', e => {
+      if (e.detail.value === lastValue) {
+        return;
+      }
+      lastValue = e.detail.value;
       if (this._filterdata !== e.detail.value) {
         this._filterdata = e.detail.value;
       }
