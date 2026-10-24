@@ -158,6 +158,35 @@ describe('vcf-lookup-field: slotted content', () => {
       const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
       expect(cells).to.include.members(['Apple', 'Banana']);
     });
+
+    it('renders string items in the dialog', async () => {
+      const el = await fixture(html`<vcf-lookup-field .items="${['Apple', 'Banana']}"></vcf-lookup-field>`);
+      await flush();
+      await openDialog(el);
+      await flush();
+
+      const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
+      expect(cells).to.include.members(['Apple', 'Banana']);
+    });
+
+    it("follows a slotted field's itemLabelPath", async () => {
+      const items = [
+        { id: 'ada', name: 'Ada' },
+        { id: 'grace', name: 'Grace' }
+      ];
+      const el = await fixture(html`
+        <vcf-lookup-field .items="${items}">
+          <vaadin-combo-box slot="field" item-label-path="name" item-value-path="id"></vaadin-combo-box>
+        </vcf-lookup-field>
+      `);
+      await flush();
+      await openDialog(el);
+      await flush();
+
+      expect(el._grod.querySelector('vaadin-grid-column').path).to.equal('name');
+      const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
+      expect(cells).to.include.members(['Ada', 'Grace']);
+    });
   });
 
   describe('grid', () => {
@@ -185,6 +214,34 @@ describe('vcf-lookup-field: slotted content', () => {
       );
 
       expect(el.programselectdisabled).to.be.false;
+    });
+
+    /*
+     * The generated filter reports its initial value after its listener is
+     * attached. That used to replace the slotted grid's items with the
+     * filtered host `items`, which are usually not set yet.
+     */
+    it('keeps the items of a slotted grid through initialization', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <vaadin-grid slot="grid" .items="${OBJECT_ITEMS}"></vaadin-grid>
+        </vcf-lookup-field>
+      `);
+      await flush();
+
+      expect(el._grod.items).to.equal(OBJECT_ITEMS);
+    });
+
+    it('keeps the items of a slotted grid when the host items are set after attaching', async () => {
+      const el = await fixture(html`
+        <vcf-lookup-field>
+          <vaadin-grid slot="grid" .items="${OBJECT_ITEMS}"></vaadin-grid>
+        </vcf-lookup-field>
+      `);
+      el.items = [OBJECT_ITEMS[0]];
+      await flush();
+
+      expect(el._grod.items).to.equal(OBJECT_ITEMS);
     });
 
     it('moves its listeners over when the grid is replaced at runtime', async () => {

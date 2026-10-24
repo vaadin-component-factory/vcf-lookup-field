@@ -97,6 +97,16 @@ describe('vcf-lookup-field: properties set after initialization', () => {
       expect(el._field.getAttribute('theme')).to.equal('small');
     });
 
+    it('reflects the theme property to the host attribute', async () => {
+      const el = await lookupFixture();
+
+      el.theme = 'integrated full-width';
+      await nextFrame();
+
+      expect(el.getAttribute('theme')).to.equal('integrated full-width');
+      expect(el.matches('[theme~="integrated"][theme~="full-width"]')).to.be.true;
+    });
+
     it('leaves the item paths of a slotted field alone', async () => {
       const el = await fixture(html`
         <vcf-lookup-field>

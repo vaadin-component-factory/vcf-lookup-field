@@ -474,6 +474,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     // State and items first, so that a buffered value is applied to a field
     // that already knows the items it has to resolve that value against.
     this._forwardFieldState();
+    this.__updateGridColumn();
     this._itemsChanged();
     this.__flushPendingField();
     this.__attachFieldListeners(field);
@@ -691,9 +692,31 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    */
   __itemPathsChanged() {
     this._forwardFieldState();
-    if (this.__generatedGridColumn) {
-      this.__generatedGridColumn.path = this.itemLabelPath;
+    this.__updateGridColumn();
+  }
+
+  /**
+   * Points the generated grid column at the field's label path, which is the
+   * host's for the generated combo box and the slotted field's own otherwise.
+   * The path only gives the column its header: the cells are rendered by
+   * `_getItemLabel()`, like the field and the filtering do, so string items
+   * and a slotted field with its own `itemLabelPath` show their labels too.
+   * @private
+   */
+  __updateGridColumn() {
+    const column = this.__generatedGridColumn;
+    if (!column) {
+      return;
     }
+    const path = (this._field && this._field.itemLabelPath) || this.itemLabelPath;
+    if (column.path !== path) {
+      column.path = path;
+    }
+  }
+
+  /** @private */
+  __renderGridLabel(root, _column, model) {
+    root.textContent = this._field ? this._getItemLabel(model.item) : '';
   }
 
   _createSearchButton() {
@@ -735,19 +758,20 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /**
    * The default grid, shown when nothing is slotted into the `grid` slot. Its
-   * column follows `itemLabelPath`, and in multi-select mode a selection column
-   * comes first.
+   * column shows the same labels as the field, and in multi-select mode a
+   * selection column comes first.
    * @private
    */
   _createGrid() {
     const grid = document.createElement('vaadin-grid');
     grid.setAttribute('slot', 'grid');
     const column = document.createElement('vaadin-grid-column');
-    column.path = this.itemLabelPath;
+    column.renderer = this.__renderGridLabel.bind(this);
     grid.appendChild(column);
 
     this.__generatedGrid = grid;
     this.__generatedGridColumn = column;
+    this.__updateGridColumn();
     this.__updateGridSelectionColumn();
     // Into the light DOM, like a slotted grid: the `grid` slot is hidden, and
     // being connected is what lets the element run its update cycle before the
@@ -774,10 +798,14 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     filter.classList.add('lookup-field-filter');
     filter.style.width = '100%';
     filter.clearButtonVisible = true;
-    // Seeded before the listener below is attached, otherwise a filter created
-    // after initialization reports its empty initial value and wipes the
-    // current filter text.
+    // Seeded so that a filter created after initialization shows the current
+    // filter text instead of wiping it.
     filter.value = this._filterdata == null ? '' : this._filterdata;
+    // The field reports its initial value asynchronously, after the listener
+    // below is attached. That notification changes nothing, and acting on it
+    // would replace the items of a slotted or rendered grid, so only a value
+    // that differs from the last one seen is handled.
+    let lastValue = filter.value;
 
     const icon = document.createElement('vaadin-icon');
     icon.setAttribute('icon', 'vaadin:search');
@@ -785,6 +813,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     filter.appendChild(icon);
 
     filter.addEventListener('value-changed', e => {
+      if (e.detail.value === lastValue) {
+        return;
+      }
+      lastValue = e.detail.value;
       if (this._filterdata !== e.detail.value) {
         this._filterdata = e.detail.value;
       }
@@ -1196,6 +1228,11 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   __open() {
     // Before the selection below is written to the grid.
     this.__restoreRemovedParts();
+    // A slotted field may have changed its label path since the last open.
+    this.__updateGridColumn();
+    if (this._grod && this._grod === this.__generatedGrid) {
+      this._grod.requestContentUpdate();
+    }
     this._dialog.opened = true;
     setTimeout(() => {
       this._filter.setAttribute('focus-ring', true);
@@ -1570,11 +1607,15 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       },
 
       /**
+       * Reflected so that the host styles, which select on the `theme`
+       * attribute (`integrated`, `full-width`), apply when it is set as a
+       * property too.
        * @type {String}
        */
       theme: {
         type: String,
         value: 'lookup-dialog',
+        reflectToAttribute: true,
         observer: '__themeChanged'
       },
 
