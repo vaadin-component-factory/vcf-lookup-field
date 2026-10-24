@@ -18,6 +18,21 @@ import { ThemeDetectionMixin } from '@vaadin/vaadin-themable-mixin/vaadin-theme-
 import '../theme/base/vcf-lookup-field-styles.js';
 
 /**
+ * The default texts. A partial `i18n` object is merged over these, so setting
+ * one text keeps the others.
+ */
+const DEFAULT_I18N = Object.freeze({
+  select: 'Select',
+  cancel: 'Cancel',
+  search: 'Search',
+  searcharialabel: 'Click to open the search dialog',
+  headerprefix: '',
+  headerpostfix: '',
+  emptyselection: 'Please select an item.',
+  create: 'Create new'
+});
+
+/**
  * Host state mirrored onto whatever field sits in the `field` slot.
  *
  * The host keeps no copy of the value, so this list is deliberately limited to
@@ -685,8 +700,17 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     }
   }
 
-  /** @private */
-  __i18nChanged() {
+  /**
+   * Fills the texts missing from a partial `i18n` object with the defaults,
+   * then refreshes everything that renders them.
+   * @private
+   */
+  __i18nChanged(i18n) {
+    if (!i18n || Object.keys(DEFAULT_I18N).some(key => !(key in i18n))) {
+      // Re-enters this observer with a complete object.
+      this.i18n = { ...DEFAULT_I18N, ...i18n };
+      return;
+    }
     this.__updateSearchButton();
     this.__updateDialog();
     this.__updateFilter();
@@ -1641,23 +1665,14 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
       /**
        * The object used to localize this component.
-       * For changing the default localization, change the entire
-       * _i18n_ object or just the property you want to modify.
+       * Assign an object with only the texts you want to change; the
+       * missing ones keep their default values.
        */
       i18n: {
         type: Object,
         observer: '__i18nChanged',
         value: function() {
-          return {
-            select: 'Select',
-            cancel: 'Cancel',
-            search: 'Search',
-            searcharialabel: 'Click to open the search dialog',
-            headerprefix: '',
-            headerpostfix: '',
-            emptyselection: 'Please select an item.',
-            create: 'Create new'
-          };
+          return { ...DEFAULT_I18N };
         }
       }
     };

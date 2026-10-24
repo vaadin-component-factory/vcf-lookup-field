@@ -43,6 +43,38 @@ describe('vcf-lookup-field: properties', () => {
     });
   });
 
+  describe('i18n', () => {
+    it('merges a partial object over the defaults', async () => {
+      const el = await lookupFixture();
+      const i18n = { select: 'Choose' };
+
+      el.i18n = i18n;
+
+      expect(el.i18n.select).to.equal('Choose');
+      expect(el.i18n.cancel).to.equal('Cancel');
+      expect(el.i18n.emptyselection).to.equal('Please select an item.');
+      expect(i18n).to.deep.equal({ select: 'Choose' });
+    });
+
+    it('merges over the defaults, not over the previous object', async () => {
+      const el = await lookupFixture();
+
+      el.i18n = { select: 'Choose' };
+      el.i18n = { cancel: 'Back' };
+
+      expect(el.i18n.select).to.equal('Select');
+      expect(el.i18n.cancel).to.equal('Back');
+    });
+
+    it('falls back to the defaults when cleared', async () => {
+      const el = await lookupFixture();
+
+      el.i18n = null;
+
+      expect(el.i18n.select).to.equal('Select');
+    });
+  });
+
   describe('computeselectdisabled', () => {
     it('only enables Select once both flags allow it', async () => {
       const el = await lookupFixture();
