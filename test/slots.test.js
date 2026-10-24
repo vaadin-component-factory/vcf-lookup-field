@@ -158,6 +158,35 @@ describe('vcf-lookup-field: slotted content', () => {
       const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
       expect(cells).to.include.members(['Apple', 'Banana']);
     });
+
+    it('renders string items in the dialog', async () => {
+      const el = await fixture(html`<vcf-lookup-field .items="${['Apple', 'Banana']}"></vcf-lookup-field>`);
+      await flush();
+      await openDialog(el);
+      await flush();
+
+      const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
+      expect(cells).to.include.members(['Apple', 'Banana']);
+    });
+
+    it("follows a slotted field's itemLabelPath", async () => {
+      const items = [
+        { id: 'ada', name: 'Ada' },
+        { id: 'grace', name: 'Grace' }
+      ];
+      const el = await fixture(html`
+        <vcf-lookup-field .items="${items}">
+          <vaadin-combo-box slot="field" item-label-path="name" item-value-path="id"></vaadin-combo-box>
+        </vcf-lookup-field>
+      `);
+      await flush();
+      await openDialog(el);
+      await flush();
+
+      expect(el._grod.querySelector('vaadin-grid-column').path).to.equal('name');
+      const cells = [...el._grod.querySelectorAll('vaadin-grid-cell-content')].map(c => c.textContent.trim());
+      expect(cells).to.include.members(['Ada', 'Grace']);
+    });
   });
 
   describe('grid', () => {
