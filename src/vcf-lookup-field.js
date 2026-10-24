@@ -302,6 +302,10 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
         content.setAttribute('part', 'lookup-field-dialog-content');
         root.appendChild(content);
       }
+      this.__dialogContent = content;
+      // A part removed from the dialog after an earlier open is not reported by
+      // the slot observer, since it was no longer a child of the host.
+      this.__restoreRemovedParts();
       // Rebuilt only when the filter, the grid or the selected element has been
       // replaced since the last render, for example by a new renderer.
       const children = [this._filter, this._grod, this._selected];
@@ -915,6 +919,52 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     this.__requestDialogContentUpdate();
   }
 
+  /**
+   * Whether a dialog part has been taken away from the lookup field: it is
+   * neither in the light DOM, waiting to be shown, nor in the dialog content,
+   * where the dialog renderer puts it.
+   * @private
+   */
+  __isRemovedPart(part) {
+    const parent = part && part.parentNode;
+    return !parent || (parent !== this && parent !== this.__dialogContent);
+  }
+
+  /**
+   * Falls back to the renderer's element or the default for each dialog part
+   * that has been removed, as when nothing was slotted.
+   * @return {boolean} whether any part was replaced
+   * @private
+   */
+  __restoreRemovedParts() {
+    if (!this.__dialogContentCreated) {
+      return false;
+    }
+    let restored = false;
+    if (this.__isRemovedPart(this._grod)) {
+      const grid = this.__resolveGrid();
+      if (grid !== this.__generatedGrid) {
+        this.__generatedGrid = null;
+        this.__generatedGridColumn = null;
+      }
+      this.__setGrid(grid);
+      restored = true;
+    }
+    if (this.__isRemovedPart(this._filter)) {
+      const filter = this.__resolveFilter();
+      if (filter !== this.__generatedFilter) {
+        this.__generatedFilter = null;
+      }
+      this._filter = filter;
+      restored = true;
+    }
+    if (this.__isRemovedPart(this._selected)) {
+      this._selected = this._createSelected();
+      restored = true;
+    }
+    return restored;
+  }
+
   /** @private */
   __requestDialogContentUpdate() {
     if (this._dialog && this._dialog.opened) {
@@ -1082,17 +1132,20 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     // and the old one has to let go of its listeners before the new one is
     // adopted.
     //
-    // Only the field is handled here. The grid, the filter and the selected
-    // element are reported as removed when the dialog renderer moves them into
-    // the overlay, which is not a removal at all; the field stays in its slot,
-    // so a removal there is always real.
+    // The field stays in its slot, so a removal there is always real. The grid,
+    // the filter and the selected element are also reported as removed when the
+    // dialog renderer moves them into the dialog, which is not a removal at all;
+    // `__restoreRemovedParts` tells the two apart.
+    let dialogContentChanged = false;
     (removedNodes || []).forEach(node => {
       if (node === this._field) {
         this.__setField(null);
       }
     });
+    if ((removedNodes || []).some(node => [this._grod, this._filter, this._selected].includes(node))) {
+      dialogContentChanged = this.__restoreRemovedParts();
+    }
 
-    let dialogContentChanged = false;
     addedNodes.forEach(node => {
       if (node.getAttribute) {
         if (node.getAttribute('slot') == 'grid') {
@@ -1173,6 +1226,8 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   /** @private */
   __open() {
+    // Before the selection below is written to the grid.
+    this.__restoreRemovedParts();
     // A slotted field may have changed its label path since the last open.
     this.__updateGridColumn();
     if (this._grod && this._grod === this.__generatedGrid) {

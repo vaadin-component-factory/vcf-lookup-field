@@ -326,6 +326,84 @@ describe('vcf-lookup-field: slotted content', () => {
     });
   });
 
+  describe('removing slotted dialog content', () => {
+    async function slottedFixture() {
+      const el = await lookupFixture(html`
+        <vcf-lookup-field .items="${OBJECT_ITEMS}" item-label-path="label">
+          <vaadin-text-field slot="filter" id="custom-filter"></vaadin-text-field>
+          <vaadin-grid slot="grid" id="custom-grid"></vaadin-grid>
+          <div slot="selected" id="custom-selected"></div>
+        </vcf-lookup-field>
+      `);
+      return {
+        el,
+        filter: el.querySelector('#custom-filter'),
+        grid: el.querySelector('#custom-grid'),
+        selected: el.querySelector('#custom-selected')
+      };
+    }
+
+    // Identity checks only: chai stalls describing these elements on a failure.
+    function expectDefaults(el, removed) {
+      expect(el._grod === el.__generatedGrid, 'default grid').to.be.true;
+      expect(el._filter === el.__generatedFilter, 'default filter').to.be.true;
+      expect(el._selected === removed.selected, 'removed selected element').to.be.false;
+      expect(removed.grid.isConnected, 'removed grid connected').to.be.false;
+      expect(removed.filter.isConnected, 'removed filter connected').to.be.false;
+      expect(removed.selected.isConnected, 'removed selected element connected').to.be.false;
+      const children = Array.from(dialogContent(el).children);
+      expect(
+        [el._filter, el._grod, el._selected].every((part, i) => children[i] === part),
+        'dialog content'
+      ).to.be.true;
+    }
+
+    it('falls back to the defaults when removed before the dialog opens', async () => {
+      const { el, ...removed } = await slottedFixture();
+
+      removed.grid.remove();
+      removed.filter.remove();
+      removed.selected.remove();
+      await flush();
+      await openDialog(el);
+
+      expectDefaults(el, removed);
+    });
+
+    it('falls back to the defaults when removed after the dialog has been opened', async () => {
+      const { el, ...removed } = await slottedFixture();
+      await openDialog(el);
+      el._dialog.opened = false;
+      await flush();
+
+      removed.grid.remove();
+      removed.filter.remove();
+      removed.selected.remove();
+      await openDialog(el);
+
+      expectDefaults(el, removed);
+    });
+
+    it('keeps the slotted content the dialog renderer moved into the dialog', async () => {
+      const { el, ...slotted } = await slottedFixture();
+      await openDialog(el);
+
+      expect(el._grod === slotted.grid, 'slotted grid').to.be.true;
+      expect(el._filter === slotted.filter, 'slotted filter').to.be.true;
+      expect(el._selected === slotted.selected, 'slotted selected element').to.be.true;
+    });
+
+    it('falls back to the grid renderer when the slotted grid is removed', async () => {
+      const { el, grid } = await slottedFixture();
+      el.gridRenderer = () => customGrid('rendered-grid');
+
+      grid.remove();
+      await flush();
+
+      expect(el._grod.id).to.equal('rendered-grid');
+    });
+  });
+
   describe('dialog header and footer', () => {
     it('replaces the dialog header with slotted content', async () => {
       const el = await fixture(html`
