@@ -550,7 +550,9 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    * state observer, so a change after initialization reaches the field too.
    *
    * Properties the host never received are left alone, otherwise adopting a
-   * slotted field would wipe the state it was declared with. Properties the
+   * slotted field would wipe the state it was declared with. A property that was
+   * set and then unset again is forwarded as `undefined` once, so the field
+   * clears it too instead of keeping the old value (see #52). Properties the
    * field already agrees with are left alone too, which is what keeps an update
    * that arrived *from* the field from being pushed straight back at it.
    *
@@ -565,9 +567,20 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     if (!field) {
       return;
     }
+    const forwarded = this.__forwardedStateProps || (this.__forwardedStateProps = new Set());
     FIELD_STATE_PROPS.forEach(prop => {
-      if (this[prop] !== undefined && field[prop] !== this[prop]) {
-        field[prop] = this[prop];
+      const value = this[prop];
+      if (value !== undefined) {
+        forwarded.add(prop);
+      } else if (forwarded.has(prop)) {
+        // Set once and unset since: clear it on the field as well. Forget it
+        // afterwards, so a field adopted later keeps its own declared state.
+        forwarded.delete(prop);
+      } else {
+        return;
+      }
+      if (field[prop] !== value) {
+        field[prop] = value;
       }
     });
     if (field === this.__generatedField) {
