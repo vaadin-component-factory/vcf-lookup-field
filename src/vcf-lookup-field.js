@@ -1552,11 +1552,15 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
       },
 
       /**
+       * Reflected so that the host styles, which select on the `theme`
+       * attribute (`integrated`, `full-width`), apply when it is set as a
+       * property too.
        * @type {String}
        */
       theme: {
         type: String,
         value: 'lookup-dialog',
+        reflectToAttribute: true,
         observer: '__themeChanged'
       },
 
