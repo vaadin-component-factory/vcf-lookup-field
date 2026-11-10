@@ -361,9 +361,9 @@ describe('vcf-lookup-field: slotted content', () => {
       expect(removed.grid.isConnected, 'removed grid connected').to.be.false;
       expect(removed.filter.isConnected, 'removed filter connected').to.be.false;
       expect(removed.selected.isConnected, 'removed selected element connected').to.be.false;
-      const children = Array.from(dialogContent(el).children);
+      const shown = dialogContentElements(el);
       expect(
-        [el._filter, el._grod, el._selected].every((part, i) => children[i] === part),
+        [el._filter, el._grod, el._selected].every((part, i) => shown[i] === part),
         'dialog content'
       ).to.be.true;
     }
@@ -394,7 +394,7 @@ describe('vcf-lookup-field: slotted content', () => {
       expectDefaults(el, removed);
     });
 
-    it('keeps the slotted content the dialog renderer moved into the dialog', async () => {
+    it('keeps the slotted content after the dialog has been opened', async () => {
       const { el, ...slotted } = await slottedFixture();
       await openDialog(el);
 
