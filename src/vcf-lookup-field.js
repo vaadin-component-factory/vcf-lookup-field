@@ -100,6 +100,13 @@ const FIELD_NOTIFY_EVENTS = [
  * -------------|-------------|------------
  * `attribute` | Example styling attribute | :host
  *
+ * @element vcf-lookup-field
+ * @fires value-changed - Re-dispatched from the slotted field when its `value` changes.
+ * @fires selected-item-changed - Re-dispatched from the slotted field when its `selectedItem` changes.
+ * @fires selected-items-changed - Re-dispatched from the slotted field when its `selectedItems` change.
+ * @fires invalid-changed - Re-dispatched from the slotted field when its `invalid` changes.
+ * @fires validated - Re-dispatched from the slotted field when it is validated.
+ * @fires vcf-lookup-field-create-item-event - Fired when the Create button in the dialog is clicked.
  * @memberof Vaadin
  * @mixes ElementMixin
  * @mixes ThemableMixin

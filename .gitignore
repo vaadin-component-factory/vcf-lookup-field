@@ -2,7 +2,7 @@
 /dist/
 /build/
 package-lock.json
-analysis.json
+custom-elements.json
 /next/
 /.idea/
 *.iml
