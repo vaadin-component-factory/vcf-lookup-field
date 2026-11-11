@@ -24,3 +24,6 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Check the TypeScript declarations
+        run: npm run test:types

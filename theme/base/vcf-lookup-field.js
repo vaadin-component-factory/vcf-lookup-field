@@ -1,2 +1,2 @@
 import './vcf-lookup-field-styles.js';
-import '../../src/vcf-lookup-field.js';
+export * from '../../src/vcf-lookup-field.js';

@@ -3,6 +3,21 @@
   "version": "8.0.0",
   "description": "Vaadin Lookup field component",
   "main": "theme/base/vcf-lookup-field.js",
+  "types": "theme/base/vcf-lookup-field.d.ts",
+  "exports": {
+    ".": {
+      "types": "./theme/base/vcf-lookup-field.d.ts",
+      "default": "./theme/base/vcf-lookup-field.js"
+    },
+    "./src/vcf-lookup-field.js": {
+      "types": "./src/vcf-lookup-field.d.ts",
+      "default": "./src/vcf-lookup-field.js"
+    },
+    "./src/*": "./src/*",
+    "./theme/*": "./theme/*",
+    "./custom-elements.json": "./custom-elements.json",
+    "./package.json": "./package.json"
+  },
   "author": "Vaadin Ltd",
   "license": "Apache-2.0",
   "repository": {
@@ -32,6 +47,7 @@
     "start": "run-s serve",
     "start-dev": "wds --node-resolve --open dev/",
     "test:watch": "web-test-runner --config web-test-runner.config.mjs --watch",
+    "test:types": "tsc -p test/types",
     "test:coverage": "web-test-runner --config web-test-runner.config.mjs --coverage"
   },
   "husky": {
@@ -102,6 +118,7 @@
     "prismjs": "^1.30.0",
     "sinon": "^19.0.5",
     "terser-webpack-plugin": "^1.4.1",
+    "typescript": "^5.9.3",
     "uglify-template-string-loader": "^1.1.1",
     "webpack": "^4.39.2",
     "webpack-babel-multi-target-plugin": "^2.3.0",
