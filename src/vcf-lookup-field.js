@@ -1110,8 +1110,15 @@ export class LookupField extends SlotStylesMixin(
 
   focus() {
     setTimeout(() => {
-      this._field.focusElement.focus();
-      this._field.focusElement.select();
+      // A Vaadin field focuses through its `focusElement`; any other field is
+      // focused itself.
+      const target = this._field && (this._field.focusElement || this._field);
+      if (target) {
+        target.focus();
+        if (typeof target.select === 'function') {
+          target.select();
+        }
+      }
     }, 100);
   }
 
@@ -1296,7 +1303,7 @@ export class LookupField extends SlotStylesMixin(
       this.$server.copyFieldValueToGrid();
       this.$server.filterGrid(this._filterdata);
     } else {
-      this._filterdata = this._field.inputElement.value;
+      this._filterdata = this.__fieldText();
       if (this.multiSelect) {
         const items = this.__fieldSelection();
         this._grod.selectedItems = items;
@@ -1309,6 +1316,17 @@ export class LookupField extends SlotStylesMixin(
         this.programselectdisabled = !item;
       }
     }
+  }
+
+  /**
+   * The text typed in the field: the value of a Vaadin field's `inputElement`,
+   * or the `value` of a field without one, such as a native `<input>`.
+   * @private
+   */
+  __fieldText() {
+    const field = this._field;
+    const input = field && (field.inputElement || field);
+    return input && typeof input.value === 'string' ? input.value : '';
   }
 
   /**
@@ -1401,7 +1419,8 @@ export class LookupField extends SlotStylesMixin(
   }
 
   _getItemLabel(item) {
-    const itemLabelPath = this._field.itemLabelPath;
+    // A field without an `itemLabelPath` of its own goes by the host's.
+    const itemLabelPath = (this._field && this._field.itemLabelPath) || this.itemLabelPath;
     let label = item && itemLabelPath ? get(itemLabelPath, item) : undefined;
     if (label === undefined) {
       label = item ? item.toString() : '';
