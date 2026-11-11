@@ -113,7 +113,10 @@ const FIELD_NOTIFY_EVENTS = [
  * @fires selected-items-changed - Re-dispatched from the slotted field when its `selectedItems` change.
  * @fires invalid-changed - Re-dispatched from the slotted field when its `invalid` changes.
  * @fires validated - Re-dispatched from the slotted field when it is validated.
- * @fires vcf-lookup-field-create-item-event - Fired when the Create button in the dialog is clicked.
+ * @fires create-item - Fired when the Create button in the dialog is clicked, with the dialog
+ * filter text in `detail.filter`.
+ * @fires vcf-lookup-field-create-item-event - Deprecated, use `create-item`: fired with it, with the
+ * same detail.
  * @memberof Vaadin
  * @mixes ElementMixin
  * @mixes ThemableMixin
@@ -1352,7 +1355,10 @@ export class LookupField extends SlotStylesMixin(
   }
   /** @private */
   __create() {
-    this.dispatchEvent(new CustomEvent('vcf-lookup-field-create-item-event'));
+    const filter = this._filter && typeof this._filter.value === 'string' ? this._filter.value : this._filterdata || '';
+    this.dispatchEvent(new CustomEvent('create-item', { bubbles: true, detail: { filter } }));
+    // The original name, kept for Vaadin Flow and existing listeners.
+    this.dispatchEvent(new CustomEvent('vcf-lookup-field-create-item-event', { detail: { filter } }));
   }
   /** @private */
   __select() {
