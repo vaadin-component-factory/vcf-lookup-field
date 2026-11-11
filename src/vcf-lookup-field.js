@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
+import { defineCustomElement } from '@vaadin/component-base/src/define.js';
 import { ElementMixin } from '@vaadin/component-base/src/element-mixin.js';
 import { get } from '@vaadin/component-base/src/path-utils.js';
 import { PolylitMixin } from '@vaadin/component-base/src/polylit-mixin.js';
@@ -17,6 +18,9 @@ import '@vaadin/notification/vaadin-notification';
 import '@vaadin/text-field';
 import { ThemeDetectionMixin } from '@vaadin/vaadin-themable-mixin/vaadin-theme-detection-mixin';
 import '../theme/base/vcf-lookup-field-styles.js';
+
+/** The version registered with `defineCustomElement`, which also defines `LookupField.version`. */
+const VERSION = '8.0.0';
 
 /**
  * The default texts. A partial `i18n` object is merged over these, so setting
@@ -1413,10 +1417,6 @@ export class LookupField extends SlotStylesMixin(
     return 'vcf-lookup-field';
   }
 
-  static get version() {
-    return '8.0.0';
-  }
-
   /**
    * Every property is `sync`: a property set from code or from the server is
    * applied right away, as it was before the move to Lit, instead of in the
@@ -1716,7 +1716,7 @@ export class LookupField extends SlotStylesMixin(
   }
 }
 
-customElements.define(LookupField.is, LookupField);
+defineCustomElement(LookupField, VERSION);
 
 /**
  * @namespace Vaadin
