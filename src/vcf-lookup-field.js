@@ -1721,4 +1721,5 @@ defineCustomElement(LookupField, VERSION);
 /**
  * @namespace Vaadin
  */
+window.Vaadin ||= {};
 window.Vaadin.VcfLookupField = LookupField;
