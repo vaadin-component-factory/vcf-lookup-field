@@ -38,7 +38,8 @@ describe('vcf-lookup-field: properties', () => {
         headerprefix: '',
         headerpostfix: '',
         emptyselection: 'Please select an item.',
-        create: 'Create new'
+        create: 'Create new',
+        dialogarialabel: 'Select an item'
       });
     });
   });
