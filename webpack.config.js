@@ -5,7 +5,6 @@ const merge = require('webpack-merge');
 const { BabelMultiTargetPlugin } = require('webpack-babel-multi-target-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin');
 const HtmlReplaceWebpackPlugin = require('html-replace-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const TerserWebpackPlugin = require('terser-webpack-plugin');
@@ -14,25 +13,10 @@ const BrotliPlugin = require('brotli-webpack-plugin');
 const OUTPUT_PATH = resolve('build');
 const INDEX_TEMPLATE = resolve('./demo/index.html');
 
-const webcomponentsjs = './node_modules/@webcomponents/webcomponentsjs';
-
 const assets = [
   {
     from: resolve('./demo/favicon.ico'),
     to: OUTPUT_PATH
-  }
-];
-
-const polyfills = [
-  {
-    from: resolve(`${webcomponentsjs}/webcomponents-*.{js,map}`),
-    to: join(OUTPUT_PATH, 'vendor'),
-    flatten: true
-  },
-  {
-    from: resolve(`${webcomponentsjs}/bundles/*.{js,map}`),
-    to: join(OUTPUT_PATH, 'vendor', 'bundles'),
-    flatten: true
   }
 ];
 
@@ -69,7 +53,7 @@ const commonConfig = merge([
               require('babel-plugin-template-html-minifier'),
               {
                 modules: {
-                  '@polymer/polymer/lib/utils/html-tag.js': ['html']
+                  'lit': ['html']
                 },
                 htmlMinifier: {
                   collapseWhitespace: true,
@@ -121,10 +105,9 @@ const productionConfig = merge([
       ]
     },
     plugins: [
-      new CopyWebpackPlugin([...polyfills, ...assets]),
+      new CopyWebpackPlugin(assets),
       new HtmlWebpackPlugin({ template: INDEX_TEMPLATE }),
       new HtmlReplaceWebpackPlugin([{ pattern: /<script dev .*?<\/script>/g, replacement: '' }]),
-      new HtmlWebpackTagsPlugin({ tags: ['vendor/webcomponents-loader.js'], append: false }),
       new CompressionPlugin({ test: /\.js(\.map)?$/i }),
       new BrotliPlugin({
         asset: '[path].br[query]',
