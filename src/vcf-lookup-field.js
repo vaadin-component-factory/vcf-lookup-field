@@ -51,7 +51,8 @@ const FIELD_STATE_PROPS = ['invalid', 'errorMessage', 'required', 'readonly', 'd
  * The value-ish properties the host reads straight from the field.
  *
  * `vaadin-combo-box` has `value` and `selectedItem`; `vaadin-multi-select-combo-box`
- * has only `selectedItems` and no `value` at all. Reading through means the host
+ * has `selectedItems`, and a `value` of its own that is not the selection (`""`
+ * with 25.3). Reading through means the host
  * reports exactly what the field it wraps actually has, with no translation layer
  * that could fall out of step with it.
  */
@@ -83,8 +84,9 @@ const FIELD_NOTIFY_EVENTS = [
  * The lookup field is a decorator around the field in its `field` slot: it keeps
  * no copy of the value or the selection. `value`, `selectedItem` and
  * `selectedItems` read and write the slotted field directly, so the two can never
- * disagree. Which of them is meaningful depends on the field being wrapped -- a
- * `vaadin-multi-select-combo-box` has `selectedItems` but no `value`.
+ * disagree. Which of them is meaningful depends on the field being wrapped -- for
+ * a `vaadin-multi-select-combo-box` it is `selectedItems`: its `value` is not
+ * the selection.
  *
  * ### Styling
  *
