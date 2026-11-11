@@ -120,6 +120,44 @@ needs its own `<vaadin-grid-selection-column>`, which the lookup field already r
 The default combo box holds a single item, so with it **Select** only applies the first ticked
 row.
 
+## Migrating to 8.0.0
+
+In 8.0.0, `<vcf-lookup-field>` moved from Polymer to Lit, like the `@vaadin/*` components it
+wraps, and `@polymer/polymer` is no longer a dependency. The tag name, properties, attributes,
+slots and theming stay the same ([#57](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/57)).
+
+### Breaking changes
+
+- Polymer APIs such as `set()`, `get()` and `notifyPath()` are gone. Assign a new `i18n` object
+  instead of `lookupField.set('i18n.select', 'Choose')`; a partial object keeps the other texts.
+  The Vaadin Flow component used `set()` for its texts, so 8.0.0 needs the Lookup Field for Flow
+  release that is built for it
+  ([#57](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/57)).
+- The dialog no longer falls back to the `lookup-grid` accessible name. Without a title it is
+  named by the new `i18n.dialogarialabel`, "Select an item" by default ([#56](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/56)).
+- `package.json` now has an `exports` map. The package root, `src/*`, `theme/*`,
+  `custom-elements.json` and `package.json` can be imported; other paths cannot. A deep import
+  needs its file extension: `…/src/vcf-lookup-field.js`, not `…/src/vcf-lookup-field` ([#55](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/55)).
+- The API documentation page is replaced by `custom-elements.json`, published with the package
+  ([#57](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/57)).
+
+### New API
+
+- The `create-item` event is fired when **Create** is clicked. It bubbles, and `detail.filter`
+  holds the text in the dialog search field. `vcf-lookup-field-create-item-event` is still fired,
+  with the same detail, but is deprecated ([#56](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/56)).
+- TypeScript declarations for the element, its `i18n` texts and its events, reachable from the
+  package root: `import { LookupField } from '@vaadin-component-factory/vcf-lookup-field'`
+  ([#55](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/55)).
+- The property accessors exist as soon as the element is defined, not only after the first
+  instance is created, so framework wrappers set properties correctly on the first render
+  ([#57](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/57)).
+- The element is registered with `defineCustomElement`: loading it twice logs a warning instead
+  of throwing ([#56](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/56)).
+- A slotted field that is not a Vaadin combo box, such as a native `<input>`, no longer breaks
+  opening the dialog or `focus()`. The item labels then come from the lookup field's
+  `itemLabelPath` ([#56](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/56)).
+
 ## Migrating to 7.0.0
 
 In 7.0.0, `<vcf-lookup-field>` became a decorator over the field in its `field` slot. It no
