@@ -6,12 +6,13 @@
     <title>vcf-lookup-field demo</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet" crossorigin="anonymous"/>
     <link rel="stylesheet" href="/node_modules/@vaadin/vaadin-lumo-styles/lumo.css" />
-    <script dev src="../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
     <script dev type="module" src="demo.js"></script>
-    <custom-style>
-      <style is="custom-style" include="demo-pages-shared-styles">
+    <style>
         body {
           background-color: var(--lumo-base-color);
+          color: var(--lumo-body-text-color);
+          font-family: var(--lumo-font-family);
+          margin: 0;
           padding: 0;
         }
 
@@ -101,11 +102,6 @@
           max-width: 1000px;
         }
 
-        .nav-btn {
-          margin: var(--lumo-space-l) var(--lumo-space-m) var(--lumo-space-l) calc(var(--lumo-button-size) * -1 / 6);
-          cursor: pointer;
-        }
-
         @media only screen and (max-width: 768px) {
           h1.main {
             align-items: flex-start;
@@ -128,48 +124,10 @@
           }
         }
 
-      </style>
-      <style id="codeContainerStyles">
-        #copyButton {
-          display: none;
-        }
-
-        #copyVaadinButton {
-          position: absolute;
-          margin: 0;
-          top: -1px;
-          right: -1px;
-          text-transform: uppercase;
-          border: none;
-          border-radius: 0;
-          border-bottom-left-radius: var(--lumo-border-radius);
-          cursor: pointer;
-          background: #e0e0e0;
-          color: #333;
-          font-size: 12px;
-        }
-
-        .code-container {
-          overflow-x: hidden;
-          overflow-y: scroll;
-        }
-
-        .code code:not(.main) {
-          font-family: 'Fira Code', monospace;
-          font-size: 12px;
-        }
-
-      </style>
-    </custom-style>
+    </style>
   </head>
   <body>
     <vcf-anchor-nav fullscreen theme="expand-last" class="hidden">
-      <a slot="header" href="/api/#/elements/LookupField">
-        <vaadin-button theme="tertiary" class="nav-btn">
-          <iron-icon icon="lumo:angle-right" slot="suffix"></iron-icon>
-          API
-        </vaadin-button>
-      </a>
       <h1 slot="header" class="main">
         <code id="elementName"><span>&lt;</span>vcf-lookup-field<span>&gt;</span></code>
         <span id="javaApi">
@@ -193,7 +151,7 @@
               </vcf-lookup-field>
             </div>
             <script>
-              window.addEventListener('WebComponentsReady', () => {
+              customElements.whenDefined('vcf-lookup-field').then(() => {
                 document.querySelectorAll('#states vcf-lookup-field').forEach(field => {
                   field.items = [
                     {id: '1', name: 'Product'},
@@ -236,7 +194,7 @@
               </vcf-lookup-field>
             </div>
             <script>
-              window.addEventListener('WebComponentsReady', () => {
+              customElements.whenDefined('vcf-lookup-field').then(() => {
                 document.querySelectorAll('#themeVariants vcf-lookup-field').forEach(field => {
                   field.items = [
                     {id: '1', name: 'Product'},
@@ -286,7 +244,7 @@
               </vcf-lookup-field>
             </div>
             <script>
-              window.addEventListener('WebComponentsReady', () => {
+              customElements.whenDefined('vcf-lookup-field').then(() => {
                 const owners = [
                   {id: '1', name: 'Ada Lovelace', email: 'ada@example.com'},
                   {id: '2', name: 'Alan Turing', email: 'alan@example.com'},
@@ -343,7 +301,7 @@
           <template>
             <vcf-lookup-field id="rendererField" header="Pick an owner" label="Owner"></vcf-lookup-field>
             <script>
-              window.addEventListener('WebComponentsReady', () => {
+              customElements.whenDefined('vcf-lookup-field').then(() => {
                 const owners = [
                   {id: '1', name: 'Ada Lovelace', email: 'ada@example.com'},
                   {id: '2', name: 'Alan Turing', email: 'alan@example.com'},
