@@ -325,6 +325,30 @@ describe('vcf-lookup-field: dialog', () => {
       expect(event).to.exist;
     });
 
+    it('fires a bubbling create-item event with the filter text', async () => {
+      el.createhidden = false;
+      await openDialog(el);
+      el._filter.value = 'Kiwi';
+
+      const container = el.parentElement;
+      setTimeout(() => footerButtons(el).create.click());
+      const event = await oneEvent(container, 'create-item');
+
+      expect(event.target).to.equal(el);
+      expect(event.detail).to.deep.equal({ filter: 'Kiwi' });
+    });
+
+    it('passes the same filter text to vcf-lookup-field-create-item-event', async () => {
+      el.createhidden = false;
+      await openDialog(el);
+      el._filter.value = 'Kiwi';
+
+      setTimeout(() => footerButtons(el).create.click());
+      const event = await oneEvent(el, 'vcf-lookup-field-create-item-event');
+
+      expect(event.detail).to.deep.equal({ filter: 'Kiwi' });
+    });
+
     it('leaves the dialog open after creating', async () => {
       el.createhidden = false;
       await openDialog(el);
