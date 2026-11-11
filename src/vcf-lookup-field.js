@@ -1386,7 +1386,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
   }
 
   static get version() {
-    return '7.0.1';
+    return '8.0.0';
   }
 
   static get properties() {
