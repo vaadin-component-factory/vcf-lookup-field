@@ -189,7 +189,9 @@ The specs live in `test/` and are grouped by concern: `structure`, `properties`,
 
 ## Publishing
 
-To publish a new version, updte the version then run: `npm publish` with a account on npm that can update this component.
+To publish a new version, run `npm run publish -- <version>` with an npm account that can update this component. It sets the version with `npm version`, which also writes it into `src/vcf-lookup-field.js`, pushes the version commit and tag, and publishes to npm and GitHub Packages. When `package.json` already has that version, it only adds the tag. A step that is already done is skipped, so the command can be run again after a failure.
+
+`npm publish` stops if the version in `src/vcf-lookup-field.js` differs from `package.json`, and `custom-elements.json` is generated whenever the package is packed.
 
 ## License
 
