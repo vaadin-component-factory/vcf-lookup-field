@@ -1,4 +1,4 @@
-# Builds the demo into build/ and the API docs into build/api.
+# Builds the demo into build/.
 [build]
   publish = "build"
   # The repository has no lockfile, so installing over the node_modules Netlify
