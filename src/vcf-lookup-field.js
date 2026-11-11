@@ -1,8 +1,9 @@
-import { html, PolymerElement } from '@polymer/polymer/polymer-element';
+import { css, html, LitElement } from 'lit';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
-import { ElementMixin } from '@vaadin/component-base/src/element-mixin';
+import { ElementMixin } from '@vaadin/component-base/src/element-mixin.js';
+import { get } from '@vaadin/component-base/src/path-utils.js';
+import { PolylitMixin } from '@vaadin/component-base/src/polylit-mixin.js';
 import { SlotStylesMixin } from '@vaadin/component-base';
-import { FlattenedNodesObserver } from '@polymer/polymer/lib/utils/flattened-nodes-observer.js';
 import '@vaadin/dialog';
 import '@vaadin/button';
 import '@vaadin/combo-box';
@@ -105,64 +106,70 @@ const FIELD_NOTIFY_EVENTS = [
  * @demo demo/index.html
  */
 
-export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixin(ThemableMixin(PolymerElement)))) {
-  static get template() {
-    return html`
-      <style>
-        :host {
-          display: inline-block;
-          --search-button-field-gap: var(--vaadin-gap-xs);
-        }
-        :host([data-application-theme='lumo']) {
-          --search-button-field-gap: 0.25rem;
-          --search-button-width: 2.6rem;
-          --readonly-search-button-border: 1px dashed
-            var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
-          --invalid-state-button-color: var(--lumo-error-text-color, inherit);
-          --invalid-state-button-backgroud-color: var(--lumo-error-color-10pct, hsla(3, 82%, 59%, 0.1));
-        }
-        .container {
-          width: 100%;
-          display: inline-flex;
-          align-items: baseline;
-        }
-        ::slotted(vaadin-combo-box) {
-          width: 100%;
-          min-width: 0;
-        }
-        ::slotted(vaadin-button.search-button) {
-          margin-left: var(--search-button-field-gap);
-          flex: 0 0 auto;
-          width: var(--search-button-width);
-        }
-        :host([theme~='integrated']) ::slotted(.search-button) {
-          margin-left: 0;
-          border-top-left-radius: 0;
-          border-bottom-left-radius: 0;
-        }
-        :host([theme~='integrated']:not([data-application-theme='lumo'])) ::slotted(.search-button) {
-          border-left-width: 0;
-        }
-        :host([theme~='full-width']) ::slotted(vaadin-button.search-button) {
-          margin-inline-start: calc(var(--search-button-field-gap) + (var(--search-button-width) * -1));
-        }
-        :host([theme~='integrated'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
-          margin-inline-start: calc((var(--search-button-width) * -1));
-        }
-        :host([readonly]) ::slotted(vaadin-button.search-button) {
-          background-color: transparent;
-          border: var(--readonly-search-button-border);
-        }
-        :host([invalid]) ::slotted(vaadin-button.search-button) {
-          color: var(--invalid-state-button-color);
-          background-color: var(--invalid-state-button-backgroud-color);
-        }
-      </style>
+export class LookupField extends SlotStylesMixin(
+  ElementMixin(ThemeDetectionMixin(ThemableMixin(PolylitMixin(LitElement))))
+) {
+  static get styles() {
+    return css`
+      :host {
+        display: inline-block;
+        --search-button-field-gap: var(--vaadin-gap-xs);
+      }
+      :host([data-application-theme='lumo']) {
+        --search-button-field-gap: 0.25rem;
+        --search-button-width: 2.6rem;
+        --readonly-search-button-border: 1px dashed
+          var(--lumo-contrast-30pct, var(--vaadin-input-field-border-color, var(--vaadin-border-color)));
+        --invalid-state-button-color: var(--lumo-error-text-color, inherit);
+        --invalid-state-button-backgroud-color: var(--lumo-error-color-10pct, hsla(3, 82%, 59%, 0.1));
+      }
+      .container {
+        width: 100%;
+        display: inline-flex;
+        align-items: baseline;
+      }
+      ::slotted(vaadin-combo-box) {
+        width: 100%;
+        min-width: 0;
+      }
+      ::slotted(vaadin-button.search-button) {
+        margin-left: var(--search-button-field-gap);
+        flex: 0 0 auto;
+        width: var(--search-button-width);
+      }
+      :host([theme~='integrated']) ::slotted(.search-button) {
+        margin-left: 0;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+      }
+      :host([theme~='integrated']:not([data-application-theme='lumo'])) ::slotted(.search-button) {
+        border-left-width: 0;
+      }
+      :host([theme~='full-width']) ::slotted(vaadin-button.search-button) {
+        margin-inline-start: calc(var(--search-button-field-gap) + (var(--search-button-width) * -1));
+      }
+      :host([theme~='integrated'][theme~='full-width']) ::slotted(vaadin-button.search-button) {
+        margin-inline-start: calc((var(--search-button-width) * -1));
+      }
+      :host([readonly]) ::slotted(vaadin-button.search-button) {
+        background-color: transparent;
+        border: var(--readonly-search-button-border);
+      }
+      :host([invalid]) ::slotted(vaadin-button.search-button) {
+        color: var(--invalid-state-button-color);
+        background-color: var(--invalid-state-button-backgroud-color);
+      }
+    `;
+  }
 
+  render() {
+    // `__i18nChanged` completes a partial object, but only in the observer,
+    // which runs after this first render.
+    const i18n = this.i18n || {};
+    return html`
       <vaadin-horizontal-layout class="container" part="container">
-        <slot name="field" id="fieldSlot">
-          <!-- combo box will be created here -->
-        </slot>
+        <!-- The combo box is created here when nothing is slotted. -->
+        <slot name="field" id="fieldSlot"></slot>
 
         <slot name="search-button-slot"></slot>
 
@@ -186,36 +193,27 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
           <!-- The default buttons are the fallback content of the footer slot. -->
           <slot name="dialog-footer" id="dialogFooterSlot">
             <vaadin-button
-              on-click="__create"
-              hidden$="[[createhidden]]"
+              @click="${this.__create}"
+              ?hidden="${this.createhidden}"
               style="margin-inline-end: auto;"
-              has-selected$="[[hasselected]]"
+              ?has-selected="${this.hasselected}"
+              >${i18n.create}</vaadin-button
             >
-              [[i18n.create]]
-            </vaadin-button>
-            <vaadin-button on-click="__close" has-selected$="[[hasselected]]">
-              [[i18n.cancel]]
-            </vaadin-button>
+            <vaadin-button @click="${this.__close}" ?has-selected="${this.hasselected}">${i18n.cancel}</vaadin-button>
             <vaadin-button
               id="selectbtn"
               theme="primary"
-              on-click="__select"
-              has-selected$="[[hasselected]]"
-              disabled$="[[selectdisabled]]"
-              aria-disabled$="[[selectdisabled]]"
+              @click="${this.__select}"
+              ?has-selected="${this.hasselected}"
+              ?disabled="${this.selectdisabled}"
+              ?aria-disabled="${this.selectdisabled}"
+              >${i18n.select}</vaadin-button
             >
-              [[i18n.select]]
-            </vaadin-button>
           </slot>
         </div>
 
-        <vaadin-notification id="notification" position="top-center">
-          <template>
-            <div>
-              [[i18n.emptyselection]]
-            </div>
-          </template>
-        </vaadin-notification>
+        <!-- Its renderer is set when it opens, see __select(). -->
+        <vaadin-notification id="notification" position="top-center"></vaadin-notification>
       </vaadin-horizontal-layout>
     `;
   }
@@ -244,13 +242,36 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     this.__pendingField = {};
     this.__onSelectItemsChangedBinded = this.__onSelectChanged.bind(this);
     this.__onActiveItemChangedBinded = this.__onSelectItem.bind(this);
-    this._observer = new FlattenedNodesObserver(this, info => {
-      this.__onDomChange(info.addedNodes, info.removedNodes);
-    });
+    // The light DOM children last reported to `__onDomChange`.
+    this.__children = [];
+    this._observer = new MutationObserver(() => this.__flushChildren());
+    this._observer.observe(this, { childList: true });
+    // The children the element already has are reported as added, too.
+    queueMicrotask(() => this.__flushChildren());
+  }
+
+  /**
+   * Reports the children added and removed since the last call. A node added
+   * and removed again in between is not reported at all.
+   * @private
+   */
+  __flushChildren() {
+    const previous = this.__children;
+    const current = Array.from(this.childNodes);
+    const added = current.filter(node => !previous.includes(node));
+    const removed = previous.filter(node => !current.includes(node));
+    this.__children = current;
+    if (added.length || removed.length) {
+      this.__onDomChange(added, removed);
+    }
   }
 
   ready() {
     super.ready();
+
+    // `this.$` is filled by `PolylitMixin` on the first update, before this
+    // runs. It keeps pointing at the slots and the content that the dialog
+    // renderers below move out of the template, into the dialog.
 
     // Check for slotted custom field BEFORE creating one programmatically
     const slottedField = this.$.fieldSlot.assignedNodes()[0];
@@ -273,9 +294,9 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     this._dialogHeader = this.$.dialogHeaderSlot.assignedNodes()[0] || null;
     this._dialogFooter = this.$.dialogFooterSlot.assignedNodes()[0] || null;
     this.__updateDialogHeaderTitle();
-    // The renderer observers also fire from `super.ready()`, before any of this
-    // exists, and so does the slot observer for content slotted before the
-    // element connected; both only swap content from here on.
+    // The renderer observers run in the first update, before `ready()` and so
+    // before any of this exists, and the children observer can report content
+    // slotted before the element connected; both only swap content from here on.
     this.__dialogContentCreated = true;
 
     // The renderers only forward slots: they never touch the slotted nodes,
@@ -452,7 +473,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
    * keep the host in step with it.
    *
    * Calling it again with the same field does nothing, which matters because the
-   * flattened-nodes observer re-reports the field `ready()` has already handled.
+   * children observer re-reports the field `ready()` has already handled.
    * @private
    */
   __setField(field) {
@@ -1367,7 +1388,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
   _getItemLabel(item) {
     const itemLabelPath = this._field.itemLabelPath;
-    let label = item && itemLabelPath ? this.get(itemLabelPath, item) : undefined;
+    let label = item && itemLabelPath ? get(itemLabelPath, item) : undefined;
     if (label === undefined) {
       label = item ? item.toString() : '';
     }
@@ -1389,15 +1410,22 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
     return '8.0.0';
   }
 
+  /**
+   * Every property is `sync`: a property set from code or from the server is
+   * applied right away, as it was before the move to Lit, instead of in the
+   * next update.
+   */
   static get properties() {
     return {
       header: {
         type: String,
+        sync: true,
         observer: '__updateDialog'
       },
 
       label: {
         type: String,
+        sync: true,
         observer: '_forwardFieldState'
       },
 
@@ -1408,11 +1436,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       items: {
         type: Array,
+        sync: true,
         observer: '_itemsChanged'
       },
 
       _filterdata: {
         type: String,
+        sync: true,
         observer: '__filterdataChanged'
       },
 
@@ -1436,6 +1466,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       gridRenderer: {
         type: Function,
+        sync: true,
         observer: '__gridRendererChanged'
       },
 
@@ -1454,6 +1485,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       filterRenderer: {
         type: Function,
+        sync: true,
         observer: '__filterRendererChanged'
       },
 
@@ -1472,6 +1504,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       itemLabelPath: {
         type: String,
+        sync: true,
         value: 'label',
         observer: '__itemPathsChanged'
       },
@@ -1488,6 +1521,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       itemValuePath: {
         type: String,
+        sync: true,
         value: 'value',
         observer: '__itemPathsChanged'
       },
@@ -1497,6 +1531,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       modeless: {
         type: Boolean,
+        sync: true,
         observer: '__updateDialog'
       },
 
@@ -1505,6 +1540,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       draggable: {
         type: Boolean,
+        sync: true,
         observer: '__updateDialog'
       },
 
@@ -1513,6 +1549,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       resizable: {
         type: Boolean,
+        sync: true,
         observer: '__updateDialog'
       },
 
@@ -1521,11 +1558,13 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       defaultselectdisabled: {
         type: Boolean,
+        sync: true,
         value: true
       },
 
       createhidden: {
         type: Boolean,
+        sync: true,
         value: true
       },
       /**
@@ -1533,6 +1572,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       programselectdisabled: {
         type: Boolean,
+        sync: true,
         value: true
       },
 
@@ -1551,6 +1591,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       required: {
         type: Boolean,
+        sync: true,
         observer: '_forwardFieldState'
       },
 
@@ -1559,12 +1600,14 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       readonly: {
         type: Boolean,
+        sync: true,
         reflectToAttribute: true,
         observer: '_forwardFieldState'
       },
 
       disabled: {
         type: Boolean,
+        sync: true,
         reflectToAttribute: true,
         observer: '_forwardFieldState'
       },
@@ -1585,6 +1628,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       invalid: {
         type: Boolean,
+        sync: true,
         reflectToAttribute: true,
         observer: '_forwardFieldState'
       },
@@ -1596,6 +1640,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       errorMessage: {
         type: String,
+        sync: true,
         observer: '_forwardFieldState'
       },
 
@@ -1611,6 +1656,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       manualValidation: {
         type: Boolean,
+        sync: true,
         observer: '_forwardFieldState'
       },
 
@@ -1632,6 +1678,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       theme: {
         type: String,
+        sync: true,
         value: 'lookup-dialog',
         reflectToAttribute: true,
         observer: '__themeChanged'
@@ -1639,6 +1686,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
 
       multiSelect: {
         type: Boolean,
+        sync: true,
         value: false,
         reflectToAttribute: true,
         observer: '__updateGridSelectionColumn'
@@ -1651,6 +1699,7 @@ export class LookupField extends SlotStylesMixin(ElementMixin(ThemeDetectionMixi
        */
       i18n: {
         type: Object,
+        sync: true,
         observer: '__i18nChanged',
         value: function() {
           return { ...DEFAULT_I18N };

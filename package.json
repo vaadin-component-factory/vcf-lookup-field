@@ -16,7 +16,7 @@
     "vcf-lookup-field",
     "web-components",
     "web-component",
-    "polymer"
+    "lit"
   ],
   "scripts": {
     "test": "web-test-runner --config web-test-runner.config.mjs",
@@ -26,9 +26,7 @@
     "build": "run-s build:api build:demo",
     "build:api": "npm run prestart && polymer build",
     "build:demo": "webpack --env production",
-    "build:types": "tsc",
     "publish": "node util/publish.js",
-    "prepublishOnly": "run-s build:types",
     "start": "run-s serve",
     "start-dev": "wds --node-resolve --open dev/",
     "test:watch": "web-test-runner --config web-test-runner.config.mjs --watch",
@@ -47,7 +45,6 @@
     ]
   },
   "dependencies": {
-    "@polymer/polymer": "^3.4.1",
     "@vaadin/button": "^25.0.0",
     "@vaadin/combo-box": "^25.0.0",
     "@vaadin/component-base": "^25.0.0",
@@ -58,7 +55,8 @@
     "@vaadin/icons": "^25.0.0",
     "@vaadin/notification": "^25.0.0",
     "@vaadin/text-field": "^25.0.0",
-    "@vaadin/vaadin-themable-mixin": "^25.0.0"
+    "@vaadin/vaadin-themable-mixin": "^25.0.0",
+    "lit": "^3.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
@@ -107,7 +105,6 @@
     "prettier": "^1.17.1",
     "sinon": "^19.0.5",
     "terser-webpack-plugin": "^1.4.1",
-    "typescript": "^4.7.3",
     "uglify-template-string-loader": "^1.1.1",
     "webpack": "^4.39.2",
     "webpack-babel-multi-target-plugin": "^2.3.0",
