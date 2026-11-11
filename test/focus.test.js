@@ -70,7 +70,7 @@ describe('vcf-lookup-field: accessibility', () => {
     await flush();
 
     // `vaadin-dialog` reflects `headerTitle` onto aria-label, overwriting the
-    // "lookup-grid" fallback that `_createDialog` sets.
+    // `i18n.dialogarialabel` fallback.
     expect(el._dialog.getAttribute('aria-label').trim()).to.equal('Pick a fruit');
   });
 

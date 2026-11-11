@@ -34,7 +34,8 @@ const DEFAULT_I18N = Object.freeze({
   headerprefix: '',
   headerpostfix: '',
   emptyselection: 'Please select an item.',
-  create: 'Create new'
+  create: 'Create new',
+  dialogarialabel: 'Select an item'
 });
 
 /**
@@ -674,8 +675,8 @@ export class LookupField extends SlotStylesMixin(
    *
    * `vaadin-dialog` copies `headerTitle` onto its `aria-label`, so a title made
    * only of the separators used to leave the dialog with a whitespace-only
-   * accessible name. Without a title the dialog keeps the `lookup-grid` label
-   * `_createDialog` gave it.
+   * accessible name. Without a title the dialog is named by
+   * `i18n.dialogarialabel`.
    * @private
    */
   __updateDialogHeaderTitle() {
@@ -689,22 +690,25 @@ export class LookupField extends SlotStylesMixin(
     // A slotted `dialog-header` renders the header itself and clears the title.
     if (title && !this._dialogHeader) {
       dialog.headerTitle = title;
-    } else if (dialog.headerTitle) {
-      dialog.headerTitle = null;
+    } else {
+      if (dialog.headerTitle) {
+        dialog.headerTitle = null;
+      }
       this.__restoreDialogAriaLabel();
     }
   }
 
   /**
-   * Puts the `lookup-grid` label back once the dialog has processed a cleared
-   * `headerTitle`, which removes the `aria-label` the title had replaced.
+   * Names an untitled dialog with `i18n.dialogarialabel`, once the dialog has
+   * processed a cleared `headerTitle`, which removes the `aria-label` the
+   * title had set.
    * @private
    */
   __restoreDialogAriaLabel() {
     const dialog = this._dialog;
     const restore = () => {
       if (!dialog.headerTitle) {
-        dialog.setAttribute('aria-label', 'lookup-grid');
+        dialog.setAttribute('aria-label', (this.i18n || {}).dialogarialabel || DEFAULT_I18N.dialogarialabel);
       }
     };
     if (dialog.updateComplete) {
@@ -796,7 +800,6 @@ export class LookupField extends SlotStylesMixin(
 
   _createDialog() {
     const dialog = document.createElement('vaadin-dialog');
-    dialog.setAttribute('aria-label', 'lookup-grid');
     dialog.setAttribute('id', 'dialog');
     dialog.setAttribute('no-close-on-outside-click', '');
 

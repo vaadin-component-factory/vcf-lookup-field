@@ -220,14 +220,26 @@ describe('vcf-lookup-field: properties set after initialization', () => {
   });
 
   describe('dialog accessible name', () => {
-    it('keeps the lookup-grid label when no header is set', async () => {
+    it('names an untitled dialog with i18n.dialogarialabel', async () => {
       const el = await lookupFixture();
+      await flush();
 
       expect(el._dialog.headerTitle).to.be.not.ok;
-      expect(el._dialog.getAttribute('aria-label')).to.equal('lookup-grid');
+      expect(el._dialog.getAttribute('aria-label')).to.equal('Select an item');
     });
 
-    it('falls back to the lookup-grid label when the header is cleared', async () => {
+    it('uses a custom i18n.dialogarialabel and follows changes to it', async () => {
+      const el = await fixture(html`<vcf-lookup-field .i18n="${{ dialogarialabel: 'Choisir' }}"></vcf-lookup-field>`);
+      await flush();
+      expect(el._dialog.getAttribute('aria-label')).to.equal('Choisir');
+
+      el.i18n = { dialogarialabel: 'Elegir' };
+      await flush();
+
+      expect(el._dialog.getAttribute('aria-label')).to.equal('Elegir');
+    });
+
+    it('falls back to i18n.dialogarialabel when the header is cleared', async () => {
       const el = await fixture(html`<vcf-lookup-field header="Pick a fruit"></vcf-lookup-field>`);
       await flush();
       expect(el._dialog.getAttribute('aria-label').trim()).to.equal('Pick a fruit');
@@ -236,7 +248,7 @@ describe('vcf-lookup-field: properties set after initialization', () => {
       await flush();
 
       expect(el._dialog.headerTitle).to.be.not.ok;
-      expect(el._dialog.getAttribute('aria-label')).to.equal('lookup-grid');
+      expect(el._dialog.getAttribute('aria-label')).to.equal('Select an item');
     });
   });
 });
