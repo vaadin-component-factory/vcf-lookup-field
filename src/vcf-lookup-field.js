@@ -132,6 +132,7 @@ const FIELD_NOTIFY_EVENTS = [
  * @slot dialog-footer - Replaces the Create, Cancel and Select buttons
  * @csspart container - The layout around the field and the search button
  * @csspart lookup-field-dialog-content - The dialog content around the filter, the grid and the selected element
+ * @csspart dialog-overlay - The overlay of the dialog, to set its size
  * @element vcf-lookup-field
  * @fires value-changed - Re-dispatched from the slotted field when its `value` changes.
  * @fires selected-item-changed - Re-dispatched from the slotted field when its `selectedItem` changes.
@@ -832,6 +833,9 @@ export class LookupField extends SlotStylesMixin(
     const dialog = document.createElement('vaadin-dialog');
     dialog.setAttribute('id', 'dialog');
     dialog.setAttribute('no-close-on-outside-click', '');
+    // The dialog is in the shadow root, out of reach of page styles such as
+    // `vaadin-dialog::part(overlay)`, so its overlay is exposed on the host.
+    dialog.setAttribute('exportparts', 'overlay: dialog-overlay');
 
     this._dialog = dialog;
     // Into the shadow root, not the light DOM: see the template.

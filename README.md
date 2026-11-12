@@ -135,6 +135,10 @@ slots and theming stay the same ([#57](https://github.com/vaadin-component-facto
   ([#57](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/57)).
 - The dialog no longer falls back to the `lookup-grid` accessible name. Without a title it is
   named by the new `i18n.dialogarialabel`, "Select an item" by default ([#56](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/56)).
+- The dialog lives in the lookup field's shadow root, so page styles such as
+  `vaadin-dialog[theme~='medium']::part(overlay)` no longer reach it. Style its overlay through
+  the lookup field instead: `vcf-lookup-field[theme~='medium']::part(dialog-overlay)`
+  ([#47](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/47)).
 - `package.json` now has an `exports` map. The package root, `src/*`, `theme/*`,
   `custom-elements.json` and `package.json` can be imported; other paths cannot. A deep import
   needs its file extension: `…/src/vcf-lookup-field.js`, not `…/src/vcf-lookup-field` ([#55](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/55)).
