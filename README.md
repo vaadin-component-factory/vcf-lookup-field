@@ -29,6 +29,7 @@ npm i @vaadin-component-factory/vcf-lookup-field --save
 - Version 5.x.x -> Vaadin 24.x (improved accessibility)
 - Version 6.x.x -> Vaadin 25.x
 - Version 7.x.x -> Vaadin 25.x (the host wraps the slotted field, see [Migrating to 7.0.0](#migrating-to-700))
+- Version 8.x.x -> Vaadin 25.x (based on Lit, see [Migrating to 8.0.0](#migrating-to-800))
 
 ## Usage
 
