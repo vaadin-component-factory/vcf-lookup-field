@@ -27,20 +27,22 @@ describe('vcf-lookup-field: dialog', () => {
       expect(isShownInDialog(el, el._selected)).to.be.true;
     });
 
-    it('exposes the dialog overlay to page styles as dialog-overlay', async () => {
-      const style = document.createElement('style');
-      style.textContent = 'vcf-lookup-field::part(dialog-overlay) { min-width: 321px; }';
-      document.head.appendChild(style);
-      try {
-        await openDialog(el);
-        const overlay = el._dialog.shadowRoot
-          .querySelector('vaadin-dialog-overlay')
-          .shadowRoot.querySelector('[part="overlay"]');
+    ['backdrop', 'overlay', 'header', 'title', 'header-content', 'content', 'footer'].forEach(part => {
+      it(`exposes the dialog ${part} to page styles as dialog-${part}`, async () => {
+        const style = document.createElement('style');
+        style.textContent = `vcf-lookup-field::part(dialog-${part}) { min-width: 321px; }`;
+        document.head.appendChild(style);
+        try {
+          await openDialog(el);
+          const element = el._dialog.shadowRoot
+            .querySelector('vaadin-dialog-overlay')
+            .shadowRoot.querySelector(`[part="${part}"]`);
 
-        expect(getComputedStyle(overlay).minWidth).to.equal('321px');
-      } finally {
-        style.remove();
-      }
+          expect(getComputedStyle(element).minWidth).to.equal('321px');
+        } finally {
+          style.remove();
+        }
+      });
     });
 
     it('renders the footer buttons with the i18n labels', async () => {

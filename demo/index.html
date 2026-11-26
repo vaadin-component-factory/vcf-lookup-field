@@ -348,6 +348,60 @@
           </template>
         </demo-snippet>
       </vcf-anchor-nav-section>
+      <vcf-anchor-nav-section name="Styling the dialog">
+        <h2 slot="header">Styling the dialog</h2>
+        <p>
+          The dialog parts are exposed on the lookup field with a <code>dialog-</code> prefix.
+        </p>
+        <demo-snippet>
+          <template>
+            <style>
+              #styledDialog::part(dialog-backdrop) {
+                background-color: var(--lumo-primary-color-10pct);
+              }
+
+              #styledDialog::part(dialog-overlay) {
+                min-width: 32rem;
+              }
+
+              #styledDialog::part(dialog-header) {
+                background-color: var(--lumo-primary-color-10pct);
+                border-bottom: 1px solid var(--lumo-primary-color-50pct);
+              }
+
+              #styledDialog::part(dialog-title) {
+                color: var(--lumo-primary-text-color);
+              }
+
+              #styledDialog::part(dialog-header-content) {
+                gap: var(--lumo-space-s);
+              }
+
+              #styledDialog::part(dialog-content) {
+                padding: var(--lumo-space-l);
+              }
+
+              #styledDialog::part(dialog-footer) {
+                background-color: var(--lumo-contrast-5pct);
+              }
+            </style>
+            <vcf-lookup-field id="styledDialog" header="Pick a department" label="Department"></vcf-lookup-field>
+            <script>
+              customElements.whenDefined('vcf-lookup-field').then(() => {
+                const lookupField = document.querySelector('#styledDialog');
+                lookupField.items = [
+                  {id: '1', name: 'Product'},
+                  {id: '2', name: 'Service'},
+                  {id: '3', name: 'HR'},
+                  {id: '4', name: 'Accounting'}
+                ];
+                lookupField.itemValuePath = 'id';
+                lookupField.itemLabelPath = 'name';
+              });
+            </script>
+          </template>
+        </demo-snippet>
+      </vcf-anchor-nav-section>
     </vcf-anchor-nav>
   </body>
 </html>
