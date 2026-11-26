@@ -29,7 +29,7 @@ npm i @vaadin-component-factory/vcf-lookup-field --save
 - Version 5.x.x -> Vaadin 24.x (improved accessibility)
 - Version 6.x.x -> Vaadin 25.x
 - Version 7.x.x -> Vaadin 25.x (the host wraps the slotted field, see [Migrating to 7.0.0](#migrating-to-700))
-- Version 8.x.x -> Vaadin 25.x (based on Lit, see [Migrating to 8.0.0](#migrating-to-800))
+- Version 8.x.x -> Vaadin 25.x (based on Lit, see [Migrating to 8.x](#migrating-to-8x))
 
 ## Usage
 
@@ -121,7 +121,7 @@ needs its own `<vaadin-grid-selection-column>`, which the lookup field already r
 The default combo box holds a single item, so with it **Select** only applies the first ticked
 row.
 
-## Migrating to 8.0.0
+## Migrating to 8.x
 
 In 8.0.0, `<vcf-lookup-field>` moved from Polymer to Lit, like the `@vaadin/*` components it
 wraps, and `@polymer/polymer` is no longer a dependency. The tag name, properties, attributes,
@@ -162,6 +162,19 @@ slots and theming stay the same ([#57](https://github.com/vaadin-component-facto
 - A slotted field that is not a Vaadin combo box, such as a native `<input>`, no longer breaks
   opening the dialog or `focus()`. The item labels then come from the lookup field's
   `itemLabelPath` ([#56](https://github.com/vaadin-component-factory/vcf-lookup-field/issues/56)).
+
+### Styling the dialog
+
+The dialog parts are exposed on the lookup field with a `dialog-` prefix: `dialog-backdrop`,
+`dialog-overlay`, `dialog-header`, `dialog-title`, `dialog-header-content`, `dialog-content`
+and `dialog-footer`.
+
+```css
+vaadin-dialog::part(header),
+vcf-lookup-field::part(dialog-header) {
+  border-bottom: 1px solid var(--lumo-contrast-10pct);
+}
+```
 
 ## Migrating to 7.0.0
 

@@ -73,6 +73,12 @@ const FIELD_NOTIFY_EVENTS = [
 ];
 
 /**
+ * The parts of `vaadin-dialog` that the lookup field exposes on the host, as
+ * `dialog-<part>`.
+ */
+const DIALOG_PARTS = ['backdrop', 'overlay', 'header', 'title', 'header-content', 'content', 'footer'];
+
+/**
  * `<vcf-lookup-field>` is a field with a search button that opens a dialog, where the
  * user filters a grid of items and picks one, or several with `multi-select`.
  *
@@ -132,7 +138,13 @@ const FIELD_NOTIFY_EVENTS = [
  * @slot dialog-footer - Replaces the Create, Cancel and Select buttons
  * @csspart container - The layout around the field and the search button
  * @csspart lookup-field-dialog-content - The dialog content around the filter, the grid and the selected element
+ * @csspart dialog-backdrop - The backdrop of the dialog
  * @csspart dialog-overlay - The overlay of the dialog, to set its size
+ * @csspart dialog-header - The header of the dialog, around the title and the header content
+ * @csspart dialog-title - The title of the dialog
+ * @csspart dialog-header-content - The header content of the dialog, where the `dialog-header` slot is shown
+ * @csspart dialog-content - The content of the dialog, around `lookup-field-dialog-content`
+ * @csspart dialog-footer - The footer of the dialog, around the buttons
  * @element vcf-lookup-field
  * @fires value-changed - Re-dispatched from the slotted field when its `value` changes.
  * @fires selected-item-changed - Re-dispatched from the slotted field when its `selectedItem` changes.
@@ -834,8 +846,9 @@ export class LookupField extends SlotStylesMixin(
     dialog.setAttribute('id', 'dialog');
     dialog.setAttribute('no-close-on-outside-click', '');
     // The dialog is in the shadow root, out of reach of page styles such as
-    // `vaadin-dialog::part(overlay)`, so its overlay is exposed on the host.
-    dialog.setAttribute('exportparts', 'overlay: dialog-overlay');
+    // `vaadin-dialog::part(overlay)`, so its parts are exposed on the host
+    // with a `dialog-` prefix.
+    dialog.setAttribute('exportparts', DIALOG_PARTS.map(part => `${part}: dialog-${part}`).join(', '));
 
     this._dialog = dialog;
     // Into the shadow root, not the light DOM: see the template.
