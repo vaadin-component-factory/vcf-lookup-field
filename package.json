@@ -1,6 +1,6 @@
 {
   "name": "@vaadin-component-factory/vcf-lookup-field",
-  "version": "8.0.0",
+  "version": "8.0.1",
   "description": "Vaadin Lookup field component",
   "main": "theme/base/vcf-lookup-field.js",
   "types": "theme/base/vcf-lookup-field.d.ts",

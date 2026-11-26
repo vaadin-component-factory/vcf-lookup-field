@@ -20,7 +20,7 @@ import { ThemeDetectionMixin } from '@vaadin/vaadin-themable-mixin/vaadin-theme-
 import '../theme/base/vcf-lookup-field-styles.js';
 
 /** The version registered with `defineCustomElement`, which also defines `LookupField.version`. */
-const VERSION = '8.0.0';
+const VERSION = '8.0.1';
 
 /**
  * The default texts. A partial `i18n` object is merged over these, so setting
