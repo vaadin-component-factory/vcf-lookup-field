@@ -442,9 +442,62 @@ describe('vcf-lookup-field: slotted content', () => {
 
       expect(el._dialogFooter.id).to.equal('custom-footer');
       expect(isShownInDialog(el, el._dialogFooter)).to.be.true;
-      // The built-in Create/Cancel/Select buttons are the slot's fallback
-      // content, so the slotted footer replaces them.
+      // The slotted footer replaces the default Create/Cancel/Select buttons.
       expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.deep.equal([el._dialogFooter]);
+    });
+
+    it('hides the default buttons when a footer is slotted later', async () => {
+      const el = await lookupFixture();
+      const footer = document.createElement('div');
+      footer.setAttribute('slot', 'dialog-footer');
+
+      el.appendChild(footer);
+      await flush();
+
+      expect(el._dialogFooter).to.equal(footer);
+      expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.deep.equal([footer]);
+    });
+
+    it('hides the default buttons when a child gets slot="dialog-footer" later', async () => {
+      const el = await lookupFixture();
+      const footer = document.createElement('div');
+      el.appendChild(footer);
+      await flush();
+
+      footer.setAttribute('slot', 'dialog-footer');
+      await flush();
+
+      expect(el._dialogFooter).to.equal(footer);
+      expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.deep.equal([footer]);
+    });
+
+    it('brings the default buttons back when something removes them from the host', async () => {
+      const el = await lookupFixture();
+      const { select } = footerButtons(el);
+
+      select.parentNode.remove();
+      await flush();
+
+      expect(footerButtons(el).select).to.equal(select);
+      expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.deep.equal([select.parentNode]);
+    });
+
+    it('shows the default buttons when a footer is removed right after connecting', async () => {
+      const el = document.createElement('vcf-lookup-field');
+      const footer = document.createElement('div');
+      footer.setAttribute('slot', 'dialog-footer');
+      el.appendChild(footer);
+      document.body.appendChild(el);
+      footer.remove();
+      await flush();
+
+      try {
+        const { select } = footerButtons(el);
+        expect(el._dialogFooter).to.be.null;
+        expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.deep.equal([select.parentNode]);
+      } finally {
+        el.remove();
+      }
     });
   });
 
@@ -553,7 +606,8 @@ describe('vcf-lookup-field: slotted content', () => {
       expect(el._dialogFooter).to.be.null;
       expect(el._dialog.headerTitle).to.equal('Pick a fruit');
       const { create, cancel, select } = footerButtons(el);
-      expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.include.members([create, cancel, select]);
+      expect(el.$.dialogFooterSlot.assignedNodes({ flatten: true })).to.deep.equal([create.parentNode]);
+      expect([create, cancel, select].every(button => button.parentNode.parentNode === el)).to.be.true;
     });
   });
 

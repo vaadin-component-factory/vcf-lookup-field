@@ -351,7 +351,8 @@
       <vcf-anchor-nav-section name="Styling the dialog">
         <h2 slot="header">Styling the dialog</h2>
         <p>
-          The dialog parts are exposed on the lookup field with a <code>dialog-</code> prefix.
+          The dialog parts are exposed on the lookup field with a <code>dialog-</code> prefix, and the
+          default buttons are its children.
         </p>
         <demo-snippet>
           <template>
@@ -383,6 +384,10 @@
 
               #styledDialog::part(dialog-footer) {
                 background-color: var(--lumo-contrast-5pct);
+              }
+
+              #styledDialog [slot='dialog-footer'] vaadin-button {
+                border-radius: 999px;
               }
             </style>
             <vcf-lookup-field id="styledDialog" header="Pick a department" label="Department"></vcf-lookup-field>

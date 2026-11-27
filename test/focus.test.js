@@ -1,5 +1,5 @@
 import { expect, fixture, html, nextFrame } from '@open-wc/testing';
-import { flush, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
+import { flush, footerButtons, lookupFixture, openDialog, OBJECT_ITEMS } from './helpers.js';
 
 const afterTimeout = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -77,7 +77,7 @@ describe('vcf-lookup-field: accessibility', () => {
   it('marks the Select button aria-disabled while nothing is selected', async () => {
     const el = await lookupFixture();
     await openDialog(el);
-    const select = el._dialog.querySelector('#selectbtn');
+    const { select } = footerButtons(el);
 
     expect(select.getAttribute('aria-disabled')).to.equal('true');
 

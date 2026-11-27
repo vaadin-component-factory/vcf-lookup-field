@@ -29,11 +29,13 @@ export async function lookupFixture(template = html`<vcf-lookup-field></vcf-look
 }
 
 /**
- * The three footer buttons, in DOM order. They are the fallback content of the
- * `dialog-footer` slot, which the footer renderer forwards into the dialog.
+ * The three default footer buttons, in DOM order. They are generated into the
+ * light DOM under the `dialog-footer` slot, which the footer renderer forwards
+ * into the dialog.
  */
 export function footerButtons(el) {
-  const [create, cancel, select] = el.$.dialogFooterSlot.querySelectorAll(':scope > vaadin-button');
+  const footer = el.querySelector(':scope > [slot="dialog-footer"]');
+  const [create, cancel, select] = footer.querySelectorAll(':scope > vaadin-button');
   return { create, cancel, select };
 }
 

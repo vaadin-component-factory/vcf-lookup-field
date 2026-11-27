@@ -45,6 +45,25 @@ describe('vcf-lookup-field: dialog', () => {
       });
     });
 
+    it('lets page styles for vaadin-button reach the default buttons', async () => {
+      const style = document.createElement('style');
+      style.textContent = `
+        vaadin-button[theme~='primary'] { min-width: 321px; }
+        vaadin-button::part(label) { text-decoration: underline; }
+      `;
+      document.head.appendChild(style);
+      try {
+        await openDialog(el);
+        const { select } = footerButtons(el);
+        const label = select.shadowRoot.querySelector('[part="label"]');
+
+        expect(getComputedStyle(select).minWidth).to.equal('321px');
+        expect(getComputedStyle(label).textDecorationLine).to.equal('underline');
+      } finally {
+        style.remove();
+      }
+    });
+
     it('renders the footer buttons with the i18n labels', async () => {
       await openDialog(el);
       const { create, cancel, select } = footerButtons(el);

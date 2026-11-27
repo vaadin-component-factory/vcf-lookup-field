@@ -1,4 +1,4 @@
-import { css, html, LitElement } from 'lit';
+import { css, html, LitElement, render } from 'lit';
 import { ThemableMixin } from '@vaadin/vaadin-themable-mixin';
 import { defineCustomElement } from '@vaadin/component-base/src/define.js';
 import { ElementMixin } from '@vaadin/component-base/src/element-mixin.js';
@@ -218,9 +218,6 @@ export class LookupField extends SlotStylesMixin(
   }
 
   render() {
-    // `__i18nChanged` completes a partial object, but only in the observer,
-    // which runs after this first render.
-    const i18n = this.i18n || {};
     return html`
       <vaadin-horizontal-layout class="container" part="container">
         <!-- The combo box is created here when nothing is slotted. -->
@@ -245,26 +242,8 @@ export class LookupField extends SlotStylesMixin(
 
           <slot name="dialog-header" id="dialogHeaderSlot"></slot>
 
-          <!-- The default buttons are the fallback content of the footer slot. -->
-          <slot name="dialog-footer" id="dialogFooterSlot">
-            <vaadin-button
-              @click="${this.__create}"
-              ?hidden="${this.createhidden}"
-              style="margin-inline-end: auto;"
-              ?has-selected="${this.hasselected}"
-              >${i18n.create}</vaadin-button
-            >
-            <vaadin-button @click="${this.__close}" ?has-selected="${this.hasselected}">${i18n.cancel}</vaadin-button>
-            <vaadin-button
-              id="selectbtn"
-              theme="primary"
-              @click="${this.__select}"
-              ?has-selected="${this.hasselected}"
-              ?disabled="${this.selectdisabled}"
-              ?aria-disabled="${this.selectdisabled}"
-              >${i18n.select}</vaadin-button
-            >
-          </slot>
+          <!-- The default buttons are generated into the light DOM, see __createFooter(). -->
+          <slot name="dialog-footer" id="dialogFooterSlot" @slotchange="${this.__updateFooter}"></slot>
         </div>
 
         <!-- Its renderer is set when it opens, see __select(). -->
@@ -347,7 +326,7 @@ export class LookupField extends SlotStylesMixin(
     this._filter = this.$.filterSlot.assignedNodes()[0] || this.__resolveFilter();
     this._selected = this.$.selectedSlot.assignedNodes()[0] || this._createSelected();
     this._dialogHeader = this.$.dialogHeaderSlot.assignedNodes()[0] || null;
-    this._dialogFooter = this.$.dialogFooterSlot.assignedNodes()[0] || null;
+    this.__createFooter();
     this.__updateDialogHeaderTitle();
     // The renderer observers run in the first update, before `ready()` and so
     // before any of this exists, and the children observer can report content
@@ -1088,6 +1067,88 @@ export class LookupField extends SlotStylesMixin(
     return selected;
   }
 
+  /**
+   * The default Create, Cancel and Select buttons, shown when nothing is
+   * slotted into the `dialog-footer` slot. They are generated into the light
+   * DOM like the other defaults, so page styles for `vaadin-button` reach them.
+   * The wrapper uses `display: contents` to leave the buttons laid out by the
+   * dialog footer.
+   * @private
+   */
+  __createFooter() {
+    const footer = document.createElement('div');
+    footer.style.display = 'contents';
+    this.__generatedFooter = footer;
+    this.__renderFooter();
+    this.__updateFooter();
+  }
+
+  /**
+   * Shows the default buttons while nothing else is in the `dialog-footer`
+   * slot. It runs on every change of the slot, so it also catches an element
+   * that only gets `slot="dialog-footer"` once it is a child, and default
+   * buttons that something else removed from the host. The default buttons
+   * leave the slot while a footer is slotted, as fallback content would.
+   * @private
+   */
+  __updateFooter() {
+    const footer = this.__generatedFooter;
+    if (!footer) {
+      return;
+    }
+    const slotted = Array.from(this.children).filter(
+      child => child !== footer && child.getAttribute('slot') === 'dialog-footer'
+    );
+    this._dialogFooter = slotted[slotted.length - 1] || null;
+    if (this._dialogFooter) {
+      footer.removeAttribute('slot');
+    } else {
+      footer.setAttribute('slot', 'dialog-footer');
+      if (footer.parentNode !== this) {
+        this.appendChild(footer);
+      }
+    }
+  }
+
+  /** @private */
+  __renderFooter() {
+    if (!this.__generatedFooter) {
+      return;
+    }
+    // `__i18nChanged` completes a partial object, but only in the observer,
+    // which runs after the first render.
+    const i18n = this.i18n || {};
+    render(
+      html`
+        <vaadin-button
+          @click="${this.__create}"
+          ?hidden="${this.createhidden}"
+          style="margin-inline-end: auto;"
+          ?has-selected="${this.hasselected}"
+          >${i18n.create}</vaadin-button
+        >
+        <vaadin-button @click="${this.__close}" ?has-selected="${this.hasselected}">${i18n.cancel}</vaadin-button>
+        <vaadin-button
+          id="selectbtn"
+          theme="primary"
+          @click="${this.__select}"
+          ?has-selected="${this.hasselected}"
+          ?disabled="${this.selectdisabled}"
+          ?aria-disabled="${this.selectdisabled}"
+          >${i18n.select}</vaadin-button
+        >
+      `,
+      this.__generatedFooter,
+      { host: this }
+    );
+  }
+
+  /** @protected */
+  updated(props) {
+    super.updated(props);
+    this.__renderFooter();
+  }
+
   /** @private */
   __updateFilter() {
     const filter = this.__generatedFilter;
@@ -1256,8 +1317,6 @@ export class LookupField extends SlotStylesMixin(
       } else if (node === this._dialogHeader) {
         this._dialogHeader = this.$.dialogHeaderSlot.assignedNodes()[0] || null;
         this.__updateDialogHeaderTitle();
-      } else if (node === this._dialogFooter) {
-        this._dialogFooter = this.$.dialogFooterSlot.assignedNodes()[0] || null;
       } else {
         Object.keys(parts).forEach(slotName => this.__releaseSlottedPart(parts[slotName], slotName, node));
       }
@@ -1276,8 +1335,6 @@ export class LookupField extends SlotStylesMixin(
       } else if (slotName == 'dialog-header') {
         this._dialogHeader = node;
         this.__updateDialogHeaderTitle();
-      } else if (slotName == 'dialog-footer') {
-        this._dialogFooter = node;
       } else if (parts[slotName]) {
         this.__adoptSlottedPart(parts[slotName], node);
       }
