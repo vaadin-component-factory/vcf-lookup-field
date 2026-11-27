@@ -176,6 +176,10 @@ vcf-lookup-field::part(dialog-header) {
 }
 ```
 
+The default Create, Cancel and Select buttons are in the light DOM of the lookup field, so page
+styles for `vaadin-button` reach them. To style only these buttons, use
+`vcf-lookup-field [slot='dialog-footer'] vaadin-button`.
+
 ## Migrating to 7.0.0
 
 In 7.0.0, `<vcf-lookup-field>` became a decorator over the field in its `field` slot. It no
